@@ -1,0 +1,46 @@
+# ~/workspace/OpticalMindControl/makefile
+#
+# Makefile for OpticalMindControl project
+# This is my first step at making a make file
+#
+# Note the tabs are very important. Without them things don't work.
+
+# objects that I have written
+myobjects= Talk2DLP.o AndysOpenCVLib.o completeloop.o
+ 
+# precompiled objects that others have written
+3rdpartyobjects= 3rdPartyLib/alp4basic.lib C:/Progra~1/OpenCV/lib/cv.lib C:/Progra~1/OpenCV/lib/highgui.lib C:/Progra~1/OpenCV/lib/cxcore.lib 
+
+#concatanation of .o object files that are required
+objects= $(myobjects) $(3rdpartyobjects) 
+
+#Directory of My Include Files
+mylibs = MyLibs
+# List of OpenCV Includes
+openCVincludes = -IC:/Progra~1/OpenCV/cxcore/include -IC:/Progra~1/OpenCV/otherlibs/highgui -IC:/Progra~1/OpenCV/cv/include
+
+#List of DLL's required to run. (Not actually required for compilation, but included here for completeness.
+#Basically this line ensures that make will complian if I am missing any dll's 
+dll=bin/alp4basic.dll bin/fmteos.dll 
+
+#This is the goal here. 
+all: bin/RunApparatus.exe  
+
+bin/RunApparatus.exe : $(objects) $(dll)
+	g++ -o bin/RunApparatus.exe $(objects) 
+
+#Completeloop needs talk2DLP, and the openCV libraries
+completeloop.o : completeloop.cpp Mylibs\Talk2DLP.h 
+	g++ -c -v -Wall completeloop.cpp  $(openCVincludes) 
+
+Talk2DLP.o : $(mylibs)/Talk2DLP.cpp $(mylibs)/Talk2DLP.h 3rdPartyLib/alpbasic.h
+	g++ -c -v -Wall $(mylibs)/Talk2DLP.cpp
+
+#Now lets do the Custom OpenCV libraries I wrote
+AndysOpenCVLib.o : MyLibs/AndysOpenCVLib.c MyLibs/AndysOpenCVLib.h
+	g++ -c -v -Wall MyLibs/AndysOpenCVLib.c $(openCVincludes)
+
+
+.PHONY: clean	
+clean:
+	rm -rf *.o 
