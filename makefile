@@ -39,7 +39,7 @@ MatlabLibs=$(MatlabLibsDir)/libeng.lib $(MatlabLibsDir)/libmx.lib
 objects= main.o  $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)
 calib_objects= calibrate.o $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)
 segment_objects = SegmentFrame.o  $(myOpenCVlibraries) $(CVlibs)
-illumworm_objects=  IllumWorm.o $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)
+illumworm_objects=  IllumWorm.o $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)	
 
 #Executables
 all : $(targetDir)/ClosedLoop.exe $(targetDir)/CalibrateApparatus.exe $(targetDir)/SegmentFrame.exe $(targetDir)/IlluminateWorm.exe
