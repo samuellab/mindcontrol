@@ -1,7 +1,7 @@
 /*
  * AndysOpenCVLib.c
  *
- *  Created on: Jul 13, 2009
+ *  Created on: July 13, 2009
  *      Author: Andy
  */
 

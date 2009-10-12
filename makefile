@@ -26,9 +26,10 @@ MatlabLibsDir= C:/Progra~1/MATLAB/R2009a/extern/lib/win32/microsoft/
 openCVincludes = -I$(CVdir)/cxcore/include -I$(CVdir)/otherlibs/highgui -I$(CVdir)/cv/include
 
 # objects that I have written, in order of dependency. 
-# e.g. If object B depends on A, then object A should be to the left of B. 
+# e.g. If object B depends on A, then object A should be to the left of B (but apparently only sometimes). 
 myOpenCVlibraries= AndysOpenCVLib.o
-mylibraries=  AndysComputations.o Talk2DLP.o Talk2Camera.o $(myOpenCVlibraries) Talk2Matlab.o
+mylibraries=  AndysComputations.o Talk2DLP.o Talk2Camera.o $(myOpenCVlibraries) Talk2Matlab.o 
+WormSpecificLibs= WormAnalysis.o
 
 #3rd party statically linked objects
 CVlibs=$(CVdir)/lib/cv.lib $(CVdir)/lib/highgui.lib $(CVdir)/lib/cxcore.lib
@@ -38,7 +39,7 @@ MatlabLibs=$(MatlabLibsDir)/libeng.lib $(MatlabLibsDir)/libmx.lib
 #All Objects
 objects= main.o  $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)
 calib_objects= calibrate.o $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)
-segment_objects = SegmentFrame.o  $(myOpenCVlibraries) $(CVlibs)
+segment_objects = SegmentFrame.o  $(WormSpecificLibs) $(myOpenCVlibraries) $(CVlibs) 
 illumworm_objects=  IllumWorm.o $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)	
 
 #Executables
@@ -79,9 +80,11 @@ AndysComputations.o : $(MyLibs)/AndysComputations.c $(MyLibs)/AndysComputations.
 $(targetDir)/SegmentFrame.exe : $(segment_objects) $(MyLibs)/Global.h
 	g++ -o $(targetDir)/SegmentFrame.exe $(segment_objects) $(TailOpts) 
 
-SegmentFrame.o : SegmentFrame.c $(myOpenCVlibraries)
+SegmentFrame.o : SegmentFrame.c $(myOpenCVlibraries) $(WormSpecificLibs)
 	g++ -c -Wall SegmentFrame.c -I$(MyLibs) $(openCVincludes) $(TailOpts)
-
+	
+WormAnalysis.o : $(MyLibs)/WormAnalysis.c $(MyLibs)/WormAnalysis.h $(myOpenCVlibraries) 
+	g++ -c -Wall $(MyLibs)/WormAnalysis.c -I$(MyLibs) $(openCVincludes) $(TailOpts)
 
 ###### IlluminateWorm.exe
 $(targetDir)/IlluminateWorm.exe : $(illumworm_objects)
