@@ -26,9 +26,9 @@ typedef struct WormImageAnalysisStruct{
 	IplImage* ImgOrig;
 	IplImage* ImgSmooth;
 	IplImage* ImgThresh;
-	CvMemStorage* ImageStorage;
-	CvMemStorage* ScratchStorage;
-	CvSeq* InitialBoundary;
+	CvMemStorage* MemStorage;
+	CvMemStorage* MemScratchStorage;
+	CvSeq* Boundary;
 	CvPoint* Head;
 	CvPoint* Tail;
 	int TailIndex;
@@ -50,12 +50,39 @@ typedef struct WormIlluminationStcut{
 
 
 
+/*
+ *
+ * Every function here should have the word Worm in it
+ * because every function here is worm specific
+ */
+
+
+/*
+ * Create dynamic memory storage for the worm
+ *
+ */
+void InitializeWormMemStorage(WormAnalysisData* Worm);
+
+/*
+ * Refersh dynamic memory storage for the worm
+ * (clear the memory without freing it)
+ *
+ */
+void RefreshWormMemStorage(WormAnalysisData* Worm);
+
+
+/*
+ * Clear and de-allocate the memory storage for the worm
+ *
+ */
+void DeallocateWormMemStorage(WormAnalysisData* Worm);
+
 
 /*
  * Create Blank Images for WormAnalysisData given the image size.
  *
  */
-void InitializeEmptyImages(WormAnalysisData* Worm, CvSize ImageSize);
+void InitializeEmptyWormImages(WormAnalysisData* Worm, CvSize ImageSize);
 
 /*
  * This function is run after IntializeEmptyImages.
@@ -64,7 +91,7 @@ void InitializeEmptyImages(WormAnalysisData* Worm, CvSize ImageSize);
  *
  *
  */
-void LoadColorOriginal(WormAnalysisData* Worm, IplImage* ImgColorOrig);
+void LoadWormColorOriginal(WormAnalysisData* Worm, IplImage* ImgColorOrig);
 
 /*
  * De-Allocates images
@@ -74,25 +101,40 @@ void LoadColorOriginal(WormAnalysisData* Worm, IplImage* ImgColorOrig);
  */
 void DeAllocateWormAnalysisData(WormAnalysisData* Worm);
 
-/*
- * Allocate MemoryStorage
- *
- */
-int CreateWormMemStorage(WormAnalysisData* Worm);
+
+
+
+
+
+
 
 
 /*
- * Clear MemoryStorage
+ * *********HIGHER LEVERL Routines *******************
  *
  */
-int ClearWormMemStorage(WormAnalysisData* WormData);
+
+
+/*
+ * Smooths, thresholds and finds the worms contour.
+ * The original image must already be loaded into Worm.ImgOrig
+ * The Smoothed image is deposited into Worm.ImgSmooth
+ * The thresholded image is deposited into Worm.ImgThresh
+ * The Boundary is placed in Worm.Boundary
+ *
+ */
+void FindWormBoundary(WormAnalysisData* Worm, WormAnalysisParam* WormParams);
+
+
+
 
 
 /*
  * Find's the Worm Head and Tail
  *
  */
-int WormFindHeadTail(WormAnalysisData* WormData, WormAnalysisParam* WormParams);
+int WormFindHeadTail(WormAnalysisData* Worm, WormAnalysisParam* WormParams);
+
 
 
 /*

@@ -7,7 +7,36 @@
 #include <highgui.h>
 #include <cv.h>
 
+#include "AndysOpenCVLib.h"
+
 #include "WormAnalysis.h"
+
+/*
+ *
+ * Every function here should have the word Worm in it
+ * because every function here is worm specific
+ */
+
+
+/*
+ * Create dynamic memory storage for the worm
+ *
+ */
+void InitializeWormMemStorage(WormAnalysisData* Worm){
+	Worm->MemScratchStorage=cvCreateMemStorage(0);
+	Worm->MemStorage=cvCreateMemStorage(0);
+}
+
+/*
+ * Refersh dynamic memory storage for the worm
+ * (clear the memory without freing it)
+ *
+ */
+void RefreshWormMemStorage(WormAnalysisData* Worm){
+	cvClearMemStorage(Worm->MemScratchStorage);
+	cvClearMemStorage(Worm->MemStorage);
+}
+
 
 
 
@@ -16,7 +45,7 @@
  *
  */
 
-void InitializeEmptyImages(WormAnalysisData* Worm, CvSize ImageSize){
+void InitializeEmptyWormImages(WormAnalysisData* Worm, CvSize ImageSize){
 	Worm->SizeOfImage=ImageSize;
 	Worm->ImgOrig= cvCreateImage(ImageSize,IPL_DEPTH_8U,1);
 	Worm->ImgSmooth=cvCreateImage(ImageSize,IPL_DEPTH_8U,1);
@@ -35,7 +64,9 @@ void DeAllocateWormAnalysisData(WormAnalysisData* Worm){
 	cvReleaseImage(&(Worm->ImgOrig));
 	cvReleaseImage(&(Worm->ImgThresh));
 	cvReleaseImage(&(Worm->ImgSmooth));
-	printf("ANDY: Remember to implement storagememory de-allocation here.\n");
+	cvReleaseMemStorage(&(Worm->MemScratchStorage));
+	cvReleaseMemStorage(&(Worm->MemStorage));
+
 }
 
 
@@ -45,13 +76,33 @@ void DeAllocateWormAnalysisData(WormAnalysisData* Worm){
  * And it loads a color original into the WormAnalysisData strucutre.
  * The color image is converted to an 8 bit black and white.
  */
-void LoadColorOriginal(WormAnalysisData* Worm, IplImage* ImgColorOrig){
+void LoadWormColorOriginal(WormAnalysisData* Worm, IplImage* ImgColorOrig){
 	CvSize CurrentSize = cvGetSize(ImgColorOrig);
 	if ( (Worm->SizeOfImage.height != CurrentSize.height) || (Worm->SizeOfImage.width != CurrentSize.width) ){
 		printf("Error. Image size does not match in ");
 		return;
 	}
 	cvCvtColor( ImgColorOrig, Worm->ImgOrig, CV_BGR2GRAY);
+
+}
+
+
+
+
+/*
+ * Smooths, thresholds and finds the worms contour.
+ * The original image must already be loaded into Worm.ImgOrig
+ * The Smoothed image is deposited into Worm.ImgSmooth
+ * The thresholded image is deposited into Worm.ImgThresh
+ * The Boundary is placed in Worm.Boundary
+ *
+ */
+void FindWormBoundary(WormAnalysisData* Worm, WormAnalysisParam* Params){
+	cvSmooth(Worm->ImgOrig,Worm->ImgSmooth,CV_GAUSSIAN,Params->GaussSize*2+1);
+	cvThreshold(Worm->ImgSmooth,Worm->ImgThresh,Params->BinThresh,255,CV_THRESH_BINARY );
+	CvSeq* contours;
+	cvFindContours(Worm->ImgThresh,Worm->MemStorage, &contours,sizeof(CvContour),CV_RETR_EXTERNAL,CV_CHAIN_APPROX_NONE,cvPoint(0,0));
+	if (contours) LongestContour(contours,&(Worm->Boundary));
 
 }
 

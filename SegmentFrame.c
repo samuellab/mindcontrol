@@ -29,6 +29,11 @@
 
 
 
+//Global Variables
+/* Create a new instance of the WormAnalysis Data structure */
+WormAnalysisData Worm;
+WormAnalysisParam Params;
+
 
 
 
@@ -62,61 +67,25 @@ int nc=0; // Number of contours
 
 
 
-/*
- * This is a wrapper function to run cvFindContours that I am using so that the profiler
- * will catch this function. This will be useful for finding out what is taking so long when I run the code.
- *
- */
-void FindContoursWrapper(CvArr* image, CvMemStorage* memoryStorage, CvSeq**  contours);
-
-
-void FindContoursWrapper(CvArr* image, CvMemStorage* memoryStorage, CvSeq**  contours){
-	cvFindContours(image,memoryStorage, contours,sizeof(CvContour),CV_RETR_EXTERNAL,CV_CHAIN_APPROX_NONE,cvPoint(0,0));
-
-}
-
-
-
 
 
 
 void on_trackbar(int){
-	if ( g_storage==NULL ){
-		g_gray=cvCreateImage(cvGetSize(g_image),8,1);
-		thresh_img=cvCreateImage(cvGetSize(g_image),8,1);
-		g_storage = cvCreateMemStorage(0);
-		more_storage=cvCreateMemStorage(0);
-		scratchStorage=cvCreateMemStorage(0);
-	}else{
-	cvClearMemStorage(g_storage);
-	cvClearMemStorage(more_storage);
-	cvClearMemStorage(scratchStorage);
-	}
+	RefreshWormMemStorage(&Worm);
+	FindWormBoundary(&Worm,&Params);
+	cvWaitKey(0);
+	return;
+
 
 	int i=0; //Generic counter
 
 
-	if (PRINTOUT) printf("\n\nInside on_trackbar()\n");
 
-	cvCvtColor( g_image, g_gray, CV_BGR2GRAY);
-
-	cvSmooth(g_gray,g_gray,CV_GAUSSIAN,gauss_size*2+1);
 	if (ONSCREEN) cvShowImage("Smoothed",g_gray);
-	cvThreshold(g_gray,thresh_img,g_thresh,255,CV_THRESH_BINARY );
 	if (ONSCREEN) cvShowImage("Thresholded",thresh_img);
 	//Attempting a multipass threshold smooth approach.
 
-
-	FindContoursWrapper(thresh_img,g_storage, &contours);
-	//nc=cvFindContours(thresh_img,g_storage, &contours,sizeof(CvContour),CV_RETR_EXTERNAL,CV_CHAIN_APPROX_NONE,cvPoint(0,0));
-
-	if( contours ) {
-		LongestContour(contours,&contourOfInterest);
-		if (PRINTOUT) printf("****ContourOfInterest has length %d*****\n",contourOfInterest->total);
-		if (DRAWBOUNDARY) cvDrawContours(g_gray, contourOfInterest, cvScalar(255,0,0),cvScalar(0,255,0),100);
-		if (PRINTOUT) printf("Drew Contours\n");
-	}
-
+//	if( contours ) 	if (DRAWBOUNDARY) cvDrawContours(g_gray, contourOfInterest, cvScalar(255,0,0),cvScalar(0,255,0),100);
 
 
 	/*
@@ -408,8 +377,6 @@ void on_trackbar(int){
 int main (int argc, char** argv){
 	/* This will let us know if  the intel primitives are installed*/
 	DisplayOpenCVInstall();
-	/* Create a new instance of the WormAnalysis Data structure */
-	WormAnalysisData Worm;
 
 	IplImage* tempImg;
 	if (PRINTOUT) printf("This program reads in a jpg, finds a worm, and segments it.");
@@ -417,27 +384,25 @@ int main (int argc, char** argv){
 	printf("About to Initialize Empty Images\n");
 
 	/*
-	 * Fill up the Wrom structure with Emtpy Images
+	 * Fill up the Worm structure with Emtpy Images
 	 */
-	InitializeEmptyImages(&Worm,cvGetSize(tempImg));
+	InitializeEmptyWormImages(&Worm,cvGetSize(tempImg));
+	InitializeWormMemStorage(&Worm);
 
 	/*
 	 * Load in the Color Source Image
 	 */
-	LoadColorOriginal(&Worm,tempImg);
+	LoadWormColorOriginal(&Worm,tempImg);
 	cvReleaseImage(&tempImg);
 
 
-
-	cvNamedWindow("Original");
-	cvShowImage("Original",Worm.ImgOrig);
 	cvNamedWindow("Smoothed");
 	cvNamedWindow( "Thresholded");
 	cvNamedWindow( "Contours", 1);
 	cvNamedWindow("Controls");
 	cvResizeWindow("Controls",300,400);
 
-	WormAnalysisParam Params;
+
 
 	//Load in Image Analysis Parameters
 	Params.BinThresh=48;
