@@ -19,7 +19,52 @@ typedef struct WormAnalysisParamStruct{
 	int LengthOffset;
 	int BinThresh;
 	int GaussSize;
-} WormAnalysisParam
+} WormAnalysisParam;
+
+typedef struct WormImageAnalysisStruct{
+	CvMemStorage* ImageStorage;
+	CvMemStorage* ScratchStorage;
+	CvSeq* InitialBoundary;
+	CvPoint* Head;
+	CvPoint* Tail;
+	int TailIndex;
+	int HeadIndex;
+	CvSeq* Centerline;
+	CvSeq* SegmentCenterline;
+	CvSeq* SegmentLeft;
+	CvSeq* SegmentRight;
+}WormAnalysisData;
+
+
+typedef struct WormIlluminationStcut{
+	IplImage* IlluminationPattern;
+	CvSeq* SegmentCenterline;
+	CvSeq* SegmentLeft;
+	CvSeq* SegmentRight;
+	int* IlluminationArr;
+}WormIlluminationData;
+
+
+
+/*
+ * Allocate MemoryStorage
+ *
+ */
+int CreateWormMemStorage(WormAnalysisData* Worm);
+
+
+/*
+ * Clear MemoryStorage
+ *
+ */
+int ClearWormMemStorage(WormAnalysisData* WormData);
+
+
+/*
+ * Find's the Worm Head and Tail
+ *
+ */
+int WormFindHeadTail(WormAnalysisData* WormData, WormAnalysisParam* WormParams);
 
 
 /*
