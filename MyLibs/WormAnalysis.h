@@ -22,6 +22,10 @@ typedef struct WormAnalysisParamStruct{
 } WormAnalysisParam;
 
 typedef struct WormImageAnalysisStruct{
+	CvSize SizeOfImage;
+	IplImage* ImgOrig;
+	IplImage* ImgSmooth;
+	IplImage* ImgThresh;
 	CvMemStorage* ImageStorage;
 	CvMemStorage* ScratchStorage;
 	CvSeq* InitialBoundary;
@@ -45,6 +49,22 @@ typedef struct WormIlluminationStcut{
 }WormIlluminationData;
 
 
+
+
+/*
+ * Create Blank Images for WormAnalysisData given the image size.
+ *
+ */
+void InitializeEmptyImages(WormAnalysisData* Worm, CvSize ImageSize);
+
+/*
+ * This function is run after IntializeEmptyImages.
+ * And it loads a color original into the WoirmAnalysisData strucutre.
+ * The color image is converted to an 8 bit black and white.
+ *
+ *
+ */
+void LoadColorOriginal(WormAnalysisData* Worm, IplImage* ImgColorOrig);
 
 /*
  * Allocate MemoryStorage

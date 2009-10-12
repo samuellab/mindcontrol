@@ -1,10 +1,46 @@
 #include <stdio.h>
 
+
+
 //OpenCV Headers
 #include <cxcore.h>
 #include <highgui.h>
 #include <cv.h>
 
+#include "WormAnalysis.h"
+
+
+
+/*
+ * Create Blank Images for WormAnalysisData
+ *
+ */
+
+void InitializeEmptyImages(WormAnalysisData* Worm, CvSize ImageSize){
+	Worm->SizeOfImage=ImageSize;
+
+	Worm->ImgOrig= cvCreateImage(ImageSize,IPL_DEPTH_8U,1);
+	Worm->ImgSmooth=cvCreateImage(ImageSize,IPL_DEPTH_8U,1);
+	Worm->ImgThresh=cvCreateImage(ImageSize,IPL_DEPTH_8U,1);
+
+}
+
+
+
+/*
+ * This function is run after IntializeEmptyImages.
+ * And it loads a color original into the WormAnalysisData strucutre.
+ * The color image is converted to an 8 bit black and white.
+ */
+void LoadColorOriginal(WormAnalysisData* Worm, IplImage* ImgColorOrig){
+	CvSize CurrentSize = cvGetSize(ImgColorOrig);
+	if ( (Worm->SizeOfImage.height != CurrentSize.height) || (Worm->SizeOfImage.width != CurrentSize.width) ){
+		printf("Error. Image size does not match in ");
+		return;
+	}
+	cvCvtColor( ImgColorOrig, Worm->ImgOrig, CV_BGR2GRAY);
+
+}
 
 
 

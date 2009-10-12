@@ -406,13 +406,30 @@ void on_trackbar(int){
 
 
 int main (int argc, char** argv){
-
-	if (PRINTOUT) printf("This program reads in a jpg, finds a worm, and segments it.");
-	if( argc != 2 || !(g_image = cvLoadImage(argv[1])) ) return -1;
+	/* This will let us know if  the intel primitives are installed*/
 	DisplayOpenCVInstall();
+	/* Create a new instance of the WormAnalysis Data structure */
+	WormAnalysisData Worm;
+
+	IplImage* tempImg;
+	if (PRINTOUT) printf("This program reads in a jpg, finds a worm, and segments it.");
+	if( argc != 2 || !(tempImg = cvLoadImage(argv[1])) ) return -1;
+	printf("About to Initialize Empty Images\n");
+
+	/*
+	 * Fill up the Wrom structure with Emtpy Images
+	 */
+	InitializeEmptyImages(&Worm,cvGetSize(tempImg));
+
+	/*
+	 * Load in the Color Source Image
+	 */
+	LoadColorOriginal(&Worm,tempImg);
+	cvReleaseImage(&tempImg);
+
 
 	cvNamedWindow("Original");
-	if (ONSCREEN) cvShowImage("Original",g_image);
+	cvShowImage("Original",Worm.ImgOrig);
 	cvNamedWindow("Smoothed");
 	cvNamedWindow( "Thresholded");
 	cvNamedWindow( "Contours", 1);
