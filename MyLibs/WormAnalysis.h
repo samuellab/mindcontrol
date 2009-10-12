@@ -67,6 +67,14 @@ void InitializeEmptyImages(WormAnalysisData* Worm, CvSize ImageSize);
 void LoadColorOriginal(WormAnalysisData* Worm, IplImage* ImgColorOrig);
 
 /*
+ * De-Allocates images
+ *
+ * Will Also De-Allocate Memory
+ *
+ */
+void DeAllocateWormAnalysisData(WormAnalysisData* Worm);
+
+/*
  * Allocate MemoryStorage
  *
  */

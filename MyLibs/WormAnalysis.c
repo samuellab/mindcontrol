@@ -25,6 +25,20 @@ void InitializeEmptyImages(WormAnalysisData* Worm, CvSize ImageSize){
 }
 
 
+/*
+ * De-Allocates images
+ *
+ * Will Also De-Allocate Memory
+ *
+ */
+void DeAllocateWormAnalysisData(WormAnalysisData* Worm){
+	cvReleaseImage(&(Worm->ImgOrig));
+	cvReleaseImage(&(Worm->ImgThresh));
+	cvReleaseImage(&(Worm->ImgSmooth));
+	printf("ANDY: Remember to implement storagememory de-allocation here.\n");
+}
+
+
 
 /*
  * This function is run after IntializeEmptyImages.

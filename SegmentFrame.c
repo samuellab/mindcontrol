@@ -446,11 +446,12 @@ int main (int argc, char** argv){
 	Params.LengthOffset=Params.LengthScale /2;
 
 
-
 	cvCreateTrackbar("Threshold", "Controls", &(Params.BinThresh),255, on_trackbar);
 	cvCreateTrackbar("Gauss=x*2+1","Controls", &(Params.GaussSize),5, on_trackbar);
 	cvCreateTrackbar("ScalePx","Controls", &(Params.LengthScale),15,on_trackbar);
 	cvCreateTrackbar("Offset Comp","Controls",&(Params.LengthOffset),15, on_trackbar);
+
+
 
 
 if (TIMETEST){
@@ -474,10 +475,8 @@ if (TIMETEST){
 
 	on_trackbar(0);
 	printf("Finished on_trackbar(0)\n");
-	cvWaitKey();
-	cvReleaseImage(&g_gray);
-	cvReleaseImage(&thresh_img);
-	cvReleaseImage(&g_image);
+	DeAllocateWormAnalysisData(&Worm);
+
 	return 0;
 }
 
