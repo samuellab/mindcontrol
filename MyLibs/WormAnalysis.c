@@ -18,7 +18,6 @@
 
 void InitializeEmptyImages(WormAnalysisData* Worm, CvSize ImageSize){
 	Worm->SizeOfImage=ImageSize;
-
 	Worm->ImgOrig= cvCreateImage(ImageSize,IPL_DEPTH_8U,1);
 	Worm->ImgSmooth=cvCreateImage(ImageSize,IPL_DEPTH_8U,1);
 	Worm->ImgThresh=cvCreateImage(ImageSize,IPL_DEPTH_8U,1);

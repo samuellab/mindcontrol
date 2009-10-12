@@ -428,6 +428,7 @@ int main (int argc, char** argv){
 	cvReleaseImage(&tempImg);
 
 
+
 	cvNamedWindow("Original");
 	cvShowImage("Original",Worm.ImgOrig);
 	cvNamedWindow("Smoothed");
@@ -436,10 +437,20 @@ int main (int argc, char** argv){
 	cvNamedWindow("Controls");
 	cvResizeWindow("Controls",300,400);
 
-	cvCreateTrackbar("Threshold", "Controls", &g_thresh,255, on_trackbar);
-	cvCreateTrackbar("Gauss=x*2+1","Controls", &gauss_size,5, on_trackbar);
-	cvCreateTrackbar("ScalePx","Controls", &Delta,15,on_trackbar);
-	cvCreateTrackbar("Offset Comp","Controls",&Offset,15, on_trackbar);
+	WormAnalysisParam Params;
+
+	//Load in Image Analysis Parameters
+	Params.BinThresh=48;
+	Params.GaussSize=4;
+	Params.LengthScale=9;
+	Params.LengthOffset=Params.LengthScale /2;
+
+
+
+	cvCreateTrackbar("Threshold", "Controls", &(Params.BinThresh),255, on_trackbar);
+	cvCreateTrackbar("Gauss=x*2+1","Controls", &(Params.GaussSize),5, on_trackbar);
+	cvCreateTrackbar("ScalePx","Controls", &(Params.LengthScale),15,on_trackbar);
+	cvCreateTrackbar("Offset Comp","Controls",&(Params.LengthOffset),15, on_trackbar);
 
 
 if (TIMETEST){
