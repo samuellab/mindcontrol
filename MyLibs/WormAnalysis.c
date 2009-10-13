@@ -44,6 +44,7 @@ WormAnalysisData* CreateWormAnalysisDataStruct(){
 	WormAnalysisData* WormPtr;
 	WormPtr=(WormAnalysisData*) malloc(sizeof(WormAnalysisData));
 
+
 	/*** Set Everythingm To NULL ***/
 	WormPtr->Head=NULL;
 	WormPtr->Tail=NULL;
@@ -52,6 +53,7 @@ WormAnalysisData* CreateWormAnalysisDataStruct(){
 	WormPtr->ImgOrig =NULL;
 	WormPtr->ImgSmooth =NULL;
 	WormPtr->ImgThresh =NULL;
+
 
 	WormPtr->SizeOfImage.height = NULL;
 	WormPtr->SizeOfImage.width= NULL;
@@ -62,25 +64,32 @@ WormAnalysisData* CreateWormAnalysisDataStruct(){
 
 	/**** Allocate Memory for CvSeq ***/
 	WormPtr->Boundary=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),WormPtr->MemStorage);
-	WormPtr->Centerline=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),WormPtr->MemStorage);;
-	WormPtr->SegmentCenterline=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),WormPtr->MemStorage);;
-	WormPtr->SegmentLeft=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),WormPtr->MemStorage);;
-	WormPtr->SegmentRight=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),WormPtr->MemStorage);;
+	WormPtr->Centerline=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),WormPtr->MemStorage);
+
+
+	/*** Create Segmented Worm Object ***/
+	WormPtr->Segmented= CreateSegmentedWormStruct();
+
 
 	return WormPtr;
 }
+
+
+
 
 /*
  *
  * Clear's all the Memory and De-Allocates it
  */
 void DestroyWormAnalysisDataStruct(WormAnalysisData* Worm){
+	DestroySegmentedWormStruct(Worm->Segmented);
 	if (Worm->ImgOrig !=NULL)	cvReleaseImage(&(Worm->ImgOrig));
 	if (Worm->ImgThresh !=NULL) cvReleaseImage(&(Worm->ImgThresh));
 	if (Worm->ImgSmooth !=NULL) cvReleaseImage(&(Worm->ImgSmooth));
 	cvReleaseMemStorage(&(Worm->MemScratchStorage));
 	cvReleaseMemStorage(&(Worm->MemStorage));
 	free(Worm);
+	free(Worm->Segmented);
 }
 
 /*
@@ -163,6 +172,44 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 
 void DestroyWormAnalysisParam(WormAnalysisParam* ParamPtr){
 	free(ParamPtr);
+}
+
+
+/************************************************************/
+/* Creating, Destroying SegmentedWormStruct					*/
+/*  					 									*/
+/*															*/
+/************************************************************/
+
+/*
+ * Creates a Segmented Worm Struct
+ * Creates memory for the associated worm struct
+ * and initializes the centerline and L&R boundaries
+ * and sets everything else to null
+ */
+SegmentedWorm* CreateSegmentedWormStruct(){
+/** Create a new instance of SegWorm **/
+SegmentedWorm* SegWorm;
+SegWorm= (SegmentedWorm*) malloc(sizeof(SegmentedWorm));
+
+SegWorm->Head=NULL;
+SegWorm->Tail=NULL;
+
+/*** Setup Memory storage ***/
+
+SegWorm->MemSegStorage=cvCreateMemStorage(0);
+
+/*** Allocate Memory for the sequences ***/
+SegWorm->Centerline=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),SegWorm->MemSegStorage);
+SegWorm->LeftBound=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),SegWorm->MemSegStorage);
+SegWorm->RightBound=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),SegWorm->MemSegStorage);
+
+return SegWorm;
+}
+
+void DestroySegmentedWormStruct(SegmentedWorm* SegWorm){
+cvReleaseMemStorage(&(SegWorm->MemSegStorage));
+free(SegWorm);
 }
 
 

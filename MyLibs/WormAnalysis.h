@@ -21,6 +21,16 @@ typedef struct WormAnalysisParamStruct{
 	int GaussSize;
 } WormAnalysisParam;
 
+typedef struct SegmentedWormStruct{
+	CvSeq* Centerline;
+	CvSeq* LeftBound;
+	CvSeq* RightBound;
+	CvPoint* Head;
+	CvPoint* Tail;
+	CvMemStorage* MemSegStorage;
+} SegmentedWorm;
+
+
 typedef struct WormImageAnalysisStruct{
 	CvSize SizeOfImage;
 	IplImage* ImgOrig;
@@ -34,9 +44,7 @@ typedef struct WormImageAnalysisStruct{
 	int TailIndex;
 	int HeadIndex;
 	CvSeq* Centerline;
-	CvSeq* SegmentCenterline;
-	CvSeq* SegmentLeft;
-	CvSeq* SegmentRight;
+	SegmentedWorm* Segmented;
 }WormAnalysisData;
 
 
@@ -142,6 +150,22 @@ WormAnalysisParam* CreateWormAnalysisParam();
 
 void DestroyWormAnalysisParam(WormAnalysisParam* ParamPtr);
 
+
+/************************************************************/
+/* Creating, Destroying SegmentedWormStruct					*/
+/*  					 									*/
+/*															*/
+/************************************************************/
+
+/*
+ * Creates a Segmented Worm Struct
+ * Creates memory for the associated worm struct
+ * and initializes the centerline and L&R boundaries
+ * and sets everything else to null
+ */
+SegmentedWorm* CreateSegmentedWormStruct();
+
+void DestroySegmentedWormStruct(SegmentedWorm* SegWorm);
 
 /************************************************************/
 /* Higher Level Routines									*/

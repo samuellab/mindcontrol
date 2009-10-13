@@ -76,14 +76,10 @@ void on_trackbar(int){
 
 	cvDrawContours(Worm->ImgSmooth, Worm->Boundary, cvScalar(255,0,0),cvScalar(0,255,0),100);
 	cvShowImage("Original",Worm->ImgOrig);
-	cvShowImage("Smoothed",Worm->ImgSmooth);
 	cvShowImage("Thresholded",Worm->ImgThresh);
 
 
 	GivenBoundaryFindWormHeadTail(Worm,Params);
-
-
-	int i=0; //Generic counter
 
 
 
@@ -91,12 +87,14 @@ void on_trackbar(int){
 		printf("Error FindingWormHeadTail!\n");
 	}
 
+//	SegmentedWorm* SegWorm = SegmentWorm(Worm,Params);
+//	DestroySegmentedWormStruct(SegWorm);
 
 
-
-		//Draw a circle on the tail.
-	//cvCircle(Worm->ImgSmooth,*(Worm->Tail),CircleDiameterSize,cvScalar(255,255,255),1,CV_AA,0);
-	//cvCircle(Worm->ImgSmooth,*(Worm->Head),CircleDiameterSize*2,cvScalar(255,255,255),1,CV_AA,0);
+	//Draw a circle on the tail.
+	cvCircle(Worm->ImgSmooth,*(Worm->Tail),CircleDiameterSize,cvScalar(255,255,255),1,CV_AA,0);
+	cvCircle(Worm->ImgSmooth,*(Worm->Head),CircleDiameterSize/2,cvScalar(255,255,255),1,CV_AA,0);
+	cvShowImage("Smoothed",Worm->ImgSmooth);
 	//	if (PRINTOUT) printf("MostCurvyIndex=%d\n",MostCurvyIndex);
 
 
@@ -115,6 +113,10 @@ void on_trackbar(int){
 	 */
 	printf("Found Head And Tail without crashing.\n");
 	return;
+
+
+
+
 	CvSeq* ContourOfInterest;
 	int HeadIndex;
 	int TailIndex;
