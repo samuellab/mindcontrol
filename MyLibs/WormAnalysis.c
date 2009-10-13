@@ -21,6 +21,24 @@
 
 
 /************************************************************/
+/* Private Function Declarations	 						*/
+/************************************************************/
+
+/*
+ * Clears information from an already allocated segmented worm
+ * Data object.
+ */
+void ClearSegmentedInfo(SegmentedWorm* SegWorm);
+
+
+
+
+
+
+
+
+
+/************************************************************/
 /* Creating, Destroying and Memory for 						*/
 /*  WormAnalysisDataStruct 									*/
 /*															*/
@@ -79,7 +97,7 @@ WormAnalysisData* CreateWormAnalysisDataStruct(){
 
 /*
  *
- * Clear's all the Memory and De-Allocates it
+ * Clears all the Memory and De-Allocates it
  */
 void DestroyWormAnalysisDataStruct(WormAnalysisData* Worm){
 	DestroySegmentedWormStruct(Worm->Segmented);
@@ -155,16 +173,18 @@ void LoadWormColorOriginal(WormAnalysisData* Worm, IplImage* ImgColorOrig){
 
 /*
  *  Allocate memory for a WormAnalysisParam struct
+ *  And set default values for the parameters.
  */
 WormAnalysisParam* CreateWormAnalysisParam(){
 	WormAnalysisParam* ParamPtr;
 	ParamPtr=(WormAnalysisParam*) malloc(sizeof(WormAnalysisParam));
 
 
-	ParamPtr->BinThresh=NULL;
-	ParamPtr->GaussSize=NULL;
-	ParamPtr->LengthOffset=NULL;
-	ParamPtr->LengthScale=NULL;
+	ParamPtr->BinThresh=48;
+	ParamPtr->GaussSize=4;
+	ParamPtr->LengthScale=9;
+	ParamPtr->LengthOffset=ParamPtr->LengthScale/2;
+	ParamPtr->NumSegments=100;
 
 	return ParamPtr;
 }
@@ -253,6 +273,9 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 		/**Error! There is no Boundary **/
 		return -1;
 	}
+
+	/*** Clear Out Scratch Storage ***/
+	cvClearMemStorage(Worm->MemScratchStorage);
 
 	/* **********************************************************************/
 	/*  Express the Boundary in the form of a series of vectors connecting 	*/
@@ -447,6 +470,87 @@ void IlluminateWormSegment(IplImage** image, CvSeq* centerline, CvSeq* Boundary,
 	if (PRINTOUT) printf("FarPt=(%d,%d)\nPrevPt=(%d,%d)\n*PtAlongCenterline=(%d,%d)\n*PrevPtAlongCenterline=(%d,%d)\n",FarPt.x,FarPt.y,PrevPt.x,PrevPt.y,PtAlongBoundary->x,PtAlongBoundary->y,PrevPtAlongCenterline->x,PrevPtAlongCenterline->y);
 	cvFillConvexPoly(*image,myPolygon,4,cvScalar(255,255,255),CV_AA);
 	if (PRINTOUT) printf("After cvFillConvexPoly\n");
+
+
+
+}
+
+
+
+void ClearSegmentedInfo(SegmentedWorm* SegWorm){
+	SegWorm->Head=NULL;
+	SegWorm->Tail=NULL;
+	cvClearSeq(SegWorm->LeftBound);
+	cvClearSeq(SegWorm->RightBound);
+	cvClearSeq(SegWorm->Centerline);
+}
+
+
+/*
+ * This Function segments a worm.
+ * It requires that certain information be present in the WormAnalysisData struct Worm
+ * It requires Worm->Boundary be full
+ * It requires that Params->NumSegments be greater than zero
+ *
+ */
+void SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
+	if (cvSeqExists(Worm->Boundary) == 0){
+		printf("Error! No boundary found in SegmentWorm()\n");
+		return;
+	}
+
+	/***Clear Out any stale Segmented Information Already in the Worm Structure***/
+	ClearSegmentedInfo(Worm->Segmented);
+
+	/*** It would be nice to check that Worm->Boundary exists ***/
+
+	/*** Clear Out Scratch Storage ***/
+	cvClearMemStorage(Worm->MemScratchStorage);
+
+	/*** Slice the boundary into left and right components ***/
+	CvSeq* OrigBoundA=cvSeqSlice(Worm->Boundary,cvSlice(Worm->HeadIndex,Worm->TailIndex),Worm->MemScratchStorage,0);
+	CvSeq* OrigBoundB=cvSeqSlice(Worm->Boundary,cvSlice(Worm->TailIndex,Worm->HeadIndex),Worm->MemScratchStorage,0);
+	cvSeqInvert(OrigBoundB);
+
+	/*** Resample One of the Two Boundaries so that both are the same length ***/
+
+	//Create sequences to store the Normalized Boundaries
+	CvSeq* NBoundA=	cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),Worm->MemScratchStorage);
+	CvSeq* NBoundB=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),Worm->MemScratchStorage);
+
+	//Resample L&R boundary to have the same number of points as min(L,R)
+	if (OrigBoundA->total > OrigBoundB->total){
+		resampleSeq(OrigBoundA,NBoundA,OrigBoundB->total );
+		NBoundB=OrigBoundB;
+	}else{
+		resampleSeq(OrigBoundB,NBoundB,OrigBoundA->total );
+		NBoundA=OrigBoundA;
+	}
+	//Now both NBoundA and NBoundB are the same length.
+
+
+	/*
+	 * Now Find the Centerline
+	 *
+	 */
+
+	/*** Clear out Stale Centerline Information ***/
+	cvClearSeq(Worm->Centerline);
+
+	/*** Compute Centerline, from Head To Tail ***/
+	FindCenterline(NBoundA,NBoundB,Worm->Centerline);
+
+	/*** Smooth the Centerline***/
+	CvSeq* SmoothUnresampledCenterline = smoothPtSequence (Worm->Centerline, 0.5*Worm->Centerline->total/Params->NumSegments, Worm->MemScratchStorage);
+
+	/*** Note: If you wanted to you could smooth the centerline a second time here. ***/
+
+	/*** Resample the Centerline So it has the desired Number of Points ***/
+	resampleSeq(SmoothUnresampledCenterline,Worm->Segmented->Centerline,Params->NumSegments);
+
+	//NOTE: So now we have the smooth, segmented centerline.
+
+
 
 
 

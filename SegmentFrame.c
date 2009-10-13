@@ -87,8 +87,8 @@ void on_trackbar(int){
 		printf("Error FindingWormHeadTail!\n");
 	}
 
-//	SegmentedWorm* SegWorm = SegmentWorm(Worm,Params);
-//	DestroySegmentedWormStruct(SegWorm);
+	SegmentWorm(Worm,Params);
+
 
 
 	//Draw a circle on the tail.
@@ -98,6 +98,10 @@ void on_trackbar(int){
 	//	if (PRINTOUT) printf("MostCurvyIndex=%d\n",MostCurvyIndex);
 
 
+
+
+	printf("Found Head And Tail without crashing.\n");
+	return;
 
 
 	/****** Beginning Algorithm Outlined in
@@ -111,41 +115,11 @@ void on_trackbar(int){
 	 * and the tail.
 	 *
 	 */
-	printf("Found Head And Tail without crashing.\n");
-	return;
 
-
-
-
-	CvSeq* ContourOfInterest;
-	int HeadIndex;
-	int TailIndex;
-
-	//Slice the boundary into left and ridght
-	CvSeq* OrigBoundA=cvSeqSlice(contourOfInterest,cvSlice(HeadIndex,TailIndex),more_storage,0);
-	CvSeq* OrigBoundB=cvSeqSlice(contourOfInterest,cvSlice(TailIndex,HeadIndex),more_storage,0);
-	cvSeqInvert(OrigBoundB);
-
-
-
-	//Create sequences to store the Normalized Boundaries (the ones that are resampled to be the same length
-	CvSeq* NBoundA=	cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),more_storage);
-	CvSeq* NBoundB=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),more_storage);
-
-
-
-	//Now we need to resample the left and right boundary to have the same number of points as min(L,R)
-	if (OrigBoundA->total > OrigBoundB->total){
-		resampleSeq(OrigBoundA,&NBoundA,OrigBoundB->total );
-		NBoundB=OrigBoundB;
-	}else{
-		resampleSeq(OrigBoundB,&NBoundB,OrigBoundA->total );
-		NBoundA=OrigBoundA;
-	} //Now both NBoundA and NBoundB are the same length.
-
-
-	if (PRINTOUT) printf("OrigBoundA->total=%d,OrigBoundB->total=%d\n",OrigBoundA->total,OrigBoundB->total);
-	if (PRINTOUT) printf("NBoundA->total=%d,NBoundB->total=%d\n",NBoundA->total,NBoundB->total);
+//
+//	CvSeq* ContourOfInterest;
+//	int HeadIndex;
+//	int TailIndex;
 
 
 
@@ -161,12 +135,7 @@ void on_trackbar(int){
 	 */
 
 
-	if (PRINTOUT) printf("Beginning to find centerline\n");
-	//Forward and Reverse Centerline
-	CvSeq* centerline=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),more_storage);
 
-	//Find Centerline from Head To Tail
-	FindCenterline(NBoundA,NBoundB,&centerline);
 	if (PRINTOUT) printf("Wrote centerline\n");
 
 
@@ -280,13 +249,6 @@ int main (int argc, char** argv){
 	cvNamedWindow("Controls");
 	cvResizeWindow("Controls",300,400);
 
-
-
-	//Load in Image Analysis Parameters
-	Params->BinThresh=48;
-	Params->GaussSize=4;
-	Params->LengthScale=9;
-	Params->LengthOffset=Params->LengthScale /2;
 
 
 	cvCreateTrackbar("Threshold", "Controls", &(Params->BinThresh),255, on_trackbar);

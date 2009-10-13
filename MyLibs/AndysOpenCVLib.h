@@ -120,7 +120,7 @@ void DrawSequence(IplImage** image, CvSeq* Seq);
  * would take too long.
  *
  */
-void resampleSeq(CvSeq* sequence,CvSeq** ResampledSeq, int Numsegments);
+void resampleSeq(CvSeq* sequence,CvSeq* ResampledSeq, int Numsegments);
 
 /*
  *
@@ -135,7 +135,7 @@ int sqDist(CvPoint pta, CvPoint ptb);
  * Given two CvSeq containing CvPoint's this function returns the midpoint.
  *
  */
-void FindCenterline(CvSeq* NBoundA,CvSeq* NBoundB,CvSeq** centerline);
+void FindCenterline(CvSeq* NBoundA,CvSeq* NBoundB,CvSeq* centerline);
 
 /*
  * Given a point, and a boundary, this function returns the coordinates of the closest point on the boundary.
@@ -216,6 +216,13 @@ int FindPerpPoint (CvPoint x, CvPoint t, const CvSeq *a, int startInd, int endIn
  */
 void RemoveSequentialDuplicatePoints (CvSeq *seq);
 
+
+/*
+ * Check's to see if sequence exists
+ * Exists=nonzero
+ * False = 0
+ */
+bool cvSeqExists(CvSeq* MySeq);
 
 //Marc's functions for convolution
 void ConvolveInt1D (const int *src, int *dst, int length, int *kernel, int klength, int normfactor);

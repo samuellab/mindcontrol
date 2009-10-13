@@ -273,12 +273,12 @@ void DrawSequence(IplImage** image, CvSeq* Seq) {
  * would take too long.
  *
  */
-void resampleSeq(CvSeq* sequence, CvSeq** ResampledSeq, int Numsegments) {
+void resampleSeq(CvSeq* sequence, CvSeq* ResampledSeq, int Numsegments) {
 	float n = (float) ( sequence->total -1 )/ (float) ( Numsegments-1);
 	CvSeqReader reader;
 	CvSeqWriter writer;
 	cvStartReadSeq(sequence, &reader, 0);
-	cvStartAppendToSeq(*ResampledSeq, &writer);
+	cvStartAppendToSeq(ResampledSeq, &writer);
 	if (PRINTOUT) printf("Seq->total=%d; n=%f\n", sequence->total, n);
 	CvPoint* tempPt;
 	//if (PRINTOUT) printf("Beginning  resampling loop\n");
@@ -317,7 +317,7 @@ int sqDist(CvPoint pta, CvPoint ptb){
  * Use, for example, ResampleSeq().
  *
  */
-void FindCenterline(CvSeq* NBoundA, CvSeq* NBoundB, CvSeq** centerline) {
+void FindCenterline(CvSeq* NBoundA, CvSeq* NBoundB, CvSeq* centerline) {
 
 	CvSeqReader readerA;
 	CvSeqReader readerB;
@@ -325,7 +325,7 @@ void FindCenterline(CvSeq* NBoundA, CvSeq* NBoundB, CvSeq** centerline) {
 	cvStartReadSeq(NBoundA, &readerA, 0);
 	cvStartReadSeq(NBoundB, &readerB, 0);
 	//Set our pointer to the location along the boundary of the Tail.
-	cvStartAppendToSeq(*centerline, &writer);
+	cvStartAppendToSeq(centerline, &writer);
 
 	CvPoint* SideA;
 	CvPoint* SideB;
@@ -541,6 +541,19 @@ int FindPerpPoint (CvPoint x, CvPoint t, const CvSeq *a, int startInd, int endIn
 	}
 	return bestInd;
 }
+
+
+/*
+ * Check's to see if sequence exists
+ * Exists=nonzero
+ * False = 0
+ */
+bool cvSeqExists(CvSeq* MySeq){
+	return ((MySeq != NULL) && (MySeq->total >0));
+}
+
+
+
 /* void RemoveSequentialDuplicatePoints (CvSeq *seq)
  *
  * seq is a sequence of CvPoint

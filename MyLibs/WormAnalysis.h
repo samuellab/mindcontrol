@@ -19,6 +19,7 @@ typedef struct WormAnalysisParamStruct{
 	int LengthOffset;
 	int BinThresh;
 	int GaussSize;
+	int NumSegments;
 } WormAnalysisParam;
 
 typedef struct SegmentedWormStruct{

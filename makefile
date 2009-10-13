@@ -39,7 +39,7 @@ MatlabLibs=$(MatlabLibsDir)/libeng.lib $(MatlabLibsDir)/libmx.lib
 #All Objects
 objects= main.o  $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)
 calib_objects= calibrate.o $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)
-segment_objects = SegmentFrame.o  AndysComputations.o $(WormSpecificLibs) $(myOpenCVlibraries) $(CVlibs) 
+segment_objects = SegmentFrame.o  AndysComputations.o 	$(WormSpecificLibs) $(myOpenCVlibraries) $(CVlibs) 
 illumworm_objects=  IllumWorm.o $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)	
 
 #Executables
