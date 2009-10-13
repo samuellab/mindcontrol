@@ -73,15 +73,19 @@ int nc=0; // Number of contours
 void on_trackbar(int){
 	RefreshWormMemStorage(Worm);
 	FindWormBoundary(Worm,Params);
+
+	cvDrawContours(Worm->ImgSmooth, Worm->Boundary, cvScalar(255,0,0),cvScalar(0,255,0),100);
+	cvShowImage("Original",Worm->ImgOrig);
+	cvShowImage("Smoothed",Worm->ImgSmooth);
+	cvShowImage("Thresholded",Worm->ImgThresh);
+
+
 	GivenBoundaryFindWormHeadTail(Worm,Params);
 
 
 	int i=0; //Generic counter
 
 
-
-	if (ONSCREEN) cvShowImage("Smoothed",g_gray);
-	if (ONSCREEN) cvShowImage("Thresholded",thresh_img);
 
 	if (GivenBoundaryFindWormHeadTail(Worm,Params)<0){
 		printf("Error FindingWormHeadTail!\n");
@@ -93,7 +97,6 @@ void on_trackbar(int){
 		//Draw a circle on the tail.
 	//cvCircle(Worm->ImgSmooth,*(Worm->Tail),CircleDiameterSize,cvScalar(255,255,255),1,CV_AA,0);
 	//cvCircle(Worm->ImgSmooth,*(Worm->Head),CircleDiameterSize*2,cvScalar(255,255,255),1,CV_AA,0);
-	cvShowImage("Thresholded",Worm->ImgThresh);
 	//	if (PRINTOUT) printf("MostCurvyIndex=%d\n",MostCurvyIndex);
 
 
@@ -268,7 +271,7 @@ int main (int argc, char** argv){
 	LoadWormColorOriginal(Worm,tempImg);
 	cvReleaseImage(&tempImg);
 
-
+	cvNamedWindow("Original");
 	cvNamedWindow("Smoothed");
 	cvNamedWindow( "Thresholded");
 	cvNamedWindow( "Contours", 1);

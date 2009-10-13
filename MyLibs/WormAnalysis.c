@@ -187,8 +187,11 @@ void FindWormBoundary(WormAnalysisData* Worm, WormAnalysisParam* Params){
 	cvSmooth(Worm->ImgOrig,Worm->ImgSmooth,CV_GAUSSIAN,Params->GaussSize*2+1);
 	cvThreshold(Worm->ImgSmooth,Worm->ImgThresh,Params->BinThresh,255,CV_THRESH_BINARY );
 	CvSeq* contours;
-	cvFindContours(Worm->ImgThresh,Worm->MemStorage, &contours,sizeof(CvContour),CV_RETR_EXTERNAL,CV_CHAIN_APPROX_NONE,cvPoint(0,0));
+	IplImage* TempImage=cvCreateImage(cvGetSize(Worm->ImgThresh),IPL_DEPTH_8U,1);
+	cvCopy(Worm->ImgThresh,TempImage);
+	cvFindContours(TempImage,Worm->MemStorage, &contours,sizeof(CvContour),CV_RETR_EXTERNAL,CV_CHAIN_APPROX_NONE,cvPoint(0,0));
 	if (contours) LongestContour(contours,&(Worm->Boundary));
+	cvReleaseImage(&TempImage);
 
 }
 
