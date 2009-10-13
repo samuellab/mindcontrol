@@ -19,6 +19,57 @@
 
 
 /*
+ *  Create the WormAnalysisDataStruct
+ *  Initialize Memory Storage
+ *  Set all Pointers to Null.
+ *  Run CvCreate Sequence
+ *
+ *  Note this does not allocate memory for images because the user may not know
+ *  what size image is wanted yet.
+ *
+ */
+WormAnalysisData* CreateWormAnalysisDataStruct(){
+	WormAnalysisData* WormPtr;
+	WormPtr=malloc(sizeof(WormAnalysisData));
+
+	/*** Set Everythingm To NULL ***/
+	WormPtr->Head=NULL;
+	WormPtr->Tail=NULL;
+	WormPtr->HeadIndex=NULL;
+	WormPtr->TailIndex=NULL;
+	WormPtr->ImgOrig =NULL;
+	WormPtr->ImgSmooth =NULL;
+	WormPtr->ImgThresh =NULL;
+	WormPtr->SizeOfImage=NULL;
+
+	/*** Initialze Worm Memory Storage***/
+	InitializeWormMemStorage(WormPtr);
+
+
+	/**** Allocate Memory for CvSeq ***/
+	WormPtr->Boundary=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),WormPtr->MemStorage);
+	WormPtr->Centerline=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),WormPtr->MemStorage);;
+	WormPtr->SegmentCenterline=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),WormPtr->MemStorage);;
+	WormPtr->SegmentLeft=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),WormPtr->MemStorage);;
+	WormPtr->SegmentRight=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),WormPtr->MemStorage);;
+
+	return WormPtr;
+}
+
+/*
+ *
+ * Clear's all the Memory and De-Allocates it
+ */
+void DestroyWormAnalysisDataStruct(WormAnalysisData* WormPtr){
+	if (Worm->ImgOrig !=NULL)	cvReleaseImage(&(Worm->ImgOrig));
+	if (Worm->ImgThresh !=NULL) cvReleaseImage(&(Worm->ImgThresh));
+	if (Worm->ImgSmooth !=NULL) cvReleaseImage(&(Worm->ImgSmooth));
+	cvReleaseMemStorage(&(Worm->MemScratchStorage));
+	cvReleaseMemStorage(&(Worm->MemStorage));
+	free(WormPtr);
+}
+
+/*
  * Create dynamic memory storage for the worm
  *
  */
@@ -53,21 +104,6 @@ void InitializeEmptyWormImages(WormAnalysisData* Worm, CvSize ImageSize){
 
 }
 
-
-/*
- * De-Allocates images
- *
- * Will Also De-Allocate Memory
- *
- */
-void DeAllocateWormAnalysisData(WormAnalysisData* Worm){
-	cvReleaseImage(&(Worm->ImgOrig));
-	cvReleaseImage(&(Worm->ImgThresh));
-	cvReleaseImage(&(Worm->ImgSmooth));
-	cvReleaseMemStorage(&(Worm->MemScratchStorage));
-	cvReleaseMemStorage(&(Worm->MemStorage));
-
-}
 
 
 
@@ -115,8 +151,10 @@ void FindWormBoundary(WormAnalysisData* Worm, WormAnalysisParam* Params){
 int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Params){
 	if (Worm->Boundary->total <2) {
 		/**Error! There is no Boundary **/
-		return 1;
+		return -1;
 	}
+
+
 
 	return 0;
 }

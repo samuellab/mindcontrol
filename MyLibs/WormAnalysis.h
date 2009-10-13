@@ -57,6 +57,32 @@ typedef struct WormIlluminationStcut{
  */
 
 
+
+/*
+ *  Create the WormAnalysisDataStruct
+ *  Initialize Memory Storage
+ *  Set all Pointers to Null.
+ *  Run CvCreate Sequence
+ *
+ *  Note this does not allocate memory for images because the user may not know
+ *  what size image is wanted yet.
+ *
+ *  To do that use LoadWormColorOriginal()
+ *
+ */
+WormAnalysisData* CreateWormAnalysisDataStruct();
+
+
+
+
+/*
+ *
+ * Clear's all the Memory and De-Allocates it
+ */
+void DestroyWormAnalysisDataStruct(WormAnalysisData* WormPtr);
+
+
+
 /*
  * Create dynamic memory storage for the worm
  *
@@ -92,17 +118,6 @@ void InitializeEmptyWormImages(WormAnalysisData* Worm, CvSize ImageSize);
  *
  */
 void LoadWormColorOriginal(WormAnalysisData* Worm, IplImage* ImgColorOrig);
-
-/*
- * De-Allocates images
- *
- * Will Also De-Allocate Memory
- *
- */
-void DeAllocateWormAnalysisData(WormAnalysisData* Worm);
-
-
-
 
 
 
