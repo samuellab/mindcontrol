@@ -40,31 +40,6 @@ WormAnalysisParam* Params;
 
 
 void on_trabckar(int);
-CvMemStorage* g_storage = NULL;
-CvMemStorage* scratchStorage=NULL;
-CvMemStorage* more_storage=NULL;
-
-
-IplImage* g_image = NULL;  // the original image
-IplImage* g_gray=NULL;  //a grayscale version of the image
-IplImage* thresh_img=NULL; // a thresholded version of the image
-
-
-CvSeq* contours;
-CvSeq* contourOfInterest;
-
-CvSeq* VectBound;
-//int Delta=11; // Coarse Grain factor (number of pixels away that is used to draw vectors)
-int Delta=9;
-int Offset=Delta/2; //Pixels to compensate for the CoarseGraininess (everythign is offset a little bit)
-int CircleDiameterSize=10;
-
-//int FileIndex=0;
-
-int g_thresh = 48; //Value for image th reshoold
-int gauss_size=4; // Size of gaussian that will be used for smoothing
-int nc=0; // Number of contours
-
 
 
 
@@ -89,31 +64,12 @@ void on_trackbar(int){
 
 	SegmentWorm(Worm,Params);
 	//Draw a circle on the tail.
+	int CircleDiameterSize=10;
 	cvCircle(Worm->ImgSmooth,*(Worm->Tail),CircleDiameterSize,cvScalar(255,255,255),1,CV_AA,0);
 	cvCircle(Worm->ImgSmooth,*(Worm->Head),CircleDiameterSize/2,cvScalar(255,255,255),1,CV_AA,0);
 	cvShowImage("Smoothed",Worm->ImgSmooth);
 
 
-
-
-
-
-	//	if (PRINTOUT) printf("MostCurvyIndex=%d\n",MostCurvyIndex);
-
-
-
-
-	printf("Segmented Worm without crashing.\n");
-
-
-
-
-
-
-
-
-
-	return;
 	//Display the points slowly on screen
 	int i;
 	for (i = 0; i < Worm->Segmented->Centerline->total; i++) {
@@ -125,13 +81,12 @@ void on_trackbar(int){
 		cvCircle(Worm->ImgSmooth, *tempPtB, 1, cvScalar(255, 255, 255), 1);
 		//cvLine(g_gray,*tempPtA,*tempPtB,cvScalar(255,255,255),1,CV_AA,0);
 
-		cvLine(g_gray,*tempPt,*tempPtA,cvScalar(255,255,255),1,CV_AA,0);
-		cvLine(g_gray,*tempPt,*tempPtB,cvScalar(255,255,255),1,CV_AA,0);
-		cvShowImage("Contours", g_gray);
+		cvLine(Worm->ImgSmooth,*tempPt,*tempPtA,cvScalar(255,255,255),1,CV_AA,0);
+		cvLine(Worm->ImgSmooth,*tempPt,*tempPtB,cvScalar(255,255,255),1,CV_AA,0);
+		cvShowImage("Contours", Worm->ImgSmooth);
 
 	}
 
-	cvShowImage("Contours", g_gray);
 
 	/*
 	 *
@@ -153,8 +108,7 @@ void on_trackbar(int){
 //	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,40);
 //	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,41);
 //	}
-	if (PRINTOUT) printf("About to show image.\n");
-	if (ONSCREEN) cvShowImage("Contours", g_gray);
+
 }
 
 
