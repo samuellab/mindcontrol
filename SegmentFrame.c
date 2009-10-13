@@ -88,76 +88,56 @@ void on_trackbar(int){
 	}
 
 	SegmentWorm(Worm,Params);
-
-
-
 	//Draw a circle on the tail.
 	cvCircle(Worm->ImgSmooth,*(Worm->Tail),CircleDiameterSize,cvScalar(255,255,255),1,CV_AA,0);
 	cvCircle(Worm->ImgSmooth,*(Worm->Head),CircleDiameterSize/2,cvScalar(255,255,255),1,CV_AA,0);
 	cvShowImage("Smoothed",Worm->ImgSmooth);
+
+
+
+
+
+
 	//	if (PRINTOUT) printf("MostCurvyIndex=%d\n",MostCurvyIndex);
 
 
 
 
 	printf("Segmented Worm without crashing.\n");
+
+
+
+
+
+
+
+
+
 	return;
-
-
-	/****** Beginning Algorithm Outlined in
-	 * http://wiki.client.fas.harvard.edu/index.php/AndyProjects/DLP_Project/2009:September#Devised_New_Algorithm_With_Marc
-	 *
-	 *
-	 */
-
-	/*****************************************************
-	 * Start by creating two boundaries, A& B that cover the left and right side of the worm, seperated by the head
-	 * and the tail.
-	 *
-	 */
-
-//
-//	CvSeq* ContourOfInterest;
-//	int HeadIndex;
-//	int TailIndex;
-
-
-
-
-
-
-
-
 	//Display the points slowly on screen
-//	if (ONSCREEN && DISPLAYSECTOR){
-//	for (i = 0; i < SmoothCenterline->total; i++) {
-//		CvPoint* tempPt = (CvPoint*) cvGetSeqElem(SmoothCenterline, i);
-//		CvPoint* tempPtA = (CvPoint*) cvGetSeqElem(OptBoundA, i);
-//		CvPoint* tempPtB = (CvPoint*) cvGetSeqElem(OptBoundB, i);
-//		if (PRINTOUT) printf("tempPt=( %d,%d)\t tempPtA =( %d,%d)\t tempPtB=( %d,%d)\n",tempPt->x,tempPt->y,tempPtA->x,tempPtA->y,tempPtB->x,tempPtB->y);
-//		cvCircle(g_gray, *tempPt, 1, cvScalar(255, 255, 255), 1);
-//		cvCircle(g_gray, *tempPtA, 1, cvScalar(255, 255, 255), 1);
-//		cvCircle(g_gray, *tempPtB, 1, cvScalar(255, 255, 255), 1);
-//		//cvLine(g_gray,*tempPtA,*tempPtB,cvScalar(255,255,255),1,CV_AA,0);
-//
-//		cvLine(g_gray,*tempPt,*tempPtA,cvScalar(255,255,255),1,CV_AA,0);
-//		cvLine(g_gray,*tempPt,*tempPtB,cvScalar(255,255,255),1,CV_AA,0);
-//		cvShowImage("Contours", g_gray);
-//		if (HEAVYDIAGNOSTICS) cvWaitKey(100);
-//
-//	}
-//	}
+	int i;
+	for (i = 0; i < Worm->Segmented->Centerline->total; i++) {
+		CvPoint* tempPt = (CvPoint*) cvGetSeqElem(Worm->Segmented->Centerline, i);
+		CvPoint* tempPtA = (CvPoint*) cvGetSeqElem(Worm->Segmented->RightBound, i);
+		CvPoint* tempPtB = (CvPoint*) cvGetSeqElem(Worm->Segmented->LeftBound, i);
+		cvCircle(Worm->ImgSmooth, *tempPt, 1, cvScalar(255, 255, 255), 1);
+		cvCircle(Worm->ImgSmooth, *tempPtA, 1, cvScalar(255, 255, 255), 1);
+		cvCircle(Worm->ImgSmooth, *tempPtB, 1, cvScalar(255, 255, 255), 1);
+		//cvLine(g_gray,*tempPtA,*tempPtB,cvScalar(255,255,255),1,CV_AA,0);
 
-	if (ONSCREEN) cvShowImage("Contours", g_gray);
+		cvLine(g_gray,*tempPt,*tempPtA,cvScalar(255,255,255),1,CV_AA,0);
+		cvLine(g_gray,*tempPt,*tempPtB,cvScalar(255,255,255),1,CV_AA,0);
+		cvShowImage("Contours", g_gray);
 
+	}
 
-
+	cvShowImage("Contours", g_gray);
 
 	/*
 	 *
 	 * Draw a rectangle on the worm to illuminate it.
 	 */
-	int radius=20;
+
 //	IplImage** image, CvSeq* centerline, CvSeq* Boundary, int segment
 
 //	if (ILLUMINATE){

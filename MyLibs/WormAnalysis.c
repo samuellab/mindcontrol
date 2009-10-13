@@ -481,6 +481,8 @@ void SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
 		printf("Error! No boundary found in SegmentWorm()\n");
 		return;
 	}
+	Worm->Segmented->Head=Worm->Head;
+	Worm->Segmented->Tail=Worm->Tail;
 
 	/***Clear Out any stale Segmented Information Already in the Worm Structure***/
 	ClearSegmentedInfo(Worm->Segmented);
@@ -490,10 +492,14 @@ void SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
 	/*** Clear Out Scratch Storage ***/
 	cvClearMemStorage(Worm->MemScratchStorage);
 
+
 	/*** Slice the boundary into left and right components ***/
-	CvSeq* OrigBoundA=cvSeqSlice(Worm->Boundary,cvSlice(Worm->HeadIndex,Worm->TailIndex),Worm->MemScratchStorage,0);
-	CvSeq* OrigBoundB=cvSeqSlice(Worm->Boundary,cvSlice(Worm->TailIndex,Worm->HeadIndex),Worm->MemScratchStorage,0);
+	CvSeq* OrigBoundA=cvSeqSlice(Worm->Boundary,cvSlice(Worm->HeadIndex,Worm->TailIndex),Worm->MemScratchStorage,1);
+	CvSeq* OrigBoundB=cvSeqSlice(Worm->Boundary,cvSlice(Worm->TailIndex,Worm->HeadIndex),Worm->MemScratchStorage,1);
+
+
 	cvSeqInvert(OrigBoundB);
+
 
 	/*** Resample One of the Two Boundaries so that both are the same length ***/
 
@@ -510,6 +516,7 @@ void SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
 		NBoundA=OrigBoundA;
 	}
 	//Now both NBoundA and NBoundB are the same length.
+
 
 
 	/*
