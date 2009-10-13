@@ -18,6 +18,14 @@
  */
 
 
+/************************************************************/
+/* Creating, Destroying and Memory for 						*/
+/*  WormAnalysisDataStruct 									*/
+/*															*/
+/************************************************************/
+
+
+
 /*
  *  Create the WormAnalysisDataStruct
  *  Initialize Memory Storage
@@ -27,10 +35,12 @@
  *  Note this does not allocate memory for images because the user may not know
  *  what size image is wanted yet.
  *
+ *  To do that use LoadWormColorOriginal()
+ *
  */
 WormAnalysisData* CreateWormAnalysisDataStruct(){
 	WormAnalysisData* WormPtr;
-	WormPtr=malloc(sizeof(WormAnalysisData));
+	WormPtr=(WormAnalysisData*) malloc(sizeof(WormAnalysisData));
 
 	/*** Set Everythingm To NULL ***/
 	WormPtr->Head=NULL;
@@ -40,7 +50,9 @@ WormAnalysisData* CreateWormAnalysisDataStruct(){
 	WormPtr->ImgOrig =NULL;
 	WormPtr->ImgSmooth =NULL;
 	WormPtr->ImgThresh =NULL;
-	WormPtr->SizeOfImage=NULL;
+
+	WormPtr->SizeOfImage.height = NULL;
+	WormPtr->SizeOfImage.width= NULL;
 
 	/*** Initialze Worm Memory Storage***/
 	InitializeWormMemStorage(WormPtr);
@@ -60,13 +72,13 @@ WormAnalysisData* CreateWormAnalysisDataStruct(){
  *
  * Clear's all the Memory and De-Allocates it
  */
-void DestroyWormAnalysisDataStruct(WormAnalysisData* WormPtr){
+void DestroyWormAnalysisDataStruct(WormAnalysisData* Worm){
 	if (Worm->ImgOrig !=NULL)	cvReleaseImage(&(Worm->ImgOrig));
 	if (Worm->ImgThresh !=NULL) cvReleaseImage(&(Worm->ImgThresh));
 	if (Worm->ImgSmooth !=NULL) cvReleaseImage(&(Worm->ImgSmooth));
 	cvReleaseMemStorage(&(Worm->MemScratchStorage));
 	cvReleaseMemStorage(&(Worm->MemStorage));
-	free(WormPtr);
+	free(Worm);
 }
 
 /*
@@ -122,6 +134,42 @@ void LoadWormColorOriginal(WormAnalysisData* Worm, IplImage* ImgColorOrig){
 
 }
 
+
+
+/************************************************************/
+/* Creating, Destroying WormAnalysisParam					*/
+/*  					 									*/
+/*															*/
+/************************************************************/
+
+/*
+ *  Allocate memory for a WormAnalysisParam struct
+ */
+WormAnalysisParam* CreateWormAnalysisParam(){
+	WormAnalysisParam* ParamPtr;
+	ParamPtr=(WormAnalysisParam*) malloc(sizeof(WormAnalysisParam));
+
+
+	ParamPtr->BinThresh=NULL;
+	ParamPtr->GaussSize=NULL;
+	ParamPtr->LengthOffset=NULL;
+	ParamPtr->LengthScale=NULL;
+
+	return ParamPtr;
+}
+
+
+void DestroyWormAnalysisParam(WormAnalysisParam* ParamPtr){
+	free(ParamPtr);
+}
+
+
+
+/************************************************************/
+/* Higher Level Routines									*/
+/*  					 									*/
+/*															*/
+/************************************************************/
 
 
 

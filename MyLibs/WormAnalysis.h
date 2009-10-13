@@ -58,6 +58,13 @@ typedef struct WormIlluminationStcut{
 
 
 
+/************************************************************/
+/* Creating, Destroying and Memory for 						*/
+/*  WormAnalysisDataStruct 									*/
+/*															*/
+/************************************************************/
+
+
 /*
  *  Create the WormAnalysisDataStruct
  *  Initialize Memory Storage
@@ -122,12 +129,25 @@ void LoadWormColorOriginal(WormAnalysisData* Worm, IplImage* ImgColorOrig);
 
 
 
-
+/************************************************************/
+/* Creating, Destroying WormAnalysisParam					*/
+/*  					 									*/
+/*															*/
+/************************************************************/
 
 /*
- * *********HIGHER LEVERL Routines *******************
- *
+ *  Allocate memory for a WormAnalysisParam struct
  */
+WormAnalysisParam* CreateWormAnalysisParam();
+
+void DestroyWormAnalysisParam(WormAnalysisParam* ParamPtr);
+
+
+/************************************************************/
+/* Higher Level Routines									*/
+/*  					 									*/
+/*															*/
+/************************************************************/
 
 
 /*

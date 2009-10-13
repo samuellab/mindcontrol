@@ -31,8 +31,8 @@
 
 //Global Variables
 /* Create a new instance of the WormAnalysis Data structure */
-WormAnalysisData Worm;
-WormAnalysisParam Params;
+WormAnalysisData* Worm;
+WormAnalysisParam* Params;
 
 
 
@@ -71,9 +71,9 @@ int nc=0; // Number of contours
 
 
 void on_trackbar(int){
-	RefreshWormMemStorage(&Worm);
-	FindWormBoundary(&Worm,&Params);
-	GivenBoundaryFindWormHeadTail(&Worm,&Params);
+	RefreshWormMemStorage(Worm);
+	FindWormBoundary(Worm,Params);
+	GivenBoundaryFindWormHeadTail(Worm,Params);
 	cvWaitKey(0);
 	return;
 
@@ -379,6 +379,8 @@ int main (int argc, char** argv){
 	/* This will let us know if  the intel primitives are installed*/
 	DisplayOpenCVInstall();
 
+	Worm=CreateWormAnalysisDataStruct();
+
 	IplImage* tempImg;
 	if (PRINTOUT) printf("This program reads in a jpg, finds a worm, and segments it.");
 	if( argc != 2 || !(tempImg = cvLoadImage(argv[1])) ) return -1;
@@ -387,13 +389,13 @@ int main (int argc, char** argv){
 	/*
 	 * Fill up the Worm structure with Emtpy Images
 	 */
-	InitializeEmptyWormImages(&Worm,cvGetSize(tempImg));
-	InitializeWormMemStorage(&Worm);
+	InitializeEmptyWormImages(Worm,cvGetSize(tempImg));
+	InitializeWormMemStorage(Worm);
 
 	/*
 	 * Load in the Color Source Image
 	 */
-	LoadWormColorOriginal(&Worm,tempImg);
+	LoadWormColorOriginal(Worm,tempImg);
 	cvReleaseImage(&tempImg);
 
 
@@ -406,16 +408,16 @@ int main (int argc, char** argv){
 
 
 	//Load in Image Analysis Parameters
-	Params.BinThresh=48;
-	Params.GaussSize=4;
-	Params.LengthScale=9;
-	Params.LengthOffset=Params.LengthScale /2;
+	Params->BinThresh=48;
+	Params->GaussSize=4;
+	Params->LengthScale=9;
+	Params->LengthOffset=Params->LengthScale /2;
 
 
-	cvCreateTrackbar("Threshold", "Controls", &(Params.BinThresh),255, on_trackbar);
-	cvCreateTrackbar("Gauss=x*2+1","Controls", &(Params.GaussSize),5, on_trackbar);
-	cvCreateTrackbar("ScalePx","Controls", &(Params.LengthScale),15,on_trackbar);
-	cvCreateTrackbar("Offset Comp","Controls",&(Params.LengthOffset),15, on_trackbar);
+	cvCreateTrackbar("Threshold", "Controls", &(Params->BinThresh),255, on_trackbar);
+	cvCreateTrackbar("Gauss=x*2+1","Controls", &(Params->GaussSize),5, on_trackbar);
+	cvCreateTrackbar("ScalePx","Controls", &(Params->LengthScale),15,on_trackbar);
+	cvCreateTrackbar("Offset Comp","Controls",&(Params->LengthOffset),15, on_trackbar);
 
 
 
@@ -441,7 +443,7 @@ if (TIMETEST){
 
 	on_trackbar(0);
 	printf("Finished on_trackbar(0)\n");
-	DeAllocateWormAnalysisData(&Worm);
+	DestroyWormAnalysisDataStruct(Worm);
 
 	return 0;
 }
