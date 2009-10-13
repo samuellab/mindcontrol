@@ -7,7 +7,9 @@
 #include <highgui.h>
 #include <cv.h>
 
+// Andy's Libraries
 #include "AndysOpenCVLib.h"
+#include "AndysComputations.h"
 
 #include "WormAnalysis.h"
 
@@ -96,8 +98,8 @@ void InitializeWormMemStorage(WormAnalysisData* Worm){
  *
  */
 void RefreshWormMemStorage(WormAnalysisData* Worm){
-	cvClearMemStorage(Worm->MemScratchStorage);
-	cvClearMemStorage(Worm->MemStorage);
+	if (Worm->MemScratchStorage!=NULL)cvClearMemStorage(Worm->MemScratchStorage);
+	if (Worm->MemStorage!=NULL) cvClearMemStorage(Worm->MemStorage);
 }
 
 
@@ -196,13 +198,143 @@ void FindWormBoundary(WormAnalysisData* Worm, WormAnalysisParam* Params){
  * Requires Worm->Boundary
  *
  */
-int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Params){
-	if (Worm->Boundary->total <2) {
+int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Params) {
+	if (Worm->Boundary->total < 2) {
 		/**Error! There is no Boundary **/
 		return -1;
 	}
 
+	/* **********************************************************************/
+	/*  Express the Boundary in the form of a series of vectors connecting 	*/
+	/*  two pixels a Delta pixels apart.									*/
+	/* **********************************************************************/
 
+	/* Create Temperorary CvSeq to store the boundary as a
+	 * series of vectors.
+	 */
+	CvSeq* VectBound = cvCreateSeq(CV_SEQ_ELTYPE_POINT, sizeof(CvSeq),
+			sizeof(CvPoint), Worm->MemScratchStorage);
+
+	//We walk around the boundary using the high-speed reader and writer objects.
+	CvSeqReader readerA;
+	CvSeqReader readerB; //readerB will point a Delta points ahead of readerB.
+	CvSeqWriter writer;
+
+	/**** Local Variables ***/
+	int i;
+	CvPoint TempVec;
+	CvPoint* boundPt; //Temp storage of the the current pt on the boundary
+	CvPoint* boundPtDelta; //Temp storage of the pt Detla away on the boundary
+	int TotalBPts = Worm->Boundary->total;
+
+	/*** Initializing Read & Write Apparatus ***/
+	cvStartReadSeq(Worm->Boundary, &readerA, 0);
+	cvStartReadSeq(Worm->Boundary, &readerB, 0);
+	cvStartAppendToSeq(VectBound, &writer);
+
+	//Let's increment readerB delta times to gtet it into place
+	for (i = 0; i < Params->LengthOffset; i++) {
+		CV_NEXT_SEQ_ELEM( VectBound->elem_size, readerB);
+	}
+
+	/*
+	 * Loop through all the boundary and draw vectors connecting one boundary point to the next.
+	 */
+	for (i = 0; i < TotalBPts; i++) {
+		boundPt = (CvPoint*) readerA.ptr;
+		boundPtDelta = (CvPoint*) readerB.ptr;
+
+		CV_NEXT_SEQ_ELEM( Worm->Boundary->elem_size, readerA);
+		CV_NEXT_SEQ_ELEM( Worm->Boundary->elem_size, readerB);
+		TempVec = cvPoint((boundPtDelta->x) - (boundPt->x), (boundPtDelta->y)
+				- (boundPt->y));
+
+		CV_WRITE_SEQ_ELEM( TempVec , writer );
+
+	}
+	cvEndWriteSeq(&writer);
+
+	/* **********************************************************************/
+	/*  Find the Tail 													 	*/
+	/*  Take dot product of neighboring vectors. Tail is location of		*/
+	/*	 smallest dot product												*/
+	/* **********************************************************************/
+
+	CvPoint* VecA;
+	CvPoint* VecB;
+
+	/*
+	 * Now Let's loop through the entire boundary to find the tail, which will be the curviest point.
+	 */
+	float MostCurvy = 1000; //Smallest value.
+	float CurrentCurviness; //Metric of CurrentCurviness. In this case the dot product.
+	int MostCurvyIndex = 0;
+	CvPoint* Tail;
+
+	cvStartReadSeq(VectBound, &readerA, 0);
+	cvStartReadSeq(VectBound, &readerB, 0);
+	CV_NEXT_SEQ_ELEM( VectBound->elem_size, readerA);
+	for (i = 0; i < TotalBPts; i++) {
+		VecA = (CvPoint*) readerA.ptr;
+		VecB = (CvPoint*) readerB.ptr;
+
+		//Find the curviness by taking the dot product.
+		CurrentCurviness = PointDot(VecA, VecB);
+		CV_NEXT_SEQ_ELEM( VectBound->elem_size, readerA);
+		CV_NEXT_SEQ_ELEM( VectBound->elem_size, readerB);
+		if (CurrentCurviness < MostCurvy) { //If this locaiton is curvier than the previous MostCurvy location
+			MostCurvy = CurrentCurviness; //replace the MostCurvy point
+			MostCurvyIndex = i;
+		}
+	}
+
+	//Set the tail to be the point on the boundary that is most curvy.
+	Worm->Tail = (CvPoint*) cvGetSeqElem(Worm->Boundary, (MostCurvyIndex
+			+ Params->LengthOffset) % TotalBPts);
+
+	/* **********************************************************************/
+	/*  Find the Head 													 	*/
+	/* 	Excluding the neighborhood of the Tail, the head is the location of */
+	/*	 the smallest dot product											*/
+	/* **********************************************************************/
+
+	float SecondMostCurvy = 1000;
+	int SecondMostCurvyIndex = 0;
+	int DistBetPtsOnBound;
+	DistBetPtsOnBound = 0;
+	CvPoint* Head;
+
+	cvStartReadSeq(VectBound, &readerA, 0);
+	cvStartReadSeq(VectBound, &readerB, 0);
+	CV_NEXT_SEQ_ELEM( VectBound->elem_size, readerA);
+	for (i = 0; i < TotalBPts; i++) {
+		VecA = (CvPoint*) readerA.ptr;
+		VecB = (CvPoint*) readerB.ptr;
+		CV_NEXT_SEQ_ELEM( VectBound->elem_size, readerA);
+		CV_NEXT_SEQ_ELEM( VectBound->elem_size, readerB);
+
+		//Find the curviness by taking the normalized dot product.
+		CurrentCurviness = PointDot(VecA, VecB);
+
+		//We need to find out if the current curvy point is close to the most curvy point.
+		//This is tricky because the boundary wraps around. We need this if statement to find the radius.
+		// ANDY: Decomp this into its own function for legibility.
+		DistBetPtsOnBound = DistBetPtsOnCircBound(TotalBPts, i, MostCurvyIndex);
+		//If we are at least a 1/4 of the total boundary away from the most curvy point.
+		if (DistBetPtsOnBound > (TotalBPts / 4)) {
+			//If this location is curvier than the previous SecondMostCurvy location
+			if (CurrentCurviness < SecondMostCurvy) {
+				SecondMostCurvy = CurrentCurviness; //replace the MostCurvy point
+				SecondMostCurvyIndex = i;
+			}
+		}
+	}
+
+	Worm->Head = (CvPoint*) cvGetSeqElem(Worm->Boundary,
+			(SecondMostCurvyIndex +Params->LengthOffset) % TotalBPts);
+
+	Worm->TailIndex = MostCurvyIndex +Params->LengthOffset;
+	Worm->HeadIndex = SecondMostCurvyIndex +Params->LengthOffset;
 
 	return 0;
 }

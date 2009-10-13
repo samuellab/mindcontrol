@@ -74,8 +74,6 @@ void on_trackbar(int){
 	RefreshWormMemStorage(Worm);
 	FindWormBoundary(Worm,Params);
 	GivenBoundaryFindWormHeadTail(Worm,Params);
-	cvWaitKey(0);
-	return;
 
 
 	int i=0; //Generic counter
@@ -84,152 +82,22 @@ void on_trackbar(int){
 
 	if (ONSCREEN) cvShowImage("Smoothed",g_gray);
 	if (ONSCREEN) cvShowImage("Thresholded",thresh_img);
-	//Attempting a multipass threshold smooth approach.
 
-//	if( contours ) 	if (DRAWBOUNDARY) cvDrawContours(g_gray, contourOfInterest, cvScalar(255,0,0),cvScalar(0,255,0),100);
-
-
-	/*
-	 * Find The Head and the Tail
-	 */
-
-	//Create vectors some Delta apart.
-	CvPoint* boundPt;
-	CvPoint* boundPtDelta;
-	int TotalBPts=contourOfInterest->total ;
-	if (PRINTOUT) printf("Total Boundary Pts is %d\n",TotalBPts);
-
-
-
-		VectBound=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),scratchStorage);
-
-
-	//Let's walk around the boundary;
-	//For speed, lets create two special reader object.
-	CvSeqReader readerA;
-	CvSeqReader readerB; //readerB will point a Delta points ahead of readerB.
-	// And a writer object
-	CvSeqWriter writer;
-
-	CvPoint TempVec;
-
-	cvStartReadSeq(contourOfInterest,&readerA,0);
-	cvStartReadSeq(contourOfInterest,&readerB,0);
-	cvStartAppendToSeq(VectBound,&writer);
-	if (PRINTOUT) printf("Started ReadSeq and AppendToSeq\nIncrementing Delta\n");
-	//Let's increment readerB delta times
-	for (i=0; i<Delta;i++){
-		CV_NEXT_SEQ_ELEM( VectBound->elem_size, readerB);
-	}
-	if (PRINTOUT) printf("Beginning to loop through contourOfInterest\n");
-
-	if (TotalBPts<1) printf("Error! TotalBpts <1 !!\n");
-	/*
-	 *
-	 * Loop through all the boundary and draw vectors connecting one boundary point to the next.
-	 *
-	 */
-	for (i = 0; i<TotalBPts; i++) {
-		boundPt=(CvPoint*)readerA.ptr;
-		boundPtDelta=(CvPoint*)readerB.ptr;
-
-		CV_NEXT_SEQ_ELEM( contourOfInterest->elem_size, readerA);
-		CV_NEXT_SEQ_ELEM( contourOfInterest->elem_size, readerB);
-		TempVec=cvPoint( (boundPtDelta->x)-(boundPt->x) , (boundPtDelta->y)-(boundPt->y) );
-
-		CV_WRITE_SEQ_ELEM( TempVec , writer );
-
-	}
-	if (PRINTOUT) printf("Preparing cvEndWriteSeq()\n");
-	cvEndWriteSeq(&writer);
-
-	if (PRINTOUT) printf("After walking along contour, VectBound->total = %d\n", VectBound->total);
-
-	/*
-	 * Now that we have a sequence of vectors that follow the worm's boundary, we need to take the dot
-	 * product between neighboring vectors. And find the Smallest Dot Product. This is the tail.
-	 */
-
-	CvPoint* VecA;
-	CvPoint* VecB;
-
-
-	/*
-	 * Now Let's loop through the entire boundary to find the tail, which will be the curviest point
-	 * excluding those points around the tail.
-	 */
-	float MostCurvy=1000; //Smallest value.
-	float CurrentCurviness;  //Metric of CurrentCurviness. In this case the dot product.
-	int MostCurvyIndex=0;
-	CvPoint* Tail;
-
-
-	cvStartReadSeq(VectBound,&readerA,0);
-	cvStartReadSeq(VectBound,&readerB,0);
-	CV_NEXT_SEQ_ELEM( VectBound->elem_size, readerA);
-	for (i=0; i<TotalBPts; i++){
-		VecA=(CvPoint*)readerA.ptr;
-		VecB=(CvPoint*)readerB.ptr;
-
-		//Find the curviness by taking the dot product.
-		CurrentCurviness=PointDot(VecA,VecB);
-		CV_NEXT_SEQ_ELEM( VectBound->elem_size, readerA);
-		CV_NEXT_SEQ_ELEM( VectBound->elem_size, readerB);
-		if ( CurrentCurviness<MostCurvy){ //If this locaiton is curvier than the previous MostCurvy location
-			MostCurvy=CurrentCurviness; //replace the MostCurvy point
-			MostCurvyIndex=i;
-		}
+	if (GivenBoundaryFindWormHeadTail(Worm,Params)<0){
+		printf("Error FindingWormHeadTail!\n");
 	}
 
-	//Set the tail to be the point on the boundary that is most curvy.
-	Tail=(CvPoint*)cvGetSeqElem(contourOfInterest, (MostCurvyIndex+Offset)%TotalBPts );
-
-	//Draw a circle on the tail.
-	if (ONSCREEN && DISPLAYSECTOR) cvCircle(g_gray,*Tail,CircleDiameterSize,cvScalar(255,255,255),1,CV_AA,0);
-	if (PRINTOUT) printf("MostCurvyIndex=%d\n",MostCurvyIndex);
 
 
-	//This is for the Head
-	float SecondMostCurvy=1000;
-	int SecondMostCurvyIndex=0;
-	int DistBetPtsOnBound;
-	DistBetPtsOnBound=0;
-	CvPoint* Head;
 
-	cvStartReadSeq(VectBound,&readerA,0);
-	cvStartReadSeq(VectBound,&readerB,0);
-	CV_NEXT_SEQ_ELEM( VectBound->elem_size, readerA);
-	for (i=0; i<TotalBPts; i++){
-		VecA=(CvPoint*)readerA.ptr;
-		VecB=(CvPoint*)readerB.ptr;
-		CV_NEXT_SEQ_ELEM( VectBound->elem_size, readerA);
-			CV_NEXT_SEQ_ELEM( VectBound->elem_size, readerB);
+		//Draw a circle on the tail.
+	//cvCircle(Worm->ImgSmooth,*(Worm->Tail),CircleDiameterSize,cvScalar(255,255,255),1,CV_AA,0);
+	//cvCircle(Worm->ImgSmooth,*(Worm->Head),CircleDiameterSize*2,cvScalar(255,255,255),1,CV_AA,0);
+	cvShowImage("Thresholded",Worm->ImgThresh);
+	//	if (PRINTOUT) printf("MostCurvyIndex=%d\n",MostCurvyIndex);
 
-			//Find the curviness by taking the normalized dot product.
-			CurrentCurviness=PointDot(VecA,VecB);
 
-			//We need to find out if the current curvy point is close to the most curvy point.
-			//This is tricky because the boundary wraps around. We need this if statement to find the radius.
-			// ANDY: Decomp this into its own function for legibility.
-			if (labs(i-MostCurvyIndex)<labs(TotalBPts-(i-MostCurvyIndex))){//go with the smallest value
-				DistBetPtsOnBound=labs(i-MostCurvyIndex);
-			}else{
-				DistBetPtsOnBound=labs(TotalBPts-(i-MostCurvyIndex));
-			}
-			//If we are at least a 1/4 of the total boundary away from the most curvy point.
-			if (DistBetPtsOnBound> (TotalBPts/4) ){
-			//If this location is curvier than the previous SecondMostCurvy location
-				if ( CurrentCurviness<SecondMostCurvy){
-					SecondMostCurvy=CurrentCurviness; //replace the MostCurvy point
-					SecondMostCurvyIndex=i;
-				}
-			}
-		}
 
-	if (PRINTOUT) printf("SecondMostCurvyIndex=%d\n",SecondMostCurvyIndex);
-
-	Head=(CvPoint*)cvGetSeqElem(contourOfInterest, (SecondMostCurvyIndex+Offset)%TotalBPts );
-	if (DISPLAYSECTOR) cvCircle(g_gray,*Head,CircleDiameterSize*2/5,cvScalar(255,255,255),1,CV_AA,0);
 
 	/****** Beginning Algorithm Outlined in
 	 * http://wiki.client.fas.harvard.edu/index.php/AndyProjects/DLP_Project/2009:September#Devised_New_Algorithm_With_Marc
@@ -242,9 +110,11 @@ void on_trackbar(int){
 	 * and the tail.
 	 *
 	 */
-
-	int TailIndex=MostCurvyIndex+Offset;
-	int HeadIndex=SecondMostCurvyIndex+Offset;
+	printf("Found Head And Tail without crashing.\n");
+	return;
+	CvSeq* ContourOfInterest;
+	int HeadIndex;
+	int TailIndex;
 
 	//Slice the boundary into left and ridght
 	CvSeq* OrigBoundA=cvSeqSlice(contourOfInterest,cvSlice(HeadIndex,TailIndex),more_storage,0);
@@ -443,8 +313,12 @@ if (TIMETEST){
 
 	on_trackbar(0);
 	printf("Finished on_trackbar(0)\n");
+
+	cvWaitKey(0);
 	DestroyWormAnalysisDataStruct(Worm);
 	DestroyWormAnalysisParam(Params);
+
+
 
 	return 0;
 }
