@@ -20,23 +20,6 @@
  */
 
 
-/************************************************************/
-/* Private Function Declarations	 						*/
-/************************************************************/
-
-/*
- * Clears information from an already allocated segmented worm
- * Data object.
- */
-void ClearSegmentedInfo(SegmentedWorm* SegWorm);
-
-
-
-
-
-
-
-
 
 /************************************************************/
 /* Creating, Destroying and Memory for 						*/
@@ -548,10 +531,9 @@ void SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
 	/*** Resample the Centerline So it has the desired Number of Points ***/
 	resampleSeq(SmoothUnresampledCenterline,Worm->Segmented->Centerline,Params->NumSegments);
 
-	//NOTE: So now we have the smooth, segmented centerline.
-
-
-
-
+	/*** Use Marc's Perpendicular Segmentation Algorithm
+	 *   To Segment the Left and Right Boundaries and store them
+	 */
+	SegmentSides(OrigBoundA,OrigBoundB,Worm->Segmented->Centerline,Worm->Segmented->LeftBound,Worm->Segmented->RightBound);
 
 }

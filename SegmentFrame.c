@@ -100,7 +100,7 @@ void on_trackbar(int){
 
 
 
-	printf("Found Head And Tail without crashing.\n");
+	printf("Segmented Worm without crashing.\n");
 	return;
 
 
@@ -128,63 +128,25 @@ void on_trackbar(int){
 
 
 
-	/*************************************************************/
-	/*
-	 *
-	 * Now Find the centerline
-	 */
-
-
-
-	if (PRINTOUT) printf("Wrote centerline\n");
-
-
-	//Now resample the centerline
-	int NUMSEGMENTS = 100;
-	CvSeq* SmoothUnresampledCenterline = smoothPtSequence (centerline, 0.5*centerline->total/NUMSEGMENTS, more_storage);
-	CvSeq* Ncenterline=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),more_storage);
-	resampleSeq(SmoothUnresampledCenterline,&Ncenterline,NUMSEGMENTS);
-
-	CvSeq* OptBoundA=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),more_storage);
-	CvSeq* OptBoundB=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),more_storage);
-
-	//Smooth the Centerline (I am no longer actually smoothing the centerline because it has some problems)
-	/*
-	 *Smoothing the centerline using this algorithm has two main problems:
-	 * 1) it takes long. According to Gprof it takes 60% of the time
-	 * 2) It messes up the centerline near the head and tail by skipping points or something.
-	 */
-	//CvSeq* SmoothCenterline=smoothPtSequence (Ncenterline, 5, more_storage);
-	CvSeq* SmoothCenterline=Ncenterline;
-
-
-	if (ONSCREEN && DISPLAYSECTOR) DrawSequence(&g_gray,SmoothCenterline);
-	if (ONSCREEN) cvShowImage("Contours",g_gray);
-
-	//Use Marc's Magical Perpendicular Segmentation Algorithm (Because he's the man.)
-	SegmentSides(OrigBoundA,OrigBoundB,SmoothCenterline,OptBoundA,OptBoundB);
-
-
-
 	//Display the points slowly on screen
-	if (ONSCREEN && DISPLAYSECTOR){
-	for (i = 0; i < SmoothCenterline->total; i++) {
-		CvPoint* tempPt = (CvPoint*) cvGetSeqElem(SmoothCenterline, i);
-		CvPoint* tempPtA = (CvPoint*) cvGetSeqElem(OptBoundA, i);
-		CvPoint* tempPtB = (CvPoint*) cvGetSeqElem(OptBoundB, i);
-		if (PRINTOUT) printf("tempPt=( %d,%d)\t tempPtA =( %d,%d)\t tempPtB=( %d,%d)\n",tempPt->x,tempPt->y,tempPtA->x,tempPtA->y,tempPtB->x,tempPtB->y);
-		cvCircle(g_gray, *tempPt, 1, cvScalar(255, 255, 255), 1);
-		cvCircle(g_gray, *tempPtA, 1, cvScalar(255, 255, 255), 1);
-		cvCircle(g_gray, *tempPtB, 1, cvScalar(255, 255, 255), 1);
-		//cvLine(g_gray,*tempPtA,*tempPtB,cvScalar(255,255,255),1,CV_AA,0);
-
-		cvLine(g_gray,*tempPt,*tempPtA,cvScalar(255,255,255),1,CV_AA,0);
-		cvLine(g_gray,*tempPt,*tempPtB,cvScalar(255,255,255),1,CV_AA,0);
-		cvShowImage("Contours", g_gray);
-		if (HEAVYDIAGNOSTICS) cvWaitKey(100);
-
-	}
-	}
+//	if (ONSCREEN && DISPLAYSECTOR){
+//	for (i = 0; i < SmoothCenterline->total; i++) {
+//		CvPoint* tempPt = (CvPoint*) cvGetSeqElem(SmoothCenterline, i);
+//		CvPoint* tempPtA = (CvPoint*) cvGetSeqElem(OptBoundA, i);
+//		CvPoint* tempPtB = (CvPoint*) cvGetSeqElem(OptBoundB, i);
+//		if (PRINTOUT) printf("tempPt=( %d,%d)\t tempPtA =( %d,%d)\t tempPtB=( %d,%d)\n",tempPt->x,tempPt->y,tempPtA->x,tempPtA->y,tempPtB->x,tempPtB->y);
+//		cvCircle(g_gray, *tempPt, 1, cvScalar(255, 255, 255), 1);
+//		cvCircle(g_gray, *tempPtA, 1, cvScalar(255, 255, 255), 1);
+//		cvCircle(g_gray, *tempPtB, 1, cvScalar(255, 255, 255), 1);
+//		//cvLine(g_gray,*tempPtA,*tempPtB,cvScalar(255,255,255),1,CV_AA,0);
+//
+//		cvLine(g_gray,*tempPt,*tempPtA,cvScalar(255,255,255),1,CV_AA,0);
+//		cvLine(g_gray,*tempPt,*tempPtB,cvScalar(255,255,255),1,CV_AA,0);
+//		cvShowImage("Contours", g_gray);
+//		if (HEAVYDIAGNOSTICS) cvWaitKey(100);
+//
+//	}
+//	}
 
 	if (ONSCREEN) cvShowImage("Contours", g_gray);
 
@@ -198,19 +160,19 @@ void on_trackbar(int){
 	int radius=20;
 //	IplImage** image, CvSeq* centerline, CvSeq* Boundary, int segment
 
-	if (ILLUMINATE){
-	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,10);
-	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,11);
-	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,12);
-	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,15);
-	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,16);
-	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundB,39);
-	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundB,40);
-	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundB,41);
-	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,39);
-	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,40);
-	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,41);
-	}
+//	if (ILLUMINATE){
+//	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,10);
+//	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,11);
+//	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,12);
+//	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,15);
+//	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,16);
+//	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundB,39);
+//	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundB,40);
+//	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundB,41);
+//	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,39);
+//	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,40);
+//	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,41);
+//	}
 	if (PRINTOUT) printf("About to show image.\n");
 	if (ONSCREEN) cvShowImage("Contours", g_gray);
 }

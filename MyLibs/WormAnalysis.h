@@ -168,6 +168,12 @@ SegmentedWorm* CreateSegmentedWormStruct();
 
 void DestroySegmentedWormStruct(SegmentedWorm* SegWorm);
 
+/*
+ * Clears information from an already allocated segmented worm
+ * Data object.
+ */
+void ClearSegmentedInfo(SegmentedWorm* SegWorm);
+
 /************************************************************/
 /* Higher Level Routines									*/
 /*  					 									*/
@@ -208,6 +214,14 @@ void IlluminateWormSegment(IplImage** image, CvSeq* centerline, CvSeq* Boundary,
 
 
 
+/*
+ * This Function segments a worm.
+ * It requires that certain information be present in the WormAnalysisData struct Worm
+ * It requires Worm->Boundary be full
+ * It requires that Params->NumSegments be greater than zero
+ *
+ */
+void SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params);
 
 
 
