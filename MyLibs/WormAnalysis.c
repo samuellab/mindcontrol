@@ -107,6 +107,19 @@ void FindWormBoundary(WormAnalysisData* Worm, WormAnalysisParam* Params){
 }
 
 
+/*
+ * Finds the Worm's Head and Tail.
+ * Requires Worm->Boundary
+ *
+ */
+int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Params){
+	if (Worm->Boundary->total <2) {
+		/**Error! There is no Boundary **/
+		return 1;
+	}
+
+	return 0;
+}
 
 
 /*

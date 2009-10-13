@@ -130,10 +130,11 @@ void FindWormBoundary(WormAnalysisData* Worm, WormAnalysisParam* WormParams);
 
 
 /*
- * Find's the Worm Head and Tail
+ * Finds the Worm's Head and Tail.
+ * Requires Worm->Boundary
  *
  */
-int WormFindHeadTail(WormAnalysisData* Worm, WormAnalysisParam* WormParams);
+int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Params);
 
 
 

@@ -73,6 +73,7 @@ int nc=0; // Number of contours
 void on_trackbar(int){
 	RefreshWormMemStorage(&Worm);
 	FindWormBoundary(&Worm,&Params);
+	GivenBoundaryFindWormHeadTail(&Worm,&Params);
 	cvWaitKey(0);
 	return;
 
