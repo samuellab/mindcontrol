@@ -378,8 +378,8 @@ void on_trackbar(int){
 int main (int argc, char** argv){
 	/* This will let us know if  the intel primitives are installed*/
 	DisplayOpenCVInstall();
-
 	Worm=CreateWormAnalysisDataStruct();
+	Params=CreateWormAnalysisParam();
 
 	IplImage* tempImg;
 	if (PRINTOUT) printf("This program reads in a jpg, finds a worm, and segments it.");
@@ -444,6 +444,7 @@ if (TIMETEST){
 	on_trackbar(0);
 	printf("Finished on_trackbar(0)\n");
 	DestroyWormAnalysisDataStruct(Worm);
+	DestroyWormAnalysisParam(Params);
 
 	return 0;
 }
