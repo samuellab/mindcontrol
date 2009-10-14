@@ -65,7 +65,7 @@ Talk2Camera.o : $(MyLibs)/Talk2Camera.cpp $(MyLibs)/Talk2Camera.h \
 $(3rdPartyLibs)/tisgrabber.h $(3rdPartyLibs)/TISGrabberGlobalDefs.h
 	g++ -c -Wall $(MyLibs)/Talk2Camera.cpp -I$(3rdPartyLibs) -ITalk2Camera $(TailOpts)
 
-AndysOpenCVLib.o : $(MyLibs)/AndysOpenCVLib.c $(MyLibs)/AndysOpenCVLib.h $(MyLibs)/Global.h
+AndysOpenCVLib.o : $(MyLibs)/AndysOpenCVLib.c $(MyLibs)/AndysOpenCVLib.h 
 	g++ -c -v -Wall $(MyLibs)/AndysOpenCVLib.c $(openCVincludes) $(TailOpts)
 
 Talk2Matlab.o : $(MyLibs)/Talk2Matlab.c $(MyLibs)/Talk2Matlab.h 
@@ -77,7 +77,7 @@ AndysComputations.o : $(MyLibs)/AndysComputations.c $(MyLibs)/AndysComputations.
 
 
 ###### SegmentFrame.exe
-$(targetDir)/SegmentFrame.exe : $(segment_objects) $(MyLibs)/Global.h
+$(targetDir)/SegmentFrame.exe : $(segment_objects)
 	g++ -o $(targetDir)/SegmentFrame.exe $(segment_objects) $(TailOpts) 
 
 SegmentFrame.o : SegmentFrame.c $(myOpenCVlibraries) $(WormSpecificLibs)

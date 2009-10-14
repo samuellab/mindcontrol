@@ -19,7 +19,6 @@
 
 //Andy's Personal Headers
 #include "MyLibs/AndysOpenCVLib.h"
-#include "MyLibs/Global.h"
 #include "MyLibs/WormAnalysis.h"
 
 
@@ -97,7 +96,7 @@ int main (int argc, char** argv){
 	Params=CreateWormAnalysisParam();
 
 	IplImage* tempImg;
-	if (PRINTOUT) printf("This program reads in a jpg, finds a worm, and segments it.");
+	printf("This program reads in a jpg, finds a worm, and segments it.");
 	if( argc != 2 || !(tempImg = cvLoadImage(argv[1])) ) return -1;
 	printf("About to Initialize Empty Images\n");
 
@@ -130,7 +129,7 @@ int main (int argc, char** argv){
 
 
 
-if (TIMETEST){
+if (0){
 	/*
 	 * Time Test
 	 *
