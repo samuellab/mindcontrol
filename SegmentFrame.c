@@ -35,13 +35,7 @@ WormAnalysisData* Worm;
 WormAnalysisParam* Params;
 
 
-
-
-
-
 void on_trabckar(int);
-
-
 
 
 
@@ -64,25 +58,9 @@ void on_trackbar(int){
 
 	SegmentWorm(Worm,Params);
 	//Draw a circle on the tail.
-	DisplayWormHeadTail(Worm,"Smoothed");
+	DisplayWormHeadTail(Worm,"Boundary");
+	DisplayWormSegmentation(Worm,"Contours");
 
-
-	//Display the points slowly on screen
-	int i;
-	for (i = 0; i < Worm->Segmented->Centerline->total; i++) {
-		CvPoint* tempPt = (CvPoint*) cvGetSeqElem(Worm->Segmented->Centerline, i);
-		CvPoint* tempPtA = (CvPoint*) cvGetSeqElem(Worm->Segmented->RightBound, i);
-		CvPoint* tempPtB = (CvPoint*) cvGetSeqElem(Worm->Segmented->LeftBound, i);
-		cvCircle(Worm->ImgSmooth, *tempPt, 1, cvScalar(255, 255, 255), 1);
-		cvCircle(Worm->ImgSmooth, *tempPtA, 1, cvScalar(255, 255, 255), 1);
-		cvCircle(Worm->ImgSmooth, *tempPtB, 1, cvScalar(255, 255, 255), 1);
-		//cvLine(g_gray,*tempPtA,*tempPtB,cvScalar(255,255,255),1,CV_AA,0);
-
-		cvLine(Worm->ImgSmooth,*tempPt,*tempPtA,cvScalar(255,255,255),1,CV_AA,0);
-		cvLine(Worm->ImgSmooth,*tempPt,*tempPtB,cvScalar(255,255,255),1,CV_AA,0);
-		cvShowImage("Contours", Worm->ImgSmooth);
-
-	}
 
 
 	/*
@@ -136,7 +114,7 @@ int main (int argc, char** argv){
 	cvReleaseImage(&tempImg);
 
 	cvNamedWindow("Original");
-	cvNamedWindow("Smoothed");
+	cvNamedWindow("Boundary");
 	cvNamedWindow( "Thresholded");
 	cvNamedWindow( "Contours", 1);
 	cvNamedWindow("Controls");

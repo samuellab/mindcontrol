@@ -566,3 +566,29 @@ void DisplayWormHeadTail(WormAnalysisData* Worm, char* WindowName){
 	cvShowImage(WindowName,TempImage);
 	cvReleaseImage(&TempImage);
 }
+
+/*
+ * Displays the original image of the worm
+ * with segmentation in window WindowName
+ *
+ */
+void DisplayWormSegmentation(WormAnalysisData* Worm, char* WindowName){
+	IplImage* TempImage=cvCreateImage(cvGetSize(Worm->ImgSmooth),IPL_DEPTH_8U,1);
+	cvCopyImage(Worm->ImgSmooth,TempImage);
+
+	int i;
+	for (i = 0; i < Worm->Segmented->Centerline->total; i++) {
+		CvPoint* tempPt = (CvPoint*) cvGetSeqElem(Worm->Segmented->Centerline, i);
+		CvPoint* tempPtA = (CvPoint*) cvGetSeqElem(Worm->Segmented->RightBound, i);
+		CvPoint* tempPtB = (CvPoint*) cvGetSeqElem(Worm->Segmented->LeftBound, i);
+		cvCircle(TempImage, *tempPt, 1, cvScalar(255, 255, 255), 1);
+		cvCircle(TempImage, *tempPtA, 1, cvScalar(255, 255, 255), 1);
+		cvCircle(TempImage, *tempPtB, 1, cvScalar(255, 255, 255), 1);
+
+		cvLine(TempImage,*tempPt,*tempPtA,cvScalar(255,255,255),1,CV_AA,0);
+		cvLine(TempImage,*tempPt,*tempPtB,cvScalar(255,255,255),1,CV_AA,0);
+	}
+	cvShowImage(WindowName, TempImage);
+	cvReleaseImage(&TempImage);
+
+}

@@ -231,6 +231,12 @@ void SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params);
  */
 void DisplayWormHeadTail(WormAnalysisData* Worm, char* WindowName);
 
+/*
+ * Displays the original image of the worm
+ * with segmentation in window WindowName
+ *
+ */
+void DisplayWormSegmentation(WormAnalysisData* Worm, char* WindowName);
 
 
 #endif /* WORMANALYSIS_H_ */
