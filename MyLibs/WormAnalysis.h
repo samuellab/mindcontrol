@@ -224,7 +224,12 @@ void IlluminateWormSegment(IplImage** image, CvSeq* centerline, CvSeq* Boundary,
 void SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params);
 
 
-
+/*
+ * Displays the original image of the worm
+ * highlighting the head and tail in the window WindowName
+ *
+ */
+void DisplayWormHeadTail(WormAnalysisData* Worm, char* WindowName);
 
 
 

@@ -64,10 +64,7 @@ void on_trackbar(int){
 
 	SegmentWorm(Worm,Params);
 	//Draw a circle on the tail.
-	int CircleDiameterSize=10;
-	cvCircle(Worm->ImgSmooth,*(Worm->Tail),CircleDiameterSize,cvScalar(255,255,255),1,CV_AA,0);
-	cvCircle(Worm->ImgSmooth,*(Worm->Head),CircleDiameterSize/2,cvScalar(255,255,255),1,CV_AA,0);
-	cvShowImage("Smoothed",Worm->ImgSmooth);
+	DisplayWormHeadTail(Worm,"Smoothed");
 
 
 	//Display the points slowly on screen
