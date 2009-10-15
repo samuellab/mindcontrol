@@ -12,6 +12,8 @@
  *
  */
 
+#ifndef TRANSFORMLIB_H_
+#define TRANSFORMLIB_H_
 
 
 
@@ -53,3 +55,4 @@ void DestroyCalibData(CalibData* Calib);
  */
 
 int LoadCalibFromFile(CalibData* Calib, char * filename);
+#endif /* TRANSFORMLIB_H_ */

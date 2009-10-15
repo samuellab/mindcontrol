@@ -68,8 +68,8 @@ void ImageAndProjectInClosedLoop(int *CCD2DLPLookUp, CamData* MyCamera) {
 			cvShowImage("FromCamera", fromCCD->iplimg);
 			cvWaitKey(1);
 			numFramesRec++;
-			ConvertCharArrayImageFromCam2DLP(CCD2DLPLookUp, fromCCD->binary, forDLP->binary,
-					NSIZEX, NSIZEY, NSIZEX, NSIZEY, 0);
+		//	ConvertCharArrayImageFromCam2DLP(CCD2DLPLookUp, fromCCD->binary, forDLP->binary,
+			//		NSIZEX, NSIZEY, NSIZEX, NSIZEY, 0);
 			printf("ConvertCharArayImageFromCam2DLP\n");
 			T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
 			printf("Sent frame to dLP\n");

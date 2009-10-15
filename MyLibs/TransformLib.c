@@ -115,11 +115,14 @@ int LoadCalibFromFile(CalibData* Calib, char * filename){
  *
  *
  */
-int ConvertCharArrayImageFromCam2DLP(int *CCD2DLPLookUp,  unsigned char* fromCCD,unsigned char* forDLP, int nsizex, int nsizey, int ccdsizex, int ccdsizey, int DEBUG_FLAG){
-	if (nsizex!=ccdsizex || nsizey != ccdsizey){
-		printf("ERROR: Ignoring values of ccdsizex & ccdsizey. \nCurrently CCD must be the same size as the DLP.\n This functionality has yet to be coded up.");
+int ConvertCharArrayImageFromCam2DLP(int *CCD2DLPLookUp,
+		unsigned char* fromCCD, unsigned char* forDLP, int nsizex, int nsizey,
+		int ccdsizex, int ccdsizey, int DEBUG_FLAG) {
+	if (nsizex != ccdsizex || nsizey != ccdsizey) {
+		printf(
+				"ERROR: Ignoring values of ccdsizex & ccdsizey. \nCurrently CCD must be the same size as the DLP.\n This functionality has yet to be coded up.");
 	}
-	if (CCD2DLPLookUp==NULL){
+	if (CCD2DLPLookUp == NULL) {
 		printf("ERROR! CCD2DLPLookUp==NULL!\n");
 		return -1;
 	}
@@ -129,28 +132,26 @@ int ConvertCharArrayImageFromCam2DLP(int *CCD2DLPLookUp,  unsigned char* fromCCD
 	int YOUT = 1;
 	unsigned int newptx;
 	unsigned int newpty;
-
 	while (tempx < nsizex) {
 		//printf("#");
 		tempy = 0;
 		while (tempy < nsizey) {
 			//Actually Perform the LookUp and convert (tempx, tempy) in CCD coordinates to (newptx,newpty) in DLP coordinates
 			// I= z*Nx*Ny+x*Ny+y
-			if (XOUT * nsizey * nsizex + tempx * nsizey + tempy
-					>= nsizex * nsizey * 2) {
-				printf(
-						" In accessing lookup table, we are out of bounds!!\n");
+			if (XOUT * nsizey * nsizex + tempx * nsizey + tempy >= nsizex
+					* nsizey * 2) {
+				printf(" In accessing lookup table, we are out of bounds!!\n");
 			}
-			if (YOUT * nsizey * nsizex + tempx * nsizey + tempy
-					>= nsizex * nsizey * 2) {
-				printf(
-						" In accessing lookup table, we are out of bounds!!\n");
+			if (YOUT * nsizey * nsizex + tempx * nsizey + tempy >= nsizex
+					* nsizey * 2) {
+				printf(" In accessing lookup table, we are out of bounds!!\n");
 			}
-			newptx = CCD2DLPLookUp[XOUT * nsizey * nsizex + tempx
-					* nsizey + tempy];
-			newpty = CCD2DLPLookUp[YOUT * nsizey * nsizex + tempx
-					* nsizey + tempy];
-			if (newptx < 0 || newpty < 0 || newptx >= nsizex || newpty 	>= nsizey) {
+			newptx = CCD2DLPLookUp[XOUT * nsizey * nsizex + tempx * nsizey
+					+ tempy];
+			newpty = CCD2DLPLookUp[YOUT * nsizey * nsizex + tempx * nsizey
+					+ tempy];
+			if (newptx < 0 || newpty < 0 || newptx >= nsizex || newpty
+					>= nsizey) {
 				// Don't do anything because the pint is invalid
 			} else { //If the new point is reasonable, go ahead and do the conversion
 				//triple check that we're not actually accesssing an element outside of our array
@@ -160,12 +161,16 @@ int ConvertCharArrayImageFromCam2DLP(int *CCD2DLPLookUp,  unsigned char* fromCCD
 							"In Accessing fromCCD or forDLP, we are out of bounds!!\n");
 				}
 				//actually copy the value of the pixel at the two points
-				forDLP[newpty* nsizex + newptx] = fromCCD[tempy*nsizex+tempx];
+				forDLP[newpty * nsizex + newptx] = fromCCD[tempy * nsizex
+						+ tempx];
 			}
 			tempy++;
 		}
 		tempx++;
 	}
-
-return 0;
+	return 0;
 }
+
+
+
+
