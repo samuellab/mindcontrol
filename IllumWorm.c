@@ -35,6 +35,7 @@ using namespace std;
 #include "MyLibs/Talk2DLP.h"
 #include "MyLibs/Talk2Matlab.h"
 #include "MyLibs/AndysComputations.h"
+#include "MyLibs/TransformLib.h"
 
 #define PRINTOUT 0
 
