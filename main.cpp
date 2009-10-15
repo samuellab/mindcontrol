@@ -29,6 +29,7 @@ using namespace std;
 #include "MyLibs/Talk2DLP.h"
 #include "MyLibs/Talk2Matlab.h"
 #include "MyLibs/AndysComputations.h"
+#include "MyLibs/CalibLib.h"
 
 void ImageAndProjectInClosedLoop(int *CCD2DLPLookUp, CamData* MyCamera);
 
@@ -136,24 +137,10 @@ void ImageAndProjectInClosedLoop(int *CCD2DLPLookUp, CamData* MyCamera) {
 }
 
 int main() {
-
-	FILE *fp;
-	int result;
-	/*************** Read Calibration from File ****************/
-	int *CCD2DLPLookUp;
-	CCD2DLPLookUp = (int *) malloc(2 * NSIZEX * NSIZEY * sizeof(int));
-
-	if ((fp = fopen("calib.dat", "rb")) == NULL) {
-		printf("Cannot open file.\n");
-	}
-	result = 0;
-	result = fread(CCD2DLPLookUp, sizeof(int) * 2 * NSIZEX * NSIZEY, 1, fp);
-	if (result != 1) {
-		printf("Read error!\n");
-	} else
-		printf("Read was successful.\n");
-
-	printf("close succeeded\n");
+	/** Read In Calibration Data ***/
+	CalibData* Calib;
+	CreateCalibData(Calib,cvSize(NSIZEX,NSIZEY),cvSize(NSIZEX,NSIZEY));
+	LoadCalibFromFile(Calib,"calib.dat");
 
 
 
@@ -172,7 +159,7 @@ int main() {
 	printf("Told Camera to Grab Frames as Quickly as Possible: %d\n", *MyCamera);
 	printf("About to enter DoThecameraDLPThing() \n");
 
-	ImageAndProjectInClosedLoop(CCD2DLPLookUp, MyCamera);
+	ImageAndProjectInClosedLoop(Calib->CCD2DLPLookUp, MyCamera);
 
 	/***** Turn off Camera & DLP ****/
 	printf("Outside of DoTheCameraDLPThing About to turn off camera %d\n",
@@ -180,6 +167,8 @@ int main() {
 	T2Cam_TurnOff(&MyCamera);
 	printf("Turned off camera\n");
 	T2Cam_CloseLib();
+
+	DestroyCalibData(Calib);
 	return 0;
 
 }

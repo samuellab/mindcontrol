@@ -4,6 +4,8 @@
 #include <highgui.h>
 #include <cv.h>
 
+#include <stdio.h>
+
 
 #include "CalibLib.h"
 
@@ -42,7 +44,7 @@ void DestroyCalibData(CalibData* Calib){
  * Returns -1 if open succesfully but read fails.
  */
 
-int ReadCalibFromFile(CalibData* Calib, char * filename){
+int LoadCalibFromFile(CalibData* Calib, char * filename){
 	FILE *fp;
 	int result;
 	int FLAG=0;
