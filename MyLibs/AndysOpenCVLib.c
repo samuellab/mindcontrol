@@ -5,7 +5,7 @@
  *      Author: Andy
  */
 
-
+#include <highgui.h>
 #include <cxcore.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -90,9 +90,15 @@ static int cmp_funcx( const void* _a, const void* _b, void* userdata )
  ***************************************************************
  */
 
-void CreateFrame(Frame* myFrame,CvSize size){
+/*
+ * Creates a frame. Allocates memory for frame structure.
+ * Allocates memory for binary image.
+ * Allocates memory for IplImage
+ *
+ */
+Frame* CreateFrame(CvSize size){
 	/*** Allocate memory for the Frame OBject ***/
-	myFrame = (Frame*) malloc(sizeof(Frame));
+	Frame* myFrame = (Frame*) malloc(sizeof(Frame));
 	myFrame->size=size;
 
 	/*** Allocate memory for the image ***/
@@ -105,15 +111,53 @@ void CreateFrame(Frame* myFrame,CvSize size){
 		myFrame->binary[count] = 0;
 		count++;
 	}
-
-
-
+	return myFrame;
 }
 
-
-void DestroyFrame(){
-	/****************** ANDY WORK HERE!!! *********/
+/*
+ * Destroys a frame.
+ * Deallocates memory for binary image.
+ * Deallocates memory for IplImage
+ * Deallocates memory for Frame structure
+ * Set's myFrame pointer to null.
+ */
+void DestroyFrame(Frame** myFrame){
+	cvReleaseImage(&( (*myFrame)->iplimg));
+	free( (*myFrame)->binary);
+	free(*myFrame);
+	*myFrame=NULL;
 }
+
+/*
+ * Load the Frame with a Binary Image
+ *
+ * copies the binary image into the frame's memory and
+ * then copies the charArray to an iplImage and stores that
+ * in the frame also
+ *
+ * NOTE: the binary image must have size myFrame->size
+ *
+ */
+void LoadFrameWithBin(unsigned char* binsrc, Frame* myFrame){
+	memcpy(myFrame->binary, binsrc, myFrame->size.width * myFrame->size.height * sizeof(unsigned char));
+	CopyCharArrayToIplImage(myFrame->binary, myFrame->iplimg, myFrame->size.width, myFrame->size.height);
+}
+
+/*
+ * Load the Frame with a IplImage
+ *
+ * copies the IplImage into the frame's memory and
+ * then converts it to a binary image and stores that
+ * in the frame also
+ *
+ * NOTE: the image must have size myFrame->size
+ *
+ */
+void LoadFrameWithImage(IplImage* imgsrc, Frame* myFrame){
+	cvCopy(imgsrc,myFrame->iplimg,0);
+	copyIplImageToCharArray(myFrame->iplimg,myFrame->binary);
+}
+
 
 
 
@@ -130,7 +174,7 @@ void DestroyFrame(){
  * arr must be preallocated and be src->width*src->height in size
  */
 
-void copyIplImageToCharArray(const IplImage *src, unsigned char **arr) {
+void copyIplImageToCharArray(const IplImage *src, unsigned char *arr) {
 	int i;
 	if (src == NULL || arr == NULL) {
 		printf("NULL passed to copyIplImageToCharArray\n");
@@ -139,7 +183,7 @@ void copyIplImageToCharArray(const IplImage *src, unsigned char **arr) {
 //	*arr = (unsigned char*) malloc(src->width * src->height
 //			* sizeof(unsigned char));
 	for (i = 0; i < src->height; i++) {
-		memcpy(*arr + i * src->width, src->imageData + i * src->widthStep,
+		memcpy(arr + i * src->width, src->imageData + i * src->widthStep,
 				src->width);
 	}
 

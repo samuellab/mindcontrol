@@ -51,32 +51,10 @@ void ImageAndProjectInClosedLoop(int *CCD2DLPLookUp, CamData* MyCamera) {
 	printf("DLP turned on.\n");
 	unsigned long lastFrameSeenOutside = 0;
 
-	unsigned char* fromCCD;
-	unsigned char* forDLP;
-	fromCCD = (unsigned char *) malloc(NSIZEX * NSIZEY * sizeof(unsigned char));
-	forDLP = (unsigned char *) malloc(NSIZEX * NSIZEY * sizeof(unsigned char));
-	printf("allocated memory for fromCCD and forDLP\n");
-	//Set everything to zero.
-	int count = 0;
-	while (count < NSIZEX * NSIZEY * sizeof(char)) {
-		fromCCD[count] = 0;
-		forDLP[count] = 0;
-		count = count + 1;
-	}
+	Frame* fromCCD =CreateFrame(cvSize(NSIZEX,NSIZEY));
+	Frame* forDLP =CreateFrame(cvSize(NSIZEX,NSIZEY));
 
 
-	printf("set fromCCD and forDLP to zero\n");
-	printf("Sending zeros to DLP\n");
-
-	T2DLP_SendFrame(forDLP, myDLP);
-	printf("Outside of T2DLP_SendFrame()\n");
-
-	IplImage *frame;
-	IplImage *toDLP;
-	frame = cvCreateImage(cvSize(NSIZEX, NSIZEY), IPL_DEPTH_8U, 1);
-	toDLP = cvCreateImage(cvSize(NSIZEX, NSIZEY), IPL_DEPTH_8U, 1);
-
-	printf("ran cvCreateImage twice.\n");
 
 	printf("entering giant loop\n");
 	int numFramesRec = 0;
@@ -87,27 +65,27 @@ void ImageAndProjectInClosedLoop(int *CCD2DLPLookUp, CamData* MyCamera) {
 			//Create a local copy of the image;
 
 			printf("Starting memcpy \n");
-			memcpy(fromCCD, MyCamera->iImageData, NSIZEX * NSIZEY
+			memcpy(fromCCD->binary, MyCamera->iImageData, NSIZEX * NSIZEY
 					* sizeof(unsigned char));
-			CopyCharArrayToIplImage(fromCCD, frame, NSIZEX, NSIZEY);
+			CopyCharArrayToIplImage(fromCCD->binary, fromCCD->iplimg, NSIZEX, NSIZEY);
 			printf("Copied camera image to fromCCD \n");
-			cvShowImage("FromCamera", frame);
+			cvShowImage("FromCamera", fromCCD->iplimg);
 			cvWaitKey(10);
 			printf("Displayed frame in window FromCamera\n");
 
 			numFramesRec++;
 
 			printf("Converting image from CCD to DLP...\n");
-			ConvertCharArrayImageFromCam2DLP(CCD2DLPLookUp, fromCCD, forDLP,
+			ConvertCharArrayImageFromCam2DLP(CCD2DLPLookUp, fromCCD->binary, forDLP->binary,
 					NSIZEX, NSIZEY, NSIZEX, NSIZEY, 0);
 
 			printf("\n=============ONE FRAME Converted!");
-			T2DLP_SendFrame((unsigned char *) forDLP, myDLP); // Send image to DLP
+			T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
 			printf("Sent frame to dLP\n");
 			//display frame that we grabbed from camera
-			CopyCharArrayToIplImage(forDLP, toDLP, NSIZEX, NSIZEY);
+			CopyCharArrayToIplImage(forDLP->binary, forDLP->iplimg, NSIZEX, NSIZEY);
 			printf("Copied CharArrayToIplImage\n");
-			cvShowImage("ToDLP", toDLP);
+			cvShowImage("ToDLP", forDLP->iplimg);
 			cvWaitKey(10);
 			printf("Wait until key is hit...\n");
 
@@ -122,12 +100,12 @@ void ImageAndProjectInClosedLoop(int *CCD2DLPLookUp, CamData* MyCamera) {
 		}
 
 	}
-	printf("Freeing memory\n");
-	free(fromCCD);
-	free(forDLP);
-	printf("Releasing Images\n");
-	cvReleaseImage(&toDLP);
-	cvReleaseImage(&frame);
+
+	DestroyFrame(&fromCCD);
+	DestroyFrame(&forDLP);
+
+
+
 	//	cvDestroyAllWindows();
 	T2DLP_off(myDLP);
 	printf("Exiting DoTheCameraDLPThing()");

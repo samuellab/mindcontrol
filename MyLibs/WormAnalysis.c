@@ -560,7 +560,7 @@ void SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
 void DisplayWormHeadTail(WormAnalysisData* Worm, char* WindowName){
 	int CircleDiameterSize=10;
 	IplImage* TempImage=cvCreateImage(cvGetSize(Worm->ImgSmooth),IPL_DEPTH_8U,1);
-	cvCopyImage(Worm->ImgSmooth,TempImage);
+	cvCopy(Worm->ImgSmooth,TempImage,0);
 	cvCircle(TempImage,*(Worm->Tail),CircleDiameterSize,cvScalar(255,255,255),1,CV_AA,0);
 	cvCircle(TempImage,*(Worm->Head),CircleDiameterSize/2,cvScalar(255,255,255),1,CV_AA,0);
 	cvShowImage(WindowName,TempImage);

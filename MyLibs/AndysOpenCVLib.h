@@ -25,9 +25,14 @@ typedef struct MemoryManagementStruct{
 	CvMemStorage meso;
 } MemMan;
 
+/***************************************************************
+ * Working with the Frame Data Type
+ ***************************************************************
+ */
+
 
 /*
- * Frame is contains a binary representation and an IplImage representation of a frame.
+ * Frame contains a binary representation and an IplImage representation of a frame.
  * This is useful in conjuncture with the TransformLib.h library that converts
  * from CCD to DLP space.
  *
@@ -41,10 +46,29 @@ typedef struct FrameStruct{
 
 
 /*
+ * Creates a frame. Allocates memory for frame structure.
+ * Allocates memory for binary image.
+ * Allocates memory for IplImage
+ *
+ */
+Frame* CreateFrame(CvSize size);
+
+/*
+ * Destroys a frame.
+ * Deallocates memory for binary image.
+ * Deallocates memory for IplImage
+ * Deallocates memory for Frame structure
+ * Set's myFrame pointer to null.
+ */
+void DestroyFrame(Frame** myFrame);
+
+
+
+/*
  * copies the 8 bit image data in src to the character array arr
  * arr must be preallocated and be src->width*src->height in size
  */
-void copyIplImageToCharArray (const IplImage *src, unsigned char **arr);
+void copyIplImageToCharArray (const IplImage *src, unsigned char *arr);
 
 /*
  * Creates a single channel 8bit IplImage and copies the 8 bit image data
