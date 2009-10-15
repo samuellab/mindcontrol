@@ -12,7 +12,8 @@
 #include <string.h>
 #include "AndysOpenCVLib.h"
 #include <limits.h>
-#include "Global.h"
+
+#define PRINTOUT 0
 
 /*
  * The compartive function used to sort a sequence of points by their y value

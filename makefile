@@ -43,7 +43,7 @@ segment_objects = SegmentFrame.o  AndysComputations.o 	$(WormSpecificLibs) $(myO
 illumworm_objects=  IllumWorm.o $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)	
 
 #Executables
-all : $(targetDir)/ClosedLoop.exe $(targetDir)/CalibrateApparatus.exe $(targetDir)/SegmentFrame.exe $(targetDir)/IlluminateWorm.exe
+all : $(targetDir)/ClosedLoop.exe $(targetDir)/CalibrateApparatus.exe $(targetDir)/SegmentFrame.exe $(targetDir)/IlluminateWorm.exe clean
 
 $(targetDir)/CalibrateApparatus.exe : $(calib_objects)
 	g++ -o $(targetDir)/CalibrateApparatus.exe $(calib_objects) $(TailOpts)

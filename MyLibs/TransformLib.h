@@ -1,11 +1,12 @@
 /*
- * CalibLib.h
+ * TransformLib.h
  *
  *  Created on: Oct 15, 2009
  *      Author: andy
  *
- *      The Calibration Library is the library that deals with transforming between
- *      the camera, OpenCV and DLP. Perhaps Transformation Library would be a better name.
+ *      The Transformation Library is the library that deals with transforming between
+ *      the camera, OpenCV and the DLP. This was formerly called CalibLib because all of the
+ *      calibration functions are handled in this library.
  *
  *      The idea is Calibration Library can include both the Talk2Camera and Talk2DLP libraries.
  *

@@ -30,12 +30,13 @@ using namespace std;
 #include <cxcore.h>
 
 //Andy's Personal Headers
-#include "MyLibs/Global.h"
 #include "MyLibs/AndysOpenCVLib.h"
 #include "MyLibs/Talk2Camera.h"
 #include "MyLibs/Talk2DLP.h"
 #include "MyLibs/Talk2Matlab.h"
 #include "MyLibs/AndysComputations.h"
+
+#define PRINTOUT 0
 
 void ImageAndProjectInClosedLoop(int *CCD2DLPLookUp, CamData* MyCamera);
 
