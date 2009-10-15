@@ -68,15 +68,8 @@ void ImageAndProjectInClosedLoop(CalibData* Calib, CamData* MyCamera) {
 			cvShowImage("FromCamera", fromCCD->iplimg);
 			cvWaitKey(1);
 			numFramesRec++;
-		//	ConvertCharArrayImageFromCam2DLP(CCD2DLPLookUp, fromCCD->binary, forDLP->binary,
-			//		NSIZEX, NSIZEY, NSIZEX, NSIZEY, 0);
 			TransformFrameCam2DLP(fromCCD,forDLP,Calib);
-			printf("ConvertCharArayImageFromCam2DLP\n");
 			T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
-			printf("Sent frame to dLP\n");
-			//display frame that we grabbed from camera
-			CopyCharArrayToIplImage(forDLP->binary, forDLP->iplimg, NSIZEX, NSIZEY);
-			printf("Copied CharArrayToIplImage\n");
 			cvShowImage("ToDLP", forDLP->iplimg);
 			cvWaitKey(1);
 			printf("Wait until key is hit...\n");
@@ -131,7 +124,7 @@ int main() {
 
 
 	/** Actually Do Something **/
-	ImageAndProjectInClosedLoop(Calib->CCD2DLPLookUp, MyCamera);
+	ImageAndProjectInClosedLoop(Calib, MyCamera);
 
 	/***** Turn off Camera & DLP ****/
 	T2Cam_TurnOff(&MyCamera);
