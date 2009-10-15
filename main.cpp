@@ -143,33 +143,26 @@ int main() {
 	LoadCalibFromFile(Calib,"calib.dat");
 
 
-
-
 	/** Turn on Camera **/
-
 	T2Cam_InitializeLib();
 	CamData *MyCamera;
 	T2Cam_AllocateCamData(&MyCamera);
-	printf("Allocated Camera: %d\n", *MyCamera);
 	T2Cam_ShowDeviceSelectionDialog(&MyCamera);
-	printf("Set Camera Properties: %d\n", *MyCamera);
-	//Tell the Camera To Start and to call the callback function
-	//The Call back function will store the frame form the camera and update the iFrameNumber
-	T2Cam_GrabFramesAsFastAsYouCan(&MyCamera);
-	printf("Told Camera to Grab Frames as Quickly as Possible: %d\n", *MyCamera);
-	printf("About to enter DoThecameraDLPThing() \n");
 
+
+	/** Start Grabbing Frames and Update the Internal Frame Number iFrameNumber **/
+	T2Cam_GrabFramesAsFastAsYouCan(&MyCamera);
+
+
+	/** Actually Do Something **/
 	ImageAndProjectInClosedLoop(Calib->CCD2DLPLookUp, MyCamera);
 
 	/***** Turn off Camera & DLP ****/
-	printf("Outside of DoTheCameraDLPThing About to turn off camera %d\n",
-			*MyCamera);
 	T2Cam_TurnOff(&MyCamera);
-	printf("Turned off camera\n");
 	T2Cam_CloseLib();
 
 	DestroyCalibData(Calib);
+	printf("Good bye.\n");
 	return 0;
-
 }
 

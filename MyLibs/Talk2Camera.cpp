@@ -92,7 +92,7 @@ void T2Cam_GrabFramesAsFastAsYouCan(CamData** CameraDataStruct) {
 /*
  *
  * Takes a CameraDataStruct with an initialized frame grabber
- * and turns it off.
+ * and turns it off. De Allocates Camera Data.
  *
  */
 void T2Cam_TurnOff(CamData** CameraDataStruct) {
