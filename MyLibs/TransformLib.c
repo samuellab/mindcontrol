@@ -6,7 +6,7 @@
 
 #include <stdio.h>
 
-
+#include "AndysOpenCVLib.h"
 #include "TransformLib.h"
 
 /*************************************
@@ -93,6 +93,23 @@ int LoadCalibFromFile(CalibData* Calib, char * filename){
 	if (FLAG==0) fclose(fp);
 	if (result ==0) FLAG=-1;
 	return FLAG;
+}
+
+
+/*
+ * Transform's the binary image from the frame in Cam and transforms it DLP space.
+ * Copies it into the DLP frame and also converts it to IlpImage and copies that to the DLP
+ * frame also.
+ *
+ */
+int TransformFrameCam2DLP(Frame* Cam, Frame* DLP, CalibData* Calib) {
+	int ret = 0;
+	ret = ConvertCharArrayImageFromCam2DLP(Calib->CCD2DLPLookUp, Cam->binary,
+			DLP->binary, Cam->size.width, Cam->size.height, DLP->size.width,
+			DLP->size.height, 0);
+	if (ret == 0)
+		ret = CopyCharArrayToIplImage(DLP->binary, DLP->iplimg,DLP->size.height,DLP->size.width);
+	return ret;
 }
 
 
