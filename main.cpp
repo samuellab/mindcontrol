@@ -31,9 +31,9 @@ using namespace std;
 #include "MyLibs/AndysComputations.h"
 #include "MyLibs/TransformLib.h"
 
-void ImageAndProjectInClosedLoop(int *CCD2DLPLookUp, CamData* MyCamera);
+void ImageAndProjectInClosedLoop(CalibData* Calib, CamData* MyCamera);
 
-void ImageAndProjectInClosedLoop(int *CCD2DLPLookUp, CamData* MyCamera) {
+void ImageAndProjectInClosedLoop(CalibData* Calib, CamData* MyCamera) {
 	int thresh;
 
 	cvNamedWindow("FromCamera", CV_WINDOW_AUTOSIZE);
@@ -70,6 +70,7 @@ void ImageAndProjectInClosedLoop(int *CCD2DLPLookUp, CamData* MyCamera) {
 			numFramesRec++;
 		//	ConvertCharArrayImageFromCam2DLP(CCD2DLPLookUp, fromCCD->binary, forDLP->binary,
 			//		NSIZEX, NSIZEY, NSIZEX, NSIZEY, 0);
+			TransformFrameCam2DLP(fromCCD,forDLP,Calib);
 			printf("ConvertCharArayImageFromCam2DLP\n");
 			T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
 			printf("Sent frame to dLP\n");
