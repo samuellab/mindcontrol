@@ -38,9 +38,7 @@ void ImageAndProjectInClosedLoop(int *CCD2DLPLookUp, CamData* MyCamera) {
 
 	cvNamedWindow("FromCamera", CV_WINDOW_AUTOSIZE);
 	cvMoveWindow("FromCamera", 200, 200);
-
 	cvNamedWindow("ToDLP", CV_WINDOW_AUTOSIZE);
-
 	cvNamedWindow("ProcessedImage", CV_WINDOW_AUTOSIZE);
 	cvMoveWindow("ProcessedImage",500,0);
 //	cvCreateTrackbar("Threshold", "ProcessedImage", thresh, 255, NULL);
@@ -152,6 +150,16 @@ int main() {
 
 	/** Start Grabbing Frames and Update the Internal Frame Number iFrameNumber **/
 	T2Cam_GrabFramesAsFastAsYouCan(&MyCamera);
+
+
+
+	/*** SetUp Gui ***/
+	cvNamedWindow("FromCamera", CV_WINDOW_AUTOSIZE);
+	cvMoveWindow("FromCamera", 200, 200);
+	cvNamedWindow("ToDLP", CV_WINDOW_AUTOSIZE);
+	cvNamedWindow("ProcessedImage", CV_WINDOW_AUTOSIZE);
+	cvMoveWindow("ProcessedImage",500,0);
+
 
 
 	/** Actually Do Something **/

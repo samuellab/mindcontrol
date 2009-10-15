@@ -35,6 +35,7 @@ typedef struct MemoryManagementStruct{
 typedef struct FrameStruct{
 	unsigned char * binary;
 	IplImage* iplimg;
+	CvSize size;
 }Frame;
 
 

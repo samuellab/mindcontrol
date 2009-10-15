@@ -90,9 +90,27 @@ static int cmp_funcx( const void* _a, const void* _b, void* userdata )
  ***************************************************************
  */
 
-void CreateFrame(){
-	/****************** ANDY WORK HERE!!! *********/
+void CreateFrame(Frame* myFrame,CvSize size){
+	/*** Allocate memory for the Frame OBject ***/
+	myFrame = (Frame*) malloc(sizeof(Frame));
+	myFrame->size=size;
+
+	/*** Allocate memory for the image ***/
+	myFrame->binary=(unsigned char *) malloc(size.width* size.height * sizeof(unsigned char));
+	myFrame->iplimg=cvCreateImage(size, IPL_DEPTH_8U, 1);
+
+	/*** Set Binary Image to Zero ***/
+	int count=0;
+	while (count < myFrame->size.height * myFrame->size.width * sizeof(char)) {
+		myFrame->binary[count] = 0;
+		count++;
+	}
+
+
+
 }
+
+
 void DestroyFrame(){
 	/****************** ANDY WORK HERE!!! *********/
 }
