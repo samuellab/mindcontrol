@@ -143,11 +143,9 @@ int main() {
 	int *CCD2DLPLookUp;
 	CCD2DLPLookUp = (int *) malloc(2 * NSIZEX * NSIZEY * sizeof(int));
 
-	printf("Now trying to open again\n");
 	if ((fp = fopen("calib.dat", "rb")) == NULL) {
 		printf("Cannot open file.\n");
 	}
-	printf("opened..\n");
 	result = 0;
 	result = fread(CCD2DLPLookUp, sizeof(int) * 2 * NSIZEX * NSIZEY, 1, fp);
 	if (result != 1) {
@@ -155,11 +153,10 @@ int main() {
 	} else
 		printf("Read was successful.\n");
 
-	printf("Trying to close calib.dat \n");
-	fflush(stdout);
-	fclose(fp);
 	printf("close succeeded\n");
-	fflush(stdout);
+
+
+
 
 	/** Turn on Camera **/
 

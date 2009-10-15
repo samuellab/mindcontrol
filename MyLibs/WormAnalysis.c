@@ -13,6 +13,7 @@
 
 #include "WormAnalysis.h"
 
+
 /*
  *
  * Every function here should have the word Worm in it
@@ -61,7 +62,6 @@ WormAnalysisData* CreateWormAnalysisDataStruct(){
 
 	/*** Initialze Worm Memory Storage***/
 	InitializeWormMemStorage(WormPtr);
-
 
 	/**** Allocate Memory for CvSeq ***/
 	WormPtr->Boundary=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),WormPtr->MemStorage);
