@@ -35,7 +35,7 @@ typedef struct CalibDataStruct{
  * Currently SizeOfCCD is stored but not really used
  *
  */
-void CreateCalibData( CalibData* Calib,CvSize SizeOfDLP, CvSize SizeOfCCD);
+CalibData* CreateCalibData( CvSize SizeOfDLP, CvSize SizeOfCCD);
 
 /*
  * Deallocate memory for CalibData object

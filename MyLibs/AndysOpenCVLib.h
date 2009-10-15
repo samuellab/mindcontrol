@@ -63,6 +63,29 @@ Frame* CreateFrame(CvSize size);
 void DestroyFrame(Frame** myFrame);
 
 
+/*
+ * Load the Frame with a Binary Image
+ *
+ * copies the binary image into the frame's memory and
+ * then copies the charArray to an iplImage and stores that
+ * in the frame also
+ *
+ * NOTE: the binary image must have size myFrame->size
+ *
+ */
+void LoadFrameWithBin(unsigned char* binsrc, Frame* myFrame);
+
+/*
+ * Load the Frame with a IplImage
+ *
+ * copies the IplImage into the frame's memory and
+ * then converts it to a binary image and stores that
+ * in the frame also
+ *
+ * NOTE: the image must have size myFrame->size
+ *
+ */
+void LoadFrameWithImage(IplImage* imgsrc, Frame* myFrame);
 
 /*
  * copies the 8 bit image data in src to the character array arr

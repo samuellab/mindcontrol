@@ -16,12 +16,14 @@
  * Currently SizeOfCCD is stored but not really used
  *
  */
-void CreateCalibData( CalibData* Calib,CvSize SizeOfDLP, CvSize SizeOfCCD){
+CalibData* CreateCalibData( CvSize SizeOfDLP, CvSize SizeOfCCD){
 
-	Calib=(CalibData*) malloc(sizeof(CalibData));
+	printf("Inside CreateCalibData()\nSizeOfDLP.height =%d,SizeOfDLP.width=%d\n",SizeOfDLP.height ,SizeOfDLP.width);
+	CalibData* Calib=(CalibData*) malloc(sizeof(CalibData));
 	Calib->CCD2DLPLookUp = (int *) malloc(2 * SizeOfDLP.height * SizeOfDLP.width* sizeof(int));
 	Calib->SizeOfCCD=SizeOfCCD;
 	Calib->SizeOfDLP=SizeOfDLP;
+	return Calib;
 }
 
 /*

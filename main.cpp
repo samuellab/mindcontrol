@@ -63,37 +63,23 @@ void ImageAndProjectInClosedLoop(int *CCD2DLPLookUp, CamData* MyCamera) {
 			printf("Fresh frame ready from camera.\n");
 			lastFrameSeenOutside = MyCamera->iFrameNumber;
 			//Create a local copy of the image;
-
-			printf("Starting memcpy \n");
-			memcpy(fromCCD->binary, MyCamera->iImageData, NSIZEX * NSIZEY
-					* sizeof(unsigned char));
-			CopyCharArrayToIplImage(fromCCD->binary, fromCCD->iplimg, NSIZEX, NSIZEY);
-			printf("Copied camera image to fromCCD \n");
+			LoadFrameWithBin(MyCamera->iImageData,fromCCD);
+			printf("LoadFrameWith Bin\n");
 			cvShowImage("FromCamera", fromCCD->iplimg);
-			cvWaitKey(10);
-			printf("Displayed frame in window FromCamera\n");
-
+			cvWaitKey(1);
 			numFramesRec++;
-
-			printf("Converting image from CCD to DLP...\n");
 			ConvertCharArrayImageFromCam2DLP(CCD2DLPLookUp, fromCCD->binary, forDLP->binary,
 					NSIZEX, NSIZEY, NSIZEX, NSIZEY, 0);
-
-			printf("\n=============ONE FRAME Converted!");
+			printf("ConvertCharArayImageFromCam2DLP\n");
 			T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
 			printf("Sent frame to dLP\n");
 			//display frame that we grabbed from camera
 			CopyCharArrayToIplImage(forDLP->binary, forDLP->iplimg, NSIZEX, NSIZEY);
 			printf("Copied CharArrayToIplImage\n");
 			cvShowImage("ToDLP", forDLP->iplimg);
-			cvWaitKey(10);
+			cvWaitKey(1);
 			printf("Wait until key is hit...\n");
-
 			if (kbhit()) break;
-			printf("Frame number %d", numFramesRec);
-			//	if (numFramesRec==300) break;
-			printf("Done waiting.\n");
-			//	printf("Displayed DLP image on screen");
 			printf("*");
 		} else {
 			//	printf("_");
@@ -114,9 +100,12 @@ void ImageAndProjectInClosedLoop(int *CCD2DLPLookUp, CamData* MyCamera) {
 
 int main() {
 	/** Read In Calibration Data ***/
-	CalibData* Calib;
-	CreateCalibData(Calib,cvSize(NSIZEX,NSIZEY),cvSize(NSIZEX,NSIZEY));
-	LoadCalibFromFile(Calib,"calib.dat");
+	CalibData* Calib =CreateCalibData(cvSize(NSIZEX,NSIZEY),cvSize(NSIZEX,NSIZEY));
+	int ret=LoadCalibFromFile(Calib,"calib.dat");
+	if (ret!=0){
+		printf("Error reading in calibration!! \n",ret);
+		return 0;
+	}
 
 
 	/** Turn on Camera **/

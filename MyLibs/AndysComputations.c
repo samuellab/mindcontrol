@@ -57,7 +57,10 @@ int ConvertCharArrayImageFromCam2DLP(int *CCD2DLPLookUp,  unsigned char* fromCCD
 	if (nsizex!=ccdsizex || nsizey != ccdsizey){
 		printf("ERROR: Ignoring values of ccdsizex & ccdsizey. \nCurrently CCD must be the same size as the DLP.\n This functionality has yet to be coded up.");
 	}
-
+	if (CCD2DLPLookUp==NULL){
+		printf("ERROR! CCD2DLPLookUp==NULL!\n");
+		return -1;
+	}
 	unsigned int tempx = 0;
 	unsigned int tempy = 0;
 	int XOUT = 0;
