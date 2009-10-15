@@ -107,7 +107,7 @@ int CalibrateAPoint(CvPoint PointOnDLP, CvSeq* CalibSeq, int numframes,
 			CV_RGB(255,255,255), CV_FILLED, 8);
 
 	//Send the Circle to DLP
-	copyIplImageToCharArray(dlpImage, &image2DLP);
+	copyIplImageToCharArray(dlpImage, image2DLP);
 	T2DLP_SendFrame((unsigned char *) image2DLP, myDLP);
 	//cvWaitKey(10);
 
@@ -167,7 +167,7 @@ int CalibrateAPoint(CvPoint PointOnDLP, CvSeq* CalibSeq, int numframes,
 
 	//SEt the DLP to zero.
 	cvSetZero(dlpImage);
-	copyIplImageToCharArray(dlpImage, &image2DLP);
+	copyIplImageToCharArray(dlpImage, image2DLP);
 	T2DLP_SendFrame((unsigned char *) image2DLP, myDLP);
 
 	// Now we  find the median.
