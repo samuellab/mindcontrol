@@ -26,6 +26,18 @@ typedef struct MemoryManagementStruct{
 } MemMan;
 
 
+/*
+ * Frame is contains a binary representation and an IplImage representation of a frame.
+ * This is useful in conjuncture with the TransformLib.h library that converts
+ * from CCD to DLP space.
+ *
+ */
+typedef struct FrameStruct{
+	unsigned char * binary;
+	IplImage* iplimg;
+}Frame;
+
+
 
 /*
  * copies the 8 bit image data in src to the character array arr

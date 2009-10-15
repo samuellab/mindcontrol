@@ -10,8 +10,6 @@
  *
  *      The idea is Calibration Library can include both the Talk2Camera and Talk2DLP libraries.
  *
- *      It is also the place to store frame structures. For example a FromCam structure could have
- *      camera specific frame storage as well as an OpenCV version.
  */
 
 
@@ -25,8 +23,9 @@ typedef struct CalibDataStruct{
 	int* CCD2DLPLookUp;
 	CvSize SizeOfDLP;
 	CvSize SizeOfCCD;
-
 } CalibData;
+
+
 
 
 

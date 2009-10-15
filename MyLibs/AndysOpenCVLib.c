@@ -15,6 +15,14 @@
 
 #define PRINTOUT 0
 
+
+
+/***************************************************************
+ * Private Functions
+ ***************************************************************
+ */
+
+
 /*
  * The compartive function used to sort a sequence of points by their y value
  *
@@ -76,6 +84,26 @@ static int cmp_funcx( const void* _a, const void* _b, void* userdata )
 }
 
 
+
+/***************************************************************
+ * Working with the Frame Data Type
+ ***************************************************************
+ */
+
+void CreateFrame(){
+	/****************** ANDY WORK HERE!!! *********/
+}
+void DestroyFrame(){
+	/****************** ANDY WORK HERE!!! *********/
+}
+
+
+
+
+/***************************************************************
+ * Conversions to and From IplImage to CharArray
+ ***************************************************************
+ */
 
 
 
