@@ -28,7 +28,7 @@ openCVincludes = -I$(CVdir)/cxcore/include -I$(CVdir)/otherlibs/highgui -I$(CVdi
 # objects that I have written, in order of dependency. 
 # e.g. If object B depends on A, then object A should be to the left of B (but apparently only sometimes). 
 myOpenCVlibraries= AndysOpenCVLib.o
-mylibraries=  AndysComputations.o Talk2DLP.o Talk2Camera.o $(myOpenCVlibraries) Talk2Matlab.o CalibLib.o
+mylibraries=  AndysComputations.o Talk2DLP.o Talk2Camera.o $(myOpenCVlibraries) Talk2Matlab.o TransformLib.o
 WormSpecificLibs= WormAnalysis.o 
 
 #3rd party statically linked objects
@@ -55,7 +55,7 @@ $(targetDir)/ClosedLoop.exe : $(objects)
 	g++ -o $(targetDir)/ClosedLoop.exe $(objects) $(TailOpts)
 	
 	
-main.o : main.cpp $(3rdPartyLibs)/tisgrabber.h $(3rdPartyLibs)/TISGrabberGlobalDefs.h $(MyLibs)/Talk2DLP.h $(MyLibs)/Talk2Camera.h  $(MyLibs)/CalibLib.h $(MatlabIncDir)/engine.h
+main.o : main.cpp $(3rdPartyLibs)/tisgrabber.h $(3rdPartyLibs)/TISGrabberGlobalDefs.h $(MyLibs)/Talk2DLP.h $(MyLibs)/Talk2Camera.h  $(MyLibs)/TransformLib.h $(MatlabIncDir)/engine.h
 	g++ -c -Wall main.cpp -I"inc" -I$(MyLibs) $(openCVincludes) $(TailOpts) 
 	
 Talk2DLP.o : $(MyLibs)/Talk2DLP.h $(MyLibs)/Talk2DLP.cpp 
@@ -74,8 +74,8 @@ Talk2Matlab.o : $(MyLibs)/Talk2Matlab.c $(MyLibs)/Talk2Matlab.h
 AndysComputations.o : $(MyLibs)/AndysComputations.c $(MyLibs)/AndysComputations.h
 	g++ -c -v -Wall $(MyLibs)/AndysComputations.c  $(TailOpts)
 
-CalibLib.o: $(MyLibs)/CalibLib.c
-	g++ -c -v -Wall $(MyLibs)/CalibLib.c $(openCVincludes) $(TailOpts)
+TransformLib.o: $(MyLibs)/TransformLib.c
+	g++ -c -v -Wall $(MyLibs)/TransformLib.c $(openCVincludes) $(TailOpts)
 
 
 
