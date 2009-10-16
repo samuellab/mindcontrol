@@ -79,8 +79,8 @@ int main() {
 	cvNamedWindow("FromCamera", CV_WINDOW_AUTOSIZE);
 	cvMoveWindow("FromCamera", 200, 200);
 	cvNamedWindow("ToDLP", CV_WINDOW_AUTOSIZE);
-	cvNamedWindow("ProcessedImage", CV_WINDOW_AUTOSIZE);
-	cvMoveWindow("ProcessedImage",500,0);
+	cvNamedWindow("TestOut", CV_WINDOW_AUTOSIZE);
+
 
 
 
@@ -94,6 +94,7 @@ int main() {
 	/*** Create Frames **/
 	Frame* fromCCD =CreateFrame(cvSize(NSIZEX,NSIZEY));
 	Frame* forDLP =CreateFrame(cvSize(NSIZEX,NSIZEY));
+	Frame* IlluminationFrame=CreateFrame(cvSize(NSIZEX,NSIZEY));
 
 	/** Create Worm Data Struct and Worm Parameter Struct **/
 	WormAnalysisData* Worm=CreateWormAnalysisDataStruct();
@@ -145,10 +146,8 @@ int main() {
 
 
 			/*** Do Some Illumination ***/
-
-
-
-			TransformFrameCam2DLP(fromCCD,forDLP,Calib);
+			SimpleIlluminateWorm(Worm,IlluminationFrame,20,30);
+			TransformFrameCam2DLP(IlluminationFrame,forDLP,Calib);
 			T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
 			cvShowImage("ToDLP", forDLP->iplimg);
 			cvWaitKey(1);
