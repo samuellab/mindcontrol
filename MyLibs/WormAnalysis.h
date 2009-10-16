@@ -29,6 +29,7 @@ typedef struct SegmentedWormStruct{
 	CvPoint* Head;
 	CvPoint* Tail;
 	CvMemStorage* MemSegStorage;
+	int NumSegments;
 } SegmentedWorm;
 
 
@@ -210,6 +211,16 @@ void FindWormBoundary(WormAnalysisData* Worm, WormAnalysisParam* WormParams);
 int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Params);
 
 
+/*
+ * This is a Wrapper function for Illuminate Worm Segment
+ * It will create an image of a range of segments on both sides of the worm
+ *
+ * It stores an IplImage in the frame and a binary copy in the frame.
+ *
+ * It has a lot of copying of images though. Hopefully this won't be too slow.
+ *
+ */
+int SimpleIlluminateWorm(WormAnalysisData* Worm, Frame* IllumFrame,int start, int end)
 
 /*
  * Illuminate a segment of the worm. Either the right, or left side.

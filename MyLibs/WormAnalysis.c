@@ -210,6 +210,7 @@ SegWorm= (SegmentedWorm*) malloc(sizeof(SegmentedWorm));
 
 SegWorm->Head=NULL;
 SegWorm->Tail=NULL;
+SegWorm->NumSegments=NULL;
 
 /*** Setup Memory storage ***/
 
@@ -410,6 +411,43 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 
 
 /*
+ * This is a Wrapper function for Illuminate Worm Segment
+ * It will create an image of a range of segments on both sides of the worm
+ *
+ * It stores an IplImage in the frame and a binary copy in the frame.
+ *
+ * It has a lot of copying of images though. Hopefully this won't be too slow.
+ *
+ */
+int SimpleIlluminateWorm(WormAnalysisData* Worm, Frame* IllumFrame,int start, int end){
+	IplImage* TempImage=cvCreateImage(Worm->SizeOfImage, IPL_DEPTH_8U, 1);
+	if (start>end){
+		printf("ERROR: In SimpleIlluminateWorm, start is greater than end! \n");
+		return -1;
+	}
+	if ((start<0)|| (end<0)) {
+		printf("ERROR: In SimpleIlluminateWorm, start and end must be greater than 0! \n");
+		return -1;
+	}
+
+	if ((start > Worm->Segmented->NumSegments)|| (end >Worm->Segmented->NumSegments)) {
+			printf("ERROR: Segment Out of Bounds! \n");
+			return -1;
+		}
+
+
+
+
+	for (i=start; i<end; i++){
+	IlluminateWormSegment(&(IllumFrame->iplimg),Worm->Segmented->Centerline,Worm->Segmented->LeftBound,i);
+	IlluminateWormSegment(&(IllumFrame->iplimg),Worm->Segmented->Centerline,Worm->Segmented->RightBound,i);
+	}
+	LoadFrameWithImage(TempImage,IllumFrame);
+	cvReleaseImage(&TempImage);
+}
+
+
+/*
  * Illuminate a segment of the worm. Either the right, or left side.
  * Takes a sequence of the centerline. Uses the preceeding point to find a vector
  * along the centerline, than draws a rectangle perpendicular to this vector, a radius rsquared pixels
@@ -496,6 +534,8 @@ void SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
 	}
 	Worm->Segmented->Head=Worm->Head;
 	Worm->Segmented->Tail=Worm->Tail;
+
+	Worm->Segmented->NumSegments=Params->NumSegments;
 
 	/***Clear Out any stale Segmented Information Already in the Worm Structure***/
 	ClearSegmentedInfo(Worm->Segmented);

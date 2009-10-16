@@ -101,6 +101,9 @@ int main() {
 	InitializeEmptyWormImages(Worm,cvSize(NSIZEX,NSIZEY));
 	InitializeWormMemStorage(Worm);
 
+	/** Setup Segmentation Gui **/
+	SetupSegmentationGUI(Params);
+
 
 
 
@@ -120,6 +123,7 @@ int main() {
 			 */
 
 			/*** Load Frame into Worm **/
+			RefreshWormMemStorage(Worm);
 			LoadWormImg(Worm,fromCCD->iplimg);
 
 			/*** Find Worm Boundary ***/
@@ -131,8 +135,11 @@ int main() {
 
 			/*** Segment the Worm ***/
 			SegmentWorm(Worm,Params);
+			printf("Completed SegmentWorm()\n");
 
 			/*** DIsplay Some Monitoring Output ***/
+			cvShowImage("Original",Worm->ImgOrig);
+			cvShowImage("Thresholded",Worm->ImgThresh);
 			DisplayWormHeadTail(Worm,"Boundary");
 			DisplayWormSegmentation(Worm,"Contours");
 
