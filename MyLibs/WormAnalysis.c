@@ -152,7 +152,7 @@ void LoadWormColorOriginal(WormAnalysisData* Worm, IplImage* ImgColorOrig){
  * into the WormAnalysisData strucutre.
  */
 void LoadWormImg(WormAnalysisData* Worm, IplImage* Img){
-	CvSize CurrentSize = cvGetSize(ImgColorOrig);
+	CvSize CurrentSize = cvGetSize(Img);
 	if ( (Worm->SizeOfImage.height != CurrentSize.height) || (Worm->SizeOfImage.width != CurrentSize.width) ){
 		printf("Error. Image size does not match in ");
 		return;

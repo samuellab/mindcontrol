@@ -129,7 +129,7 @@ void InitializeEmptyWormImages(WormAnalysisData* Worm, CvSize ImageSize);
 /*
  * This function is run after IntializeEmptyImages.
  * And it loads a color original into the WoirmAnalysisData strucutre.
- * The color image is converted to an 8 bit black and white.
+ * The color image is converted to an 8 bit grayscale.
  *
  *
  */

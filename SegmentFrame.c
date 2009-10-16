@@ -47,9 +47,6 @@ void on_trackbar(int){
 	cvShowImage("Thresholded",Worm->ImgThresh);
 
 
-	GivenBoundaryFindWormHeadTail(Worm,Params);
-
-
 
 	if (GivenBoundaryFindWormHeadTail(Worm,Params)<0){
 		printf("Error FindingWormHeadTail!\n");

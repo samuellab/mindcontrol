@@ -28,7 +28,7 @@ openCVincludes = -I$(CVdir)/cxcore/include -I$(CVdir)/otherlibs/highgui -I$(CVdi
 # objects that I have written, in order of dependency. 
 # e.g. If object B depends on A, then object A should be to the left of B (but apparently only sometimes). 
 myOpenCVlibraries= AndysOpenCVLib.o
-mylibraries=  AndysComputations.o Talk2DLP.o Talk2Camera.o $(myOpenCVlibraries) Talk2Matlab.o TransformLib.o
+mylibraries=  AndysComputations.o Talk2DLP.o Talk2Camera.o $(myOpenCVlibraries) Talk2Matlab.o TransformLib.o WormAnalysis.o
 WormSpecificLibs= WormAnalysis.o 
 
 #3rd party statically linked objects

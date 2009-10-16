@@ -30,9 +30,10 @@ using namespace std;
 #include "MyLibs/Talk2Matlab.h"
 #include "MyLibs/AndysComputations.h"
 #include "MyLibs/TransformLib.h"
+#include "MyLibs/WormAnalysis.h"
 
 
-void SetupSegmentationGUI(){
+void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 	cvNamedWindow("Original");
 	cvNamedWindow("Boundary");
 	cvNamedWindow( "Thresholded");
@@ -42,10 +43,10 @@ void SetupSegmentationGUI(){
 
 
 
-	cvCreateTrackbar("Threshold", "Controls", &(Params->BinThresh),255, on_trackbar);
-	cvCreateTrackbar("Gauss=x*2+1","Controls", &(Params->GaussSize),5, on_trackbar);
-	cvCreateTrackbar("ScalePx","Controls", &(Params->LengthScale),15,on_trackbar);
-	cvCreateTrackbar("Offset Comp","Controls",&(Params->LengthOffset),15, on_trackbar);
+	cvCreateTrackbar("Threshold", "Controls", &(Params->BinThresh),255, (int) NULL);
+	cvCreateTrackbar("Gauss=x*2+1","Controls", &(Params->GaussSize),5,(int) NULL);
+	cvCreateTrackbar("ScalePx","Controls", &(Params->LengthScale),15, (int) NULL);
+	cvCreateTrackbar("Offset Comp","Controls",&(Params->LengthOffset),15,(int) NULL);
 	return;
 
 }
@@ -114,7 +115,29 @@ int main() {
 			cvWaitKey(1);
 
 
-			/*** Segment Frame***/
+			/***********************
+			 * Segment Frame
+			 */
+
+			/*** Load Frame into Worm **/
+			LoadWormImg(Worm,fromCCD->iplimg);
+
+			/*** Find Worm Boundary ***/
+			FindWormBoundary(Worm,Params);
+
+			/*** Find Worm Head and Tail ***/
+			GivenBoundaryFindWormHeadTail(Worm,Params);
+
+
+			/*** Segment the Worm ***/
+			SegmentWorm(Worm,Params);
+
+			/*** DIsplay Some Monitoring Output ***/
+			DisplayWormHeadTail(Worm,"Boundary");
+			DisplayWormSegmentation(Worm,"Contours");
+
+
+			/*** Do Some Illumination ***/
 
 
 
