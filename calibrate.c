@@ -324,13 +324,6 @@ int main(){
 
 	CalibrationTest(CCD2DLPLookUp, MyCamera);
 
-	/***** Turn off Camera & DLP ****/
-	printf("Outside of DoTheCameraDLPThing About to turn off camera %d\n",
-			*MyCamera);
-	T2Cam_TurnOff(&MyCamera);
-	printf("Turned off camera\n");
-
-	T2Cam_CloseLib();
 
 
 	/********** Write Calibration to File **********/
@@ -358,5 +351,14 @@ int main(){
 	fclose(fp);
 	printf("close succeeded\n");
 	fflush(stdout);
+	/***** Turn off Camera & DLP ****/
+	printf("Outside of DoTheCameraDLPThing About to turn off camera %d\n",
+			*MyCamera);
+	T2Cam_TurnOff(&MyCamera);
+	printf("Turned off camera\n");
+
+	T2Cam_CloseLib();
+
+
 	return 0;
 }
