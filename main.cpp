@@ -32,14 +32,32 @@ using namespace std;
 #include "MyLibs/TransformLib.h"
 
 
+void SetupSegmentationGUI(){
+	cvNamedWindow("Original");
+	cvNamedWindow("Boundary");
+	cvNamedWindow( "Thresholded");
+	cvNamedWindow( "Contours", 1);
+	cvNamedWindow("Controls");
+	cvResizeWindow("Controls",300,400);
+
+
+
+	cvCreateTrackbar("Threshold", "Controls", &(Params->BinThresh),255, on_trackbar);
+	cvCreateTrackbar("Gauss=x*2+1","Controls", &(Params->GaussSize),5, on_trackbar);
+	cvCreateTrackbar("ScalePx","Controls", &(Params->LengthScale),15,on_trackbar);
+	cvCreateTrackbar("Offset Comp","Controls",&(Params->LengthOffset),15, on_trackbar);
+	return;
+
+}
 
 
 int main() {
+	DisplayOpenCVInstall();
 	/** Read In Calibration Data ***/
 	CalibData* Calib =CreateCalibData(cvSize(NSIZEX,NSIZEY),cvSize(NSIZEX,NSIZEY));
 	int ret=LoadCalibFromFile(Calib,"calib.dat");
 	if (ret!=0){
-		printf("Error reading in calibration!! \n",ret);
+		printf("Error reading in calibration!! \n");
 		return 0;
 	}
 
@@ -76,6 +94,15 @@ int main() {
 	Frame* fromCCD =CreateFrame(cvSize(NSIZEX,NSIZEY));
 	Frame* forDLP =CreateFrame(cvSize(NSIZEX,NSIZEY));
 
+	/** Create Worm Data Struct and Worm Parameter Struct **/
+	WormAnalysisData* Worm=CreateWormAnalysisDataStruct();
+	WormAnalysisParam* Params=CreateWormAnalysisParam();
+	InitializeEmptyWormImages(Worm,cvSize(NSIZEX,NSIZEY));
+	InitializeWormMemStorage(Worm);
+
+
+
+
 
 	while (1 == 1) {
 		if (MyCamera->iFrameNumber > lastFrameSeenOutside) {
@@ -88,6 +115,7 @@ int main() {
 
 
 			/*** Segment Frame***/
+
 
 
 			TransformFrameCam2DLP(fromCCD,forDLP,Calib);

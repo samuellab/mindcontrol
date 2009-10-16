@@ -136,6 +136,13 @@ void InitializeEmptyWormImages(WormAnalysisData* Worm, CvSize ImageSize);
 void LoadWormColorOriginal(WormAnalysisData* Worm, IplImage* ImgColorOrig);
 
 
+/*
+ * This function is run after IntializeEmptyImages.
+ * And it loads a properly formated 8 bit grayscale image
+ * into the WormAnalysisData strucutre.
+ */
+void LoadWormImg(WormAnalysisData* Worm, IplImage* Img);
+
 
 
 /************************************************************/

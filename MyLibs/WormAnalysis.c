@@ -134,7 +134,7 @@ void InitializeEmptyWormImages(WormAnalysisData* Worm, CvSize ImageSize){
 /*
  * This function is run after IntializeEmptyImages.
  * And it loads a color original into the WormAnalysisData strucutre.
- * The color image is converted to an 8 bit black and white.
+ * The color image is converted to an 8 bit grayscale image.
  */
 void LoadWormColorOriginal(WormAnalysisData* Worm, IplImage* ImgColorOrig){
 	CvSize CurrentSize = cvGetSize(ImgColorOrig);
@@ -146,7 +146,20 @@ void LoadWormColorOriginal(WormAnalysisData* Worm, IplImage* ImgColorOrig){
 
 }
 
+/*
+ * This function is run after IntializeEmptyImages.
+ * And it loads a properly formated 8 bit grayscale image
+ * into the WormAnalysisData strucutre.
+ */
+void LoadWormImg(WormAnalysisData* Worm, IplImage* Img){
+	CvSize CurrentSize = cvGetSize(ImgColorOrig);
+	if ( (Worm->SizeOfImage.height != CurrentSize.height) || (Worm->SizeOfImage.width != CurrentSize.width) ){
+		printf("Error. Image size does not match in ");
+		return;
+	}
+	cvCopy( Img, Worm->ImgOrig,0);
 
+}
 
 /************************************************************/
 /* Creating, Destroying WormAnalysisParam					*/
