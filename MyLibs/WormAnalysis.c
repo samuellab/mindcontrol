@@ -439,11 +439,12 @@ int SimpleIlluminateWorm(WormAnalysisData* Worm, Frame* IllumFrame,int start, in
 
 	int i;
 	for (i=start; i<end; i++){
-	IlluminateWormSegment(&(IllumFrame->iplimg),Worm->Segmented->Centerline,Worm->Segmented->LeftBound,i);
-	IlluminateWormSegment(&(IllumFrame->iplimg),Worm->Segmented->Centerline,Worm->Segmented->RightBound,i);
+	IlluminateWormSegment(TempImage,Worm->Segmented->Centerline,Worm->Segmented->LeftBound,i);
+	IlluminateWormSegment(TempImage,Worm->Segmented->Centerline,Worm->Segmented->RightBound,i);
 	}
-	cvShowImage("TestOut",TempImage);
-	LoadFrameWithImage(TempImage,IllumFrame);
+		LoadFrameWithImage(TempImage,IllumFrame);
+	//	cvShowImage("TestOut",IllumFrame);
+
 	cvReleaseImage(&TempImage);
 }
 
@@ -454,7 +455,7 @@ int SimpleIlluminateWorm(WormAnalysisData* Worm, Frame* IllumFrame,int start, in
  * along the centerline, than draws a rectangle perpendicular to this vector, a radius rsquared pixels
  * away from the centerline
  */
-void IlluminateWormSegment(IplImage** image, CvSeq* centerline, CvSeq* Boundary, int segment){
+void IlluminateWormSegment(IplImage* image, CvSeq* centerline, CvSeq* Boundary, int segment){
 	int PRINTOUT=0;
 	if (segment <1) {
 		if (PRINTOUT) printf("ERROR: segment <1 :  Choose a segment along the worm that is at least 1.\n ");
@@ -503,7 +504,8 @@ void IlluminateWormSegment(IplImage** image, CvSeq* centerline, CvSeq* Boundary,
 	myPolygon[3]=*PtAlongCenterline;
 	myPolygon[2]=*PrevPtAlongCenterline;
 	if (PRINTOUT) printf("FarPt=(%d,%d)\nPrevPt=(%d,%d)\n*PtAlongCenterline=(%d,%d)\n*PrevPtAlongCenterline=(%d,%d)\n",FarPt.x,FarPt.y,PrevPt.x,PrevPt.y,PtAlongBoundary->x,PtAlongBoundary->y,PrevPtAlongCenterline->x,PrevPtAlongCenterline->y);
-	cvFillConvexPoly(*image,myPolygon,4,cvScalar(255,255,255),CV_AA);
+	cvFillConvexPoly(image,myPolygon,4,cvScalar(255,255,255),CV_AA);
+	//cvShowImage("TestOut",image);
 	if (PRINTOUT) printf("After cvFillConvexPoly\n");
 
 

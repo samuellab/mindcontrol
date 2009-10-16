@@ -147,6 +147,9 @@ int main() {
 
 			/*** Do Some Illumination ***/
 			SimpleIlluminateWorm(Worm,IlluminationFrame,20,30);
+			cvShowImage("TestOut",IlluminationFrame->iplimg);
+
+
 			TransformFrameCam2DLP(IlluminationFrame,forDLP,Calib);
 			T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
 			cvShowImage("ToDLP", forDLP->iplimg);

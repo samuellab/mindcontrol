@@ -228,7 +228,7 @@ int SimpleIlluminateWorm(WormAnalysisData* Worm, Frame* IllumFrame,int start, in
  * along the centerline, than draws a rectangle perpendicular to this vector, a radius rsquared pixels
  * away from the centerline
  */
-void IlluminateWormSegment(IplImage** image, CvSeq* centerline, CvSeq* Boundary, int segment);
+void IlluminateWormSegment(IplImage* image, CvSeq* centerline, CvSeq* Boundary, int segment);
 
 
 
