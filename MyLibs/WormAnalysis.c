@@ -437,7 +437,7 @@ int SimpleIlluminateWorm(WormAnalysisData* Worm, Frame* IllumFrame,int start, in
 
 
 
-
+	int i;
 	for (i=start; i<end; i++){
 	IlluminateWormSegment(&(IllumFrame->iplimg),Worm->Segmented->Centerline,Worm->Segmented->LeftBound,i);
 	IlluminateWormSegment(&(IllumFrame->iplimg),Worm->Segmented->Centerline,Worm->Segmented->RightBound,i);

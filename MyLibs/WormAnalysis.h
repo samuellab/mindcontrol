@@ -220,7 +220,7 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
  * It has a lot of copying of images though. Hopefully this won't be too slow.
  *
  */
-int SimpleIlluminateWorm(WormAnalysisData* Worm, Frame* IllumFrame,int start, int end)
+int SimpleIlluminateWorm(WormAnalysisData* Worm, Frame* IllumFrame,int start, int end);
 
 /*
  * Illuminate a segment of the worm. Either the right, or left side.
