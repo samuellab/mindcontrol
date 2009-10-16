@@ -31,66 +31,8 @@ using namespace std;
 #include "MyLibs/AndysComputations.h"
 #include "MyLibs/TransformLib.h"
 
-void ImageAndProjectInClosedLoop(CalibData* Calib, CamData* MyCamera);
-
-void ImageAndProjectInClosedLoop(CalibData* Calib, CamData* MyCamera) {
-	int thresh;
-
-	cvNamedWindow("FromCamera", CV_WINDOW_AUTOSIZE);
-	cvMoveWindow("FromCamera", 200, 200);
-	cvNamedWindow("ToDLP", CV_WINDOW_AUTOSIZE);
-	cvNamedWindow("ProcessedImage", CV_WINDOW_AUTOSIZE);
-	cvMoveWindow("ProcessedImage",500,0);
-//	cvCreateTrackbar("Threshold", "ProcessedImage", thresh, 255, NULL);
-
-	cvWaitKey(500);
-	//Prepare the DLP
-	long myDLP;
-	printf("Turning DLP on...");
-	myDLP = T2DLP_on(); // Turn DLP On
-	printf("DLP turned on.\n");
-	unsigned long lastFrameSeenOutside = 0;
-
-	Frame* fromCCD =CreateFrame(cvSize(NSIZEX,NSIZEY));
-	Frame* forDLP =CreateFrame(cvSize(NSIZEX,NSIZEY));
 
 
-
-	printf("entering giant loop\n");
-	int numFramesRec = 0;
-	while (1 == 1) {
-		if (MyCamera->iFrameNumber > lastFrameSeenOutside) {
-			printf("Fresh frame ready from camera.\n");
-			lastFrameSeenOutside = MyCamera->iFrameNumber;
-			//Create a local copy of the image;
-			LoadFrameWithBin(MyCamera->iImageData,fromCCD);
-			printf("LoadFrameWith Bin\n");
-			cvShowImage("FromCamera", fromCCD->iplimg);
-			cvWaitKey(1);
-			numFramesRec++;
-			TransformFrameCam2DLP(fromCCD,forDLP,Calib);
-			T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
-			cvShowImage("ToDLP", forDLP->iplimg);
-			cvWaitKey(1);
-			printf("Wait until key is hit...\n");
-			if (kbhit()) break;
-			printf("*");
-		} else {
-			//	printf("_");
-		}
-
-	}
-
-	DestroyFrame(&fromCCD);
-	DestroyFrame(&forDLP);
-
-
-
-	//	cvDestroyAllWindows();
-	T2DLP_off(myDLP);
-	printf("Exiting DoTheCameraDLPThing()");
-
-}
 
 int main() {
 	/** Read In Calibration Data ***/
@@ -123,8 +65,48 @@ int main() {
 
 
 
-	/** Actually Do Something **/
-	ImageAndProjectInClosedLoop(Calib, MyCamera);
+
+	/** Prepare DLP ***/
+
+	long myDLP= T2DLP_on();
+	cvWaitKey(500);
+	unsigned long lastFrameSeenOutside = 0;
+
+	/*** Create Frames **/
+	Frame* fromCCD =CreateFrame(cvSize(NSIZEX,NSIZEY));
+	Frame* forDLP =CreateFrame(cvSize(NSIZEX,NSIZEY));
+
+
+	while (1 == 1) {
+		if (MyCamera->iFrameNumber > lastFrameSeenOutside) {
+			lastFrameSeenOutside = MyCamera->iFrameNumber;
+			/*** Create a local copy of the image***/
+			LoadFrameWithBin(MyCamera->iImageData,fromCCD);
+
+			cvShowImage("FromCamera", fromCCD->iplimg);
+			cvWaitKey(1);
+
+
+			/*** Segment Frame***/
+
+
+			TransformFrameCam2DLP(fromCCD,forDLP,Calib);
+			T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
+			cvShowImage("ToDLP", forDLP->iplimg);
+			cvWaitKey(1);
+			if (kbhit()) break;
+			printf("*");
+		} else {
+			//	printf("_");
+		}
+
+	}
+
+	DestroyFrame(&fromCCD);
+	DestroyFrame(&forDLP);
+
+	//	cvDestroyAllWindows();
+	T2DLP_off(myDLP);
 
 	/***** Turn off Camera & DLP ****/
 	T2Cam_TurnOff(&MyCamera);
