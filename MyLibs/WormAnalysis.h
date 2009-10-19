@@ -111,7 +111,7 @@ void InitializeWormMemStorage(WormAnalysisData* Worm);
  * (clear the memory without freing it)
  *
  */
-void RefreshWormMemStorage(WormAnalysisData* Worm);
+int RefreshWormMemStorage(WormAnalysisData* Worm);
 
 
 /*
@@ -142,7 +142,7 @@ void LoadWormColorOriginal(WormAnalysisData* Worm, IplImage* ImgColorOrig);
  * And it loads a properly formated 8 bit grayscale image
  * into the WormAnalysisData strucutre.
  */
-void LoadWormImg(WormAnalysisData* Worm, IplImage* Img);
+int LoadWormImg(WormAnalysisData* Worm, IplImage* Img);
 
 
 
@@ -239,7 +239,7 @@ void IlluminateWormSegment(IplImage* image, CvSeq* centerline, CvSeq* Boundary, 
  * It requires that Params->NumSegments be greater than zero
  *
  */
-void SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params);
+int SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params);
 
 
 /*

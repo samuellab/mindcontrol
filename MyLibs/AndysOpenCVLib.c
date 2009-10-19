@@ -365,6 +365,8 @@ void DrawSequence(IplImage** image, CvSeq* Seq) {
  *
  */
 void resampleSeq(CvSeq* sequence, CvSeq* ResampledSeq, int Numsegments) {
+	if (sequence->total < 1) printf("Error! Sequence passed to resampleSeq() is empty!\n");
+
 	float n = (float) ( sequence->total -1 )/ (float) ( Numsegments-1);
 	CvSeqReader reader;
 	CvSeqWriter writer;
@@ -372,20 +374,28 @@ void resampleSeq(CvSeq* sequence, CvSeq* ResampledSeq, int Numsegments) {
 	cvStartAppendToSeq(ResampledSeq, &writer);
 	if (PRINTOUT) printf("Seq->total=%d; n=%f\n", sequence->total, n);
 	CvPoint* tempPt;
-	//if (PRINTOUT) printf("Beginning  resampling loop\n");
 	int i;
-	//if (n > 0) { printf("n is greater than zero\n");
+	int tempPos;
+
+
 	for (i = 0; i < Numsegments ; i++) {
 		//if (PRINTOUT) printf("#");
 		tempPt = (CvPoint*) reader.ptr;
 		CV_WRITE_SEQ_ELEM( *tempPt, writer );
-		cvSetSeqReaderPos(&reader, (int) (i *n + 0.5), 0);
+		tempPos=(int) (i *n + 0.5);
+		if (tempPos < sequence->total || tempPos >= 0){
+			printf("Ping\n");
+			cvSetSeqReaderPos(&reader, tempPos, 0);
+			printf("Pong\n");
+		} else {
+			printf(" Error. Position to set sequence reader to is out of range in resampleSeq()\n");
+		}
+
+
+
+
 	}
-//
-//	//Write in the last point
-//	cvSetSeqReaderPos(&reader, Numsegments - 1, 0);
-//	tempPt = (CvPoint*) reader.ptr;
-//	CV_WRITE_SEQ_ELEM( *tempPt, writer );
+
 
 	cvEndWriteSeq(&writer);
 }

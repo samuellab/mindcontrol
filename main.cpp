@@ -52,6 +52,9 @@ void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 }
 
 
+
+
+
 int main() {
 	DisplayOpenCVInstall();
 	/** Read In Calibration Data ***/
@@ -108,57 +111,63 @@ int main() {
 
 
 
-
+	int e;
 	while (1 == 1) {
 		if (MyCamera->iFrameNumber > lastFrameSeenOutside) {
+			e=0;
 			lastFrameSeenOutside = MyCamera->iFrameNumber;
+
 			/*** Create a local copy of the image***/
-			LoadFrameWithBin(MyCamera->iImageData,fromCCD);
+				LoadFrameWithBin(MyCamera->iImageData,fromCCD);
 
-			cvShowImage("FromCamera", fromCCD->iplimg);
-			cvWaitKey(1);
-
-
-			/***********************
-			 * Segment Frame
-			 */
-
-			/*** Load Frame into Worm **/
-			RefreshWormMemStorage(Worm);
-			LoadWormImg(Worm,fromCCD->iplimg);
-
-			/*** Find Worm Boundary ***/
-			FindWormBoundary(Worm,Params);
-
-			/*** Find Worm Head and Tail ***/
-			GivenBoundaryFindWormHeadTail(Worm,Params);
+				if (!e) cvShowImage("FromCamera", fromCCD->iplimg);
+				cvWaitKey(1);
 
 
-			/*** Segment the Worm ***/
-			SegmentWorm(Worm,Params);
-			printf("Completed SegmentWorm()\n");
+				/***********************
+				 * Segment Frame
+				 */
 
-			/*** DIsplay Some Monitoring Output ***/
-			cvShowImage("Original",Worm->ImgOrig);
-			cvShowImage("Thresholded",Worm->ImgThresh);
-			DisplayWormHeadTail(Worm,"Boundary");
-			DisplayWormSegmentation(Worm,"Contours");
+				/*** Load Frame into Worm **/
+				if (!e) e=RefreshWormMemStorage(Worm);
+				if (!e) e=LoadWormImg(Worm,fromCCD->iplimg);
+
+				/*** Find Worm Boundary ***/
+				if (!e) FindWormBoundary(Worm,Params);
+
+				/*** Find Worm Head and Tail ***/
+				if (!e) e=GivenBoundaryFindWormHeadTail(Worm,Params);
 
 
-			/*** Do Some Illumination ***/
-			SimpleIlluminateWorm(Worm,IlluminationFrame,20,30);
-			cvShowImage("TestOut",IlluminationFrame->iplimg);
+				/*** Segment the Worm ***/
+				if (!e) e=SegmentWorm(Worm,Params);
+
+				if (!e) printf("Completed SegmentWorm()\n");
+
+				/*** DIsplay Some Monitoring Output ***/
+				if (!e) cvShowImage("Original",Worm->ImgOrig);
+				if (!e) cvShowImage("Thresholded",Worm->ImgThresh);
+				if (!e) DisplayWormHeadTail(Worm,"Boundary");
+				if (!e) DisplayWormSegmentation(Worm,"Contours");
 
 
-			TransformFrameCam2DLP(IlluminationFrame,forDLP,Calib);
-			T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
-			cvShowImage("ToDLP", forDLP->iplimg);
-			cvWaitKey(1);
-			if (kbhit()) break;
-			printf("*");
-		} else {
-			//	printf("_");
+				/*** Do Some Illumination ***/
+				if (!e) SimpleIlluminateWorm(Worm,IlluminationFrame,20,30);
+				if (!e) cvShowImage("TestOut",IlluminationFrame->iplimg);
+
+
+				if (!e) TransformFrameCam2DLP(IlluminationFrame,forDLP,Calib);
+				if (!e) T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
+				if (!e) cvShowImage("ToDLP", forDLP->iplimg);
+				cvWaitKey(1);
+				if (!e){
+					printf("*");
+				} else {
+					printf(":(");
+				}
+
 		}
+		if (kbhit()) break;
 
 	}
 

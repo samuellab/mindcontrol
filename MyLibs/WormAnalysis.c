@@ -107,9 +107,19 @@ void InitializeWormMemStorage(WormAnalysisData* Worm){
  * (clear the memory without freing it)
  *
  */
-void RefreshWormMemStorage(WormAnalysisData* Worm){
-	if (Worm->MemScratchStorage!=NULL)cvClearMemStorage(Worm->MemScratchStorage);
-	if (Worm->MemStorage!=NULL) cvClearMemStorage(Worm->MemStorage);
+int RefreshWormMemStorage(WormAnalysisData* Worm){
+	if (Worm->MemScratchStorage!=NULL){
+		cvClearMemStorage(Worm->MemScratchStorage);
+	}else{
+		printf("Error! MemScratchStorage is NULL in RefreshWormMemStorage()!\n");
+		return -1;
+	}
+	if (Worm->MemStorage!=NULL){
+		cvClearMemStorage(Worm->MemStorage);
+	} else{
+		printf("Error! MemStorage is NULL in RefreshWormMemStorage()!\n");
+		return -1;
+	}
 }
 
 
@@ -151,11 +161,11 @@ void LoadWormColorOriginal(WormAnalysisData* Worm, IplImage* ImgColorOrig){
  * And it loads a properly formated 8 bit grayscale image
  * into the WormAnalysisData strucutre.
  */
-void LoadWormImg(WormAnalysisData* Worm, IplImage* Img){
+int LoadWormImg(WormAnalysisData* Worm, IplImage* Img){
 	CvSize CurrentSize = cvGetSize(Img);
 	if ( (Worm->SizeOfImage.height != CurrentSize.height) || (Worm->SizeOfImage.width != CurrentSize.width) ){
 		printf("Error. Image size does not match in ");
-		return;
+		return -1;
 	}
 	cvCopy( Img, Worm->ImgOrig,0);
 
@@ -266,8 +276,8 @@ void FindWormBoundary(WormAnalysisData* Worm, WormAnalysisParam* Params){
  *
  */
 int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Params) {
-	if (Worm->Boundary->total < 2) {
-		/**Error! There is no Boundary **/
+	if (Worm->Boundary->total < 2*Params->NumSegments) {
+		printf("Error in GivenBoundaryFindWormHeadTail(). The Boundary has too few points.");
 		return -1;
 	}
 
@@ -302,7 +312,7 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 	cvStartReadSeq(Worm->Boundary, &ForeReader, 0);
 	cvStartReadSeq(Worm->Boundary, &BackReader, 0);
 	cvStartReadSeq(Worm->Boundary, &Reader, 0);
-	const int* DotProdPtr;
+	int* DotProdPtr;
 
 	//Let's increment the readers delta times to get them into place
 	for (i = 0; i < Params->LengthOffset; i++) {
@@ -321,7 +331,7 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 		BackPt = (CvPoint*) BackReader.ptr;
 
 		/** Set the Pointer to be at the right pointin the Dot Product Matrix **/
-		DotProdPtr = (const int*) (DotProd->data.ptr + i* DotProd->step);
+		DotProdPtr = (int*) (DotProd->data.ptr + i* DotProd->step);
 
 		/** Compute the Forward Vector **/
 		ForeVec = cvPoint((ForePt->x) - (Pt->x), (ForePt->y)
@@ -332,7 +342,7 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 				- (BackPt->y));
 
 		/** Store the Dot Product in our Mat **/
-		*DotProdPtr=PointDot(ForeVec,BackVec);
+		*DotProdPtr=PointDot(&ForeVec,&BackVec);
 
 	}
 
@@ -343,8 +353,6 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 	/*	 smallest dot product												*/
 	/* **********************************************************************/
 
-	CvPoint* VecA;
-	CvPoint* VecB;
 
 	/*
 	 * Now Let's loop through the entire boundary to find the tail, which will be the curviest point.
@@ -352,21 +360,12 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 	float MostCurvy = 1000; //Smallest value.
 	float CurrentCurviness; //Metric of CurrentCurviness. In this case the dot product.
 	int MostCurvyIndex = 0;
-	CvPoint* Tail;
+	int TailIndex;
 
-	cvStartReadSeq(VectBound, &readerA, 0);
-	cvStartReadSeq(VectBound, &readerB, 0);
-	CV_NEXT_SEQ_ELEM( VectBound->elem_size, readerA);
 	for (i = 0; i < TotalBPts; i++) {
-		VecA = (CvPoint*) readerA.ptr;
-		VecB = (CvPoint*) readerB.ptr;
-
-		//Find the curviness by taking the dot product.
-		CurrentCurviness = PointDot(VecA, VecB);
-		CV_NEXT_SEQ_ELEM( VectBound->elem_size, readerA);
-		CV_NEXT_SEQ_ELEM( VectBound->elem_size, readerB);
-		if (CurrentCurviness < MostCurvy) { //If this locaiton is curvier than the previous MostCurvy location
-			MostCurvy = CurrentCurviness; //replace the MostCurvy point
+		DotProdPtr = (int*) (DotProd->data.ptr + i* DotProd->step);
+		if (*DotProdPtr < MostCurvy) { //If this locaiton is curvier than the previous MostCurvy location
+			MostCurvy = *DotProdPtr; //replace the MostCurvy point
 			MostCurvyIndex = i;
 		}
 	}
@@ -374,6 +373,7 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 	//Set the tail to be the point on the boundary that is most curvy.
 	Worm->Tail = (CvPoint*) cvGetSeqElem(Worm->Boundary, (MostCurvyIndex
 			+ Params->LengthOffset) % TotalBPts);
+	Worm->TailIndex=MostCurvyIndex;
 
 	/* **********************************************************************/
 	/*  Find the Head 													 	*/
@@ -385,29 +385,17 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 	int SecondMostCurvyIndex = 0;
 	int DistBetPtsOnBound;
 	DistBetPtsOnBound = 0;
-	CvPoint* Head;
 
-	cvStartReadSeq(VectBound, &readerA, 0);
-	cvStartReadSeq(VectBound, &readerB, 0);
-	CV_NEXT_SEQ_ELEM( VectBound->elem_size, readerA);
+
 	for (i = 0; i < TotalBPts; i++) {
-		VecA = (CvPoint*) readerA.ptr;
-		VecB = (CvPoint*) readerB.ptr;
-		CV_NEXT_SEQ_ELEM( VectBound->elem_size, readerA);
-		CV_NEXT_SEQ_ELEM( VectBound->elem_size, readerB);
+		DotProdPtr = (int*) (DotProd->data.ptr + i* DotProd->step);
 
-		//Find the curviness by taking the normalized dot product.
-		CurrentCurviness = PointDot(VecA, VecB);
-
-		//We need to find out if the current curvy point is close to the most curvy point.
-		//This is tricky because the boundary wraps around. We need this if statement to find the radius.
-		// ANDY: Decomp this into its own function for legibility.
 		DistBetPtsOnBound = DistBetPtsOnCircBound(TotalBPts, i, MostCurvyIndex);
 		//If we are at least a 1/4 of the total boundary away from the most curvy point.
 		if (DistBetPtsOnBound > (TotalBPts / 4)) {
 			//If this location is curvier than the previous SecondMostCurvy location
-			if (CurrentCurviness < SecondMostCurvy) {
-				SecondMostCurvy = CurrentCurviness; //replace the MostCurvy point
+			if (*DotProdPtr< SecondMostCurvy) {
+				SecondMostCurvy = *DotProdPtr; //replace the MostCurvy point
 				SecondMostCurvyIndex = i;
 			}
 		}
@@ -416,8 +404,7 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 	Worm->Head = (CvPoint*) cvGetSeqElem(Worm->Boundary,
 			(SecondMostCurvyIndex +Params->LengthOffset) % TotalBPts);
 
-	Worm->TailIndex = MostCurvyIndex +Params->LengthOffset;
-	Worm->HeadIndex = SecondMostCurvyIndex +Params->LengthOffset;
+	Worm->HeadIndex = SecondMostCurvyIndex;
 
 
 	cvReleaseMat(&DotProd);
@@ -545,11 +532,13 @@ void ClearSegmentedInfo(SegmentedWorm* SegWorm){
  * It requires that Params->NumSegments be greater than zero
  *
  */
-void SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
+int SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
 	if (cvSeqExists(Worm->Boundary) == 0){
 		printf("Error! No boundary found in SegmentWorm()\n");
-		return;
+		return -1;
 	}
+
+
 	Worm->Segmented->Head=Worm->Head;
 	Worm->Segmented->Tail=Worm->Tail;
 
@@ -565,9 +554,15 @@ void SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
 
 
 	/*** Slice the boundary into left and right components ***/
+	if (Worm->HeadIndex==Worm->TailIndex) printf("Error! Worm->HeadIndex==Worm->TailIndex in SegmentWorm()!\n");
 	CvSeq* OrigBoundA=cvSeqSlice(Worm->Boundary,cvSlice(Worm->HeadIndex,Worm->TailIndex),Worm->MemScratchStorage,1);
 	CvSeq* OrigBoundB=cvSeqSlice(Worm->Boundary,cvSlice(Worm->TailIndex,Worm->HeadIndex),Worm->MemScratchStorage,1);
 
+	if (OrigBoundA->total < Params->NumSegments || OrigBoundB->total < Params->NumSegments ){
+		printf("Error in SegmentWorm()! When splitting  the original boundary into two, one or the other has less than the number of desired segments!\n");
+		return -1; /** Andy make this return -1 **/
+
+	}
 
 	cvSeqInvert(OrigBoundB);
 
