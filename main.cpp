@@ -44,7 +44,7 @@ void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 
 
 	cvCreateTrackbar("Threshold", "Controls", &(Params->BinThresh),255, (int) NULL);
-	cvCreateTrackbar("Gauss=x*2+1","Controls", &(Params->GaussSize),5,(int) NULL);
+	cvCreateTrackbar("Gauss=x*2+1","Controls", &(Params->GaussSize),10,(int) NULL);
 	cvCreateTrackbar("ScalePx","Controls", &(Params->LengthScale),15, (int) NULL);
 	cvCreateTrackbar("Offset Comp","Controls",&(Params->LengthOffset),15,(int) NULL);
 	return;

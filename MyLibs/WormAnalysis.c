@@ -617,6 +617,7 @@ void DisplayWormHeadTail(WormAnalysisData* Worm, char* WindowName){
 	int CircleDiameterSize=10;
 	IplImage* TempImage=cvCreateImage(cvGetSize(Worm->ImgSmooth),IPL_DEPTH_8U,1);
 	cvCopy(Worm->ImgSmooth,TempImage,0);
+	//Want to also display boundary!
 	cvCircle(TempImage,*(Worm->Tail),CircleDiameterSize,cvScalar(255,255,255),1,CV_AA,0);
 	cvCircle(TempImage,*(Worm->Head),CircleDiameterSize/2,cvScalar(255,255,255),1,CV_AA,0);
 	cvShowImage(WindowName,TempImage);
@@ -640,6 +641,7 @@ void DisplayWormSegmentation(WormAnalysisData* Worm, char* WindowName){
 		cvCircle(TempImage, *tempPt, 1, cvScalar(255, 255, 255), 1);
 		cvCircle(TempImage, *tempPtA, 1, cvScalar(255, 255, 255), 1);
 		cvCircle(TempImage, *tempPtB, 1, cvScalar(255, 255, 255), 1);
+		cvDrawContours(TempImage,Worm->Boundary,cvScalar(255,255,255),cvScalar(255,255,255),1,1,CV_AA);
 
 		cvLine(TempImage,*tempPt,*tempPtA,cvScalar(255,255,255),1,CV_AA,0);
 		cvLine(TempImage,*tempPt,*tempPtB,cvScalar(255,255,255),1,CV_AA,0);
