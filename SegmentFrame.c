@@ -120,7 +120,7 @@ int main (int argc, char** argv){
 
 	cvCreateTrackbar("Threshold", "Controls", &(Params->BinThresh),255, on_trackbar);
 	cvCreateTrackbar("Gauss=x*2+1","Controls", &(Params->GaussSize),5, on_trackbar);
-	cvCreateTrackbar("ScalePx","Controls", &(Params->LengthScale),15,on_trackbar);
+	cvCreateTrackbar("ScalePx","Controls", &(Params->LengthScale),50,on_trackbar);
 	cvCreateTrackbar("Offset Comp","Controls",&(Params->LengthOffset),15, on_trackbar);
 
 

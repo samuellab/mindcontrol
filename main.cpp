@@ -44,8 +44,8 @@ void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 
 
 	cvCreateTrackbar("Threshold", "Controls", &(Params->BinThresh),255, (int) NULL);
-	cvCreateTrackbar("Gauss=x*2+1","Controls", &(Params->GaussSize),10,(int) NULL);
-	cvCreateTrackbar("ScalePx","Controls", &(Params->LengthScale),15, (int) NULL);
+	cvCreateTrackbar("Gauss=x*2+1","Controls", &(Params->GaussSize),15,(int) NULL);
+	cvCreateTrackbar("ScalePx","Controls", &(Params->LengthScale),50, (int) NULL);
 	cvCreateTrackbar("Offset Comp","Controls",&(Params->LengthOffset),15,(int) NULL);
 	return;
 
@@ -134,11 +134,12 @@ int main() {
 
 				/*** Find Worm Boundary ***/
 				if (!e) FindWormBoundary(Worm,Params);
+				printf("Worm->Boundary->total=%d\n",Worm->Boundary->total);
 
 				/*** Find Worm Head and Tail ***/
 				if (!e) e=GivenBoundaryFindWormHeadTail(Worm,Params);
 
-
+				if (!e) printf ("FoundHeadTail\n");
 				/*** Segment the Worm ***/
 				if (!e) e=SegmentWorm(Worm,Params);
 
@@ -163,7 +164,7 @@ int main() {
 				if (!e){
 					printf("*");
 				} else {
-					printf(":(");
+					printf(":(\n");
 				}
 
 		}

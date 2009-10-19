@@ -384,9 +384,7 @@ void resampleSeq(CvSeq* sequence, CvSeq* ResampledSeq, int Numsegments) {
 		CV_WRITE_SEQ_ELEM( *tempPt, writer );
 		tempPos=(int) (i *n + 0.5);
 		if (tempPos < sequence->total || tempPos >= 0){
-			printf("Ping\n");
 			cvSetSeqReaderPos(&reader, tempPos, 0);
-			printf("Pong\n");
 		} else {
 			printf(" Error. Position to set sequence reader to is out of range in resampleSeq()\n");
 		}

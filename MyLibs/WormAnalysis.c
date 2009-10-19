@@ -120,6 +120,7 @@ int RefreshWormMemStorage(WormAnalysisData* Worm){
 		printf("Error! MemStorage is NULL in RefreshWormMemStorage()!\n");
 		return -1;
 	}
+	return 0;
 }
 
 
@@ -168,6 +169,7 @@ int LoadWormImg(WormAnalysisData* Worm, IplImage* Img){
 		return -1;
 	}
 	cvCopy( Img, Worm->ImgOrig,0);
+	return 0;
 
 }
 
@@ -291,7 +293,7 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 
 	/* Create A Matrix to store all of the dot products along the boundary.
 	 */
-	CvMat* DotProd=cvCreateMat(Worm->Boundary->total,1,CV_8UC1);
+	CvSeq* DotProds= cvCreateSeq(CV_32SC1,sizeof(CvSeq),sizeof(int),Worm->MemScratchStorage);
 
 	//We walk around the boundary using the high-speed reader and writer objects.
 	CvSeqReader ForeReader; //ForeReader reads delta pixels ahead
@@ -302,47 +304,51 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 	/**** Local Variables ***/
 	int i;
 	CvPoint* Pt;
-	CvPoint* ForePt;
-	CvPoint* BackPt;
-	CvPoint ForeVec;
-	CvPoint BackVec;
+	CvPoint* AheadPt;
+	CvPoint* BehindPt;
+	CvPoint AheadVec;
+	CvPoint BehindVec;
 	int TotalBPts = Worm->Boundary->total;
 
 	/*** Initializing Read & Write Apparatus ***/
-	cvStartReadSeq(Worm->Boundary, &ForeReader, 0);
-	cvStartReadSeq(Worm->Boundary, &BackReader, 0);
-	cvStartReadSeq(Worm->Boundary, &Reader, 0);
+	int AheadPtr=0;
+	int BehindPtr=0;
+	int Ptr=0;
 	int* DotProdPtr;
 
-	//Let's increment the readers delta times to get them into place
-	for (i = 0; i < Params->LengthOffset; i++) {
-		CV_NEXT_SEQ_ELEM( Worm->Boundary->elem_size, ForeReader);
-		CV_PREV_SEQ_ELEM( Worm->Boundary->elem_size, BackReader);
-	}
 
 	/*
 	 * Loop through all the boundary and compute the dot products between the ForeVec and BackVec.
 	 *
 	 * Note: ForeVec and BackVec have the same "handedness" along the boundary.
 	 */
+	printf ("total boundary elements = %d\n", TotalBPts); //debug MHG 10/19/09
 	for (i = 0; i < TotalBPts; i++) {
-		Pt = (CvPoint*) Reader.ptr;
-		ForePt = (CvPoint*) ForeReader.ptr;
-		BackPt = (CvPoint*) BackReader.ptr;
+		AheadPtr = (i+Params->LengthScale)%TotalBPts;
+		BehindPtr = (i+TotalBPts-Params->LengthScale)%TotalBPts;
+		Ptr = (i)%TotalBPts;
 
-		/** Set the Pointer to be at the right pointin the Dot Product Matrix **/
-		DotProdPtr = (int*) (DotProd->data.ptr + i* DotProd->step);
+		printf("AheadPtr=%d, BehindPtr=%d,Ptr=%d\n", AheadPtr,BehindPtr,Ptr);
+
+
+		AheadPt = (CvPoint*) cvGetSeqElem(Worm->Boundary,AheadPtr);
+		Pt = (CvPoint*) cvGetSeqElem(Worm->Boundary,Ptr);
+		BehindPt=(CvPoint*) cvGetSeqElem(Worm->Boundary,BehindPtr);
+
 
 		/** Compute the Forward Vector **/
-		ForeVec = cvPoint((ForePt->x) - (Pt->x), (ForePt->y)
+		AheadVec = cvPoint((AheadPt->x) - (Pt->x), (AheadPt->y)
 				- (Pt->y));
 
 		/** Compute the Rear Vector **/
-		BackVec= cvPoint((Pt->x) - (BackPt->x), (Pt->y)
-				- (BackPt->y));
+		BehindVec= cvPoint((Pt->x) - (BehindPt->x), (Pt->y)
+				- (BehindPt->y));
 
 		/** Store the Dot Product in our Mat **/
-		*DotProdPtr=PointDot(&ForeVec,&BackVec);
+		cvSeqPushFront(DotProds,PointDot(&AheadVec,&BehindVec)); //<--- ANDY CONTINUE HERE!
+
+		printf("i= %d, *DotProdPtr=%d\n", i, *DotProdPtr);
+	//	cvWaitKey(0);
 
 	}
 
@@ -371,8 +377,7 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 	}
 
 	//Set the tail to be the point on the boundary that is most curvy.
-	Worm->Tail = (CvPoint*) cvGetSeqElem(Worm->Boundary, (MostCurvyIndex
-			+ Params->LengthOffset) % TotalBPts);
+	Worm->Tail = (CvPoint*) cvGetSeqElem(Worm->Boundary, MostCurvyIndex);
 	Worm->TailIndex=MostCurvyIndex;
 
 	/* **********************************************************************/
@@ -402,7 +407,7 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 	}
 
 	Worm->Head = (CvPoint*) cvGetSeqElem(Worm->Boundary,
-			(SecondMostCurvyIndex +Params->LengthOffset) % TotalBPts);
+			SecondMostCurvyIndex);
 
 	Worm->HeadIndex = SecondMostCurvyIndex;
 
@@ -608,6 +613,7 @@ int SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
 	 *   To Segment the Left and Right Boundaries and store them
 	 */
 	SegmentSides(OrigBoundA,OrigBoundB,Worm->Segmented->Centerline,Worm->Segmented->LeftBound,Worm->Segmented->RightBound);
+	return 0;
 
 }
 
