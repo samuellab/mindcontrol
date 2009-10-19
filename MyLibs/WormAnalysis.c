@@ -279,50 +279,63 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 	/*  two pixels a Delta pixels apart.									*/
 	/* **********************************************************************/
 
-	/* Create Temperorary CvSeq to store the boundary as a
-	 * series of vectors.
+	/* Create A Matrix to store all of the dot products along the boundary.
 	 */
-	CvSeq* VectBound = cvCreateSeq(CV_SEQ_ELTYPE_POINT, sizeof(CvSeq),
-			sizeof(CvPoint), Worm->MemScratchStorage);
+	CvMat* DotProd=cvCreateMat(Worm->Boundary->total,1,CV_8UC1);
 
 	//We walk around the boundary using the high-speed reader and writer objects.
-	CvSeqReader readerA;
-	CvSeqReader readerB; //readerB will point a Delta points ahead of readerB.
-	CvSeqWriter writer;
+	CvSeqReader ForeReader; //ForeReader reads delta pixels ahead
+	CvSeqReader Reader; 	//Reader reads delta pixels behind
+	CvSeqReader BackReader; //BackReader reads delta pixels behind
+
 
 	/**** Local Variables ***/
 	int i;
-	CvPoint TempVec;
-	CvPoint* boundPt; //Temp storage of the the current pt on the boundary
-	CvPoint* boundPtDelta; //Temp storage of the pt Detla away on the boundary
+	CvPoint* Pt;
+	CvPoint* ForePt;
+	CvPoint* BackPt;
+	CvPoint ForeVec;
+	CvPoint BackVec;
 	int TotalBPts = Worm->Boundary->total;
 
 	/*** Initializing Read & Write Apparatus ***/
-	cvStartReadSeq(Worm->Boundary, &readerA, 0);
-	cvStartReadSeq(Worm->Boundary, &readerB, 0);
-	cvStartAppendToSeq(VectBound, &writer);
+	cvStartReadSeq(Worm->Boundary, &ForeReader, 0);
+	cvStartReadSeq(Worm->Boundary, &BackReader, 0);
+	cvStartReadSeq(Worm->Boundary, &Reader, 0);
+	const int* DotProdPtr;
 
-	//Let's increment readerB delta times to gtet it into place
+	//Let's increment the readers delta times to get them into place
 	for (i = 0; i < Params->LengthOffset; i++) {
-		CV_NEXT_SEQ_ELEM( VectBound->elem_size, readerB);
+		CV_NEXT_SEQ_ELEM( Worm->Boundary->elem_size, ForeReader);
+		CV_PREV_SEQ_ELEM( Worm->Boundary->elem_size, BackReader);
 	}
 
 	/*
-	 * Loop through all the boundary and draw vectors connecting one boundary point to the next.
+	 * Loop through all the boundary and compute the dot products between the ForeVec and BackVec.
+	 *
+	 * Note: ForeVec and BackVec have the same "handedness" along the boundary.
 	 */
 	for (i = 0; i < TotalBPts; i++) {
-		boundPt = (CvPoint*) readerA.ptr;
-		boundPtDelta = (CvPoint*) readerB.ptr;
+		Pt = (CvPoint*) Reader.ptr;
+		ForePt = (CvPoint*) ForeReader.ptr;
+		BackPt = (CvPoint*) BackReader.ptr;
 
-		CV_NEXT_SEQ_ELEM( Worm->Boundary->elem_size, readerA);
-		CV_NEXT_SEQ_ELEM( Worm->Boundary->elem_size, readerB);
-		TempVec = cvPoint((boundPtDelta->x) - (boundPt->x), (boundPtDelta->y)
-				- (boundPt->y));
+		/** Set the Pointer to be at the right pointin the Dot Product Matrix **/
+		DotProdPtr = (const int*) (DotProd->data.ptr + i* DotProd->step);
 
-		CV_WRITE_SEQ_ELEM( TempVec , writer );
+		/** Compute the Forward Vector **/
+		ForeVec = cvPoint((ForePt->x) - (Pt->x), (ForePt->y)
+				- (Pt->y));
+
+		/** Compute the Rear Vector **/
+		BackVec= cvPoint((Pt->x) - (BackPt->x), (Pt->y)
+				- (BackPt->y));
+
+		/** Store the Dot Product in our Mat **/
+		*DotProdPtr=PointDot(ForeVec,BackVec);
 
 	}
-	cvEndWriteSeq(&writer);
+
 
 	/* **********************************************************************/
 	/*  Find the Tail 													 	*/
@@ -406,6 +419,8 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 	Worm->TailIndex = MostCurvyIndex +Params->LengthOffset;
 	Worm->HeadIndex = SecondMostCurvyIndex +Params->LengthOffset;
 
+
+	cvReleaseMat(&DotProd);
 	return 0;
 }
 
