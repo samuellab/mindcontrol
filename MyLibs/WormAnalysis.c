@@ -315,6 +315,7 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 	int BehindPtr=0;
 	int Ptr=0;
 	int* DotProdPtr;
+	int DotProdVal;
 
 
 	/*
@@ -328,7 +329,7 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 		BehindPtr = (i+TotalBPts-Params->LengthScale)%TotalBPts;
 		Ptr = (i)%TotalBPts;
 
-		printf("AheadPtr=%d, BehindPtr=%d,Ptr=%d\n", AheadPtr,BehindPtr,Ptr);
+		//printf("AheadPtr=%d, BehindPtr=%d,Ptr=%d\n", AheadPtr,BehindPtr,Ptr);
 
 
 		AheadPt = (CvPoint*) cvGetSeqElem(Worm->Boundary,AheadPtr);
@@ -345,9 +346,10 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 				- (BehindPt->y));
 
 		/** Store the Dot Product in our Mat **/
-		cvSeqPushFront(DotProds,PointDot(&AheadVec,&BehindVec)); //<--- ANDY CONTINUE HERE!
+		DotProdVal=PointDot(&AheadVec,&BehindVec);
+		cvSeqPush(DotProds,&DotProdVal); //<--- ANDY CONTINUE HERE!
 
-		printf("i= %d, *DotProdPtr=%d\n", i, *DotProdPtr);
+	//	printf("i= %d, DotProdVal=%d\n", i, DotProdVal);
 	//	cvWaitKey(0);
 
 	}
@@ -369,7 +371,7 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 	int TailIndex;
 
 	for (i = 0; i < TotalBPts; i++) {
-		DotProdPtr = (int*) (DotProd->data.ptr + i* DotProd->step);
+		DotProdPtr = (int*) cvGetSeqElem(DotProds,i);
 		if (*DotProdPtr < MostCurvy) { //If this locaiton is curvier than the previous MostCurvy location
 			MostCurvy = *DotProdPtr; //replace the MostCurvy point
 			MostCurvyIndex = i;
@@ -393,7 +395,7 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 
 
 	for (i = 0; i < TotalBPts; i++) {
-		DotProdPtr = (int*) (DotProd->data.ptr + i* DotProd->step);
+		DotProdPtr =(int*) cvGetSeqElem(DotProds,i);
 
 		DistBetPtsOnBound = DistBetPtsOnCircBound(TotalBPts, i, MostCurvyIndex);
 		//If we are at least a 1/4 of the total boundary away from the most curvy point.
@@ -410,9 +412,7 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 			SecondMostCurvyIndex);
 
 	Worm->HeadIndex = SecondMostCurvyIndex;
-
-
-	cvReleaseMat(&DotProd);
+	cvClearMemStorage(Worm->MemScratchStorage);
 	return 0;
 }
 
