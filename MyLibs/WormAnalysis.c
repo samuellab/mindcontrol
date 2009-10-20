@@ -323,7 +323,7 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 	 *
 	 * Note: ForeVec and BackVec have the same "handedness" along the boundary.
 	 */
-	printf ("total boundary elements = %d\n", TotalBPts); //debug MHG 10/19/09
+	//printf ("total boundary elements = %d\n", TotalBPts); //debug MHG 10/19/09
 	for (i = 0; i < TotalBPts; i++) {
 		AheadPtr = (i+Params->LengthScale)%TotalBPts;
 		BehindPtr = (i+TotalBPts-Params->LengthScale)%TotalBPts;
