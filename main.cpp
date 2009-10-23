@@ -160,7 +160,7 @@ int main() {
 
 
 				/*** Do Some Illumination ***/
-				if (!e) SimpleIlluminateWorm(Worm,IlluminationFrame,20,30);
+				if (!e) SimpleIlluminateWorm(Worm,IlluminationFrame,1,99);
 				if (!e) cvShowImage("TestOut",IlluminationFrame->iplimg);
 
 

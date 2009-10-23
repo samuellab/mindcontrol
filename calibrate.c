@@ -253,7 +253,7 @@ void CalibrationTest(int *CCD2DLPLookUp, CamData* MyCamera) {
 	int FramesPerCalib = 10;
 	//number of pixels to move between capoints
 	// obviously smaller takes more time but has more points for calibration
-	int CalStepSize = 200;
+	int CalStepSize = 100;
 
 	CvSeq* CalibSeq;
 	CvMemStorage* calibstorage = cvCreateMemStorage(0);
