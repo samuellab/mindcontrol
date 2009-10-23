@@ -54,7 +54,9 @@ void on_trackbar(int){
 	}
 
 	/** If we are doing temporal analysis, improve the WormHeadTail estimate based on prev frame **/
-	if (Params->TemporalOn) PrevFrameImproveWormHeadTail(Worm,Params,PrevWorm);
+	if (Params->TemporalOn){
+		PrevFrameImproveWormHeadTail(Worm,Params,PrevWorm);
+	}
 
 	SegmentWorm(Worm,Params);
 	//Draw a circle on the tail.
