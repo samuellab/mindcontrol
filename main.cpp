@@ -46,7 +46,8 @@ void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 	cvCreateTrackbar("Threshold", "Controls", &(Params->BinThresh),255, (int) NULL);
 	cvCreateTrackbar("Gauss=x*2+1","Controls", &(Params->GaussSize),15,(int) NULL);
 	cvCreateTrackbar("ScalePx","Controls", &(Params->LengthScale),50, (int) NULL);
-	cvCreateTrackbar("Offset Comp","Controls",&(Params->LengthOffset),15,(int) NULL);
+	cvCreateTrackbar("TemporalIQ","Controls",&(Params->TemporalOn),1, (int) NULL);
+	cvCreateTrackbar("Proximity","Controls",&(Params->MaxLocationChange),100, (int) NULL);
 	return;
 
 }
@@ -89,7 +90,6 @@ int main() {
 
 
 	/** Prepare DLP ***/
-
 	long myDLP= T2DLP_on();
 	cvWaitKey(500);
 	unsigned long lastFrameSeenOutside = 0;
@@ -108,7 +108,8 @@ int main() {
 	/** Setup Segmentation Gui **/
 	SetupSegmentationGUI(Params);
 
-
+	/** Setup Previous Worm **/
+	WormGeom* PrevWorm=CreateWormGeom();
 
 
 	int e;
@@ -138,18 +139,24 @@ int main() {
 
 				/*** Find Worm Head and Tail ***/
 				if (!e) e=GivenBoundaryFindWormHeadTail(Worm,Params);
+				/** If we are doing temporal analysis, improve the WormHeadTail estimate based on prev frame **/
+				if (Params->TemporalOn && !e) PrevFrameImproveWormHeadTail(Worm,Params,PrevWorm);
 
-				if (!e) printf ("FoundHeadTail\n");
+
 				/*** Segment the Worm ***/
 				if (!e) e=SegmentWorm(Worm,Params);
 
-				if (!e) printf("Completed SegmentWorm()\n");
+				/** Update PrevWorm Info **/
+				if (!e) LoadWormGeom(PrevWorm,Worm);
+
+
 
 				/*** DIsplay Some Monitoring Output ***/
 				if (!e) cvShowImage("Original",Worm->ImgOrig);
 				if (!e) cvShowImage("Thresholded",Worm->ImgThresh);
 				if (!e) DisplayWormHeadTail(Worm,"Boundary");
 				if (!e) DisplayWormSegmentation(Worm,"Contours");
+
 
 
 				/*** Do Some Illumination ***/
