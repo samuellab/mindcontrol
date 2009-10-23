@@ -150,7 +150,7 @@ void InitializeEmptyWormImages(WormAnalysisData* Worm, CvSize ImageSize){
 void LoadWormColorOriginal(WormAnalysisData* Worm, IplImage* ImgColorOrig){
 	CvSize CurrentSize = cvGetSize(ImgColorOrig);
 	if ( (Worm->SizeOfImage.height != CurrentSize.height) || (Worm->SizeOfImage.width != CurrentSize.width) ){
-		printf("Error. Image size does not match in ");
+		printf("Error. Image size does not match in LoadWormColorOriginal()");
 		return;
 	}
 	cvCvtColor( ImgColorOrig, Worm->ImgOrig, CV_BGR2GRAY);
@@ -165,7 +165,7 @@ void LoadWormColorOriginal(WormAnalysisData* Worm, IplImage* ImgColorOrig){
 int LoadWormImg(WormAnalysisData* Worm, IplImage* Img){
 	CvSize CurrentSize = cvGetSize(Img);
 	if ( (Worm->SizeOfImage.height != CurrentSize.height) || (Worm->SizeOfImage.width != CurrentSize.width) ){
-		printf("Error. Image size does not match in ");
+		printf("Error. Image size does not match in  LoadWormImg()");
 		return -1;
 	}
 	cvCopy( Img, Worm->ImgOrig,0);
@@ -187,12 +187,18 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 	WormAnalysisParam* ParamPtr;
 	ParamPtr=(WormAnalysisParam*) malloc(sizeof(WormAnalysisParam));
 
-
+	/** Single Frame Analysis Parameters **/
 	ParamPtr->BinThresh=48;
 	ParamPtr->GaussSize=4;
 	ParamPtr->LengthScale=9;
 	ParamPtr->LengthOffset=ParamPtr->LengthScale/2;
 	ParamPtr->NumSegments=100;
+
+	/** Frame-to-Frame Temporal Analysis Parameters **/
+	ParamPtr->TemporalOn=0;
+	ParamPtr->MaxLocationChange=10;
+	ParamPtr->MaxPerimChange=10;
+
 
 	return ParamPtr;
 }
@@ -417,6 +423,38 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 }
 
 
+
+/*
+ * This function reverses the head and the tail of a worm.
+ *
+ * Note: it does not reverse the sequences that describe the worm's boundary
+ * or its segmentation.
+ *
+ */
+int ReverseWormHeadTail(WormAnalysisData* Worm){
+	if (Worm->Head==NULL || Worm->Tail==NULL ){
+		printf("Error! Head or Tail is NULL in ReverseWormHeadTail().\n");
+		return -1;
+	}
+	CvPoint* tempa=Worm->Head;
+	CvPoint* tempb=Worm->Tail;
+	int tempindexa=Worm->HeadIndex;
+	int tempindexb=Worm->TailIndex;
+
+	/** Reverse Head and Tail **/
+	Worm->Head=tempb;
+	Worm->Tail=tempa;
+
+	/*** Reverse Head and Tail Index **/
+	Worm->HeadIndex=tempindexb;
+	Worm->TailIndex=tempindexa;
+	return 0;
+}
+
+
+
+
+
 /*
  * This is a Wrapper function for Illuminate Worm Segment
  * It will create an image of a range of segments on both sides of the worm
@@ -443,6 +481,17 @@ int SimpleIlluminateWorm(WormAnalysisData* Worm, Frame* IllumFrame,int start, in
 		}
 
 
+	/** Check to See if the Worm->Segmented has any NULL values**/
+	if (Worm->Segmented->Centerline==NULL || Worm->Segmented->LeftBound==NULL || Worm->Segmented->RightBound ==NULL ){
+		printf("Error! The Worm->Segmented had NULL children. in SimpleIlluminateWorm()\n");
+		return -1;
+	}
+
+	/** Check to See that the Segmented Values are Not Zero **/
+	if (Worm->Segmented->Centerline->total==0 || Worm->Segmented->LeftBound->total==0 || Worm->Segmented->RightBound->total ==0 ){
+		printf("Error! At least one of the following: Centerline or Right and Left Boundaries in Worm->Segmented has zero points in SimpleIlluminateWorm()\n");
+		return -1;
+	}
 
 	int i;
 	for (i=start; i<end; i++){
@@ -453,6 +502,7 @@ int SimpleIlluminateWorm(WormAnalysisData* Worm, Frame* IllumFrame,int start, in
 	//	cvShowImage("TestOut",IllumFrame);
 
 	cvReleaseImage(&TempImage);
+	return 0;
 }
 
 
@@ -666,3 +716,105 @@ void DisplayWormSegmentation(WormAnalysisData* Worm, char* WindowName){
 	cvReleaseImage(&TempImage);
 
 }
+
+
+/**************************************
+ *
+ * Worm Geometry Object
+ *
+ * Note this is mostly useful for Temporal Analysis
+ *
+ */
+
+/* Create a Worm Geometry Object
+ *
+ */
+WormGeom* CreateWormGeom(){
+	WormGeom* SimpleWorm= (WormGeom*) malloc(sizeof(WormGeom));
+	ClearWormGeom(SimpleWorm);
+	return SimpleWorm;
+
+}
+
+/*
+ * Set the values inside the Worm Geometry object to NULL
+ *
+ */
+void ClearWormGeom(WormGeom* SimpleWorm){
+	if (SimpleWorm==NULL){
+			return;
+		}
+	SimpleWorm->Head.x=NULL;
+	SimpleWorm->Head.y=NULL;
+	SimpleWorm->Perimeter=NULL;
+	SimpleWorm->Tail.x=NULL;
+	SimpleWorm->Tail.y=NULL;
+}
+
+/*
+ * Frees the memory allocated to the Worm Geometry object
+ * and sets its pointer to NULL
+ */
+void DestroyWormGeom(WormGeom** SimpleWorm){
+	if (*SimpleWorm==NULL) return;
+	free(*SimpleWorm);
+	*SimpleWorm=NULL;
+}
+
+/*
+ *Populates LoadWormGeom with geometry data from Worm Object Worm
+ */
+void LoadWormGeom(WormGeom* SimpleWorm, WormAnalysisData* Worm){
+	if (SimpleWorm==NULL){
+		printf("Error SimpleWorm is NULL in LoadWormGeom()!\n");
+		return;
+	}
+	ClearWormGeom(SimpleWorm);
+	SimpleWorm->Head=*(Worm->Head);
+	SimpleWorm->Tail=*(Worm->Tail);
+	SimpleWorm->Perimeter=Worm->Boundary->total;
+}
+
+
+/*********************************************
+ * Temporal Analysis
+ */
+
+/*
+ *
+ * Returns 1 if the worm is consistent with previous frame.
+ * Returns 0 if the worm's head and tail had been reversed from
+ *      	  previous frame and fixes the problem.
+ * Returns -1 if the head and the tail do not match the previous frame at all
+ * Returns 2 if there is no previous worm information
+ */
+int PrevFrameImproveWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Params, WormGeom* PrevWorm){
+	if (PrevWorm->Head.x==NULL ||PrevWorm->Head.y==NULL ||PrevWorm->Tail.y==NULL || PrevWorm->Tail.x==NULL || PrevWorm->Perimeter==NULL ){
+		/** No previous worm to provide information **/
+		return 2;
+	}
+
+	/** Is the Worm's Head and Tail Close to the Previous Frames **/
+	int SqDeltaHead=sqDist(*(Worm->Head),PrevWorm->Head);
+	int SqDeltaTail=sqDist(*(Worm->Tail),PrevWorm->Tail);
+	if ( (SqDeltaHead > (Params->MaxLocationChange)^2  )  || (SqDeltaTail < (Params->MaxLocationChange)^2)  ) {
+		/** The previous head/tail locations aren't close.. **/
+		/** Is the inverse close? **/
+		int SqDeltaHeadInv=sqDist(*(Worm->Head),PrevWorm->Tail);
+		int SqDeltaTailInv=sqDist(*(Worm->Tail),PrevWorm->Head);
+		if ( SqDeltaHead > (Params->MaxLocationChange)^2   || SqDeltaTail < (Params->MaxLocationChange)^2 ){
+			/** The inverse is close, so let's reverse the Head Tail**/
+			ReverseWormHeadTail(Worm);
+			return 0;
+
+		} else {
+			/** The Head and Tail is screwed up and its not related to simply inverted **/
+			printf("Head moved by a squared distance of %d pixels\n Tail moved by a squared distance of %d pixels\n",SqDeltaHead,SqDeltaTail);
+			return -1;
+
+		}
+	}
+	return 1; /** The Head and Tail are within the required distance **/
+
+}
+

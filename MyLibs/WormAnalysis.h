@@ -15,11 +15,18 @@
 #define WORMANALYSIS_H_
 
 typedef struct WormAnalysisParamStruct{
+	/** Single Frame Analysis Parameters**/
 	int LengthScale;
 	int LengthOffset;
 	int BinThresh;
 	int GaussSize;
 	int NumSegments;
+
+	/** Frame to Frame Temporal Analysis**/
+	int TemporalOn;
+	int MaxLocationChange;
+	int MaxPerimChange;
+
 } WormAnalysisParam;
 
 typedef struct SegmentedWormStruct{
@@ -58,6 +65,22 @@ typedef struct WormIlluminationStcut{
 	int* IlluminationArr;
 }WormIlluminationData;
 
+
+/*
+ * Struct to hold basic geometric information about
+ * the location of the previous worm
+ *
+ * This can be used in combination with the
+ * Parameters->PersistantOn=1 to do frame-to-frame
+ * intelligent temporal error checking
+ *
+ *
+ */
+typedef struct WormGeomStruct{
+	CvPoint Head;
+	CvPoint Tail;
+	int Perimeter;
+}WormGeom;
 
 
 /*
@@ -210,6 +233,15 @@ void FindWormBoundary(WormAnalysisData* Worm, WormAnalysisParam* WormParams);
  */
 int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Params);
 
+/*
+ * This function reverses the head and the tail of a worm.
+ *
+ * Note: it does not reverse the sequences that describe the worm's boundary
+ * or its segmentation.
+ *
+ */
+int ReverseWormHeadTail(WormAnalysisData* Worm);
+
 
 /*
  * This is a Wrapper function for Illuminate Worm Segment
@@ -257,4 +289,45 @@ void DisplayWormHeadTail(WormAnalysisData* Worm, char* WindowName);
 void DisplayWormSegmentation(WormAnalysisData* Worm, char* WindowName);
 
 
+
+/*****
+ * Function related to the simpler Worm Geometery OBject
+ */
+
+/* Create a Worm Geometry Object
+ *
+ */
+WormGeom* CreateWormGeom();
+
+/*
+ * Set the values inside the Worm Geometry object to NULL
+ *
+ */
+void ClearWormGeom(WormGeom* SimpleWorm);
+
+/*
+ * Frees the memory allocated to the Worm Geometry object
+ * and sets its pointer to NULL
+ */
+void DestroyWormGeom(WormGeom** SimpleWorm);
+
+/*
+ *Populates LoadWormGeom with geometry data from Worm Object Worm
+ */
+void LoadWormGeom(WormGeom* SimpleWorm, WormAnalysisData* Worm);
+
+/***********************
+ * Temporal Analysis Tools
+ *
+ */
+
+/*
+ *
+ * Returns 1 if the worm is consistent with previous frame.
+ * Returns 0 if the worm's head and tail had been reversed from
+ *      	  previous frame and fixes the problem.
+ * Returns -1 if the head and the tail do not match the previous frame at all
+ * Returns 2 if there is no previous worm information
+ */
+int PrevFrameImproveWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Params, WormGeom* PrevWorm);
 #endif /* WORMANALYSIS_H_ */

@@ -10,7 +10,6 @@
 //Adding a comment.
 
 
-
 #include <stdio.h>
 
 //OpenCV Headers
@@ -32,6 +31,8 @@
 /* Create a new instance of the WormAnalysis Data structure */
 WormAnalysisData* Worm;
 WormAnalysisParam* Params;
+Frame* IlluminationFrame;
+WormGeom* PrevWorm;
 
 
 void on_trabckar(int);
@@ -52,11 +53,19 @@ void on_trackbar(int){
 		printf("Error FindingWormHeadTail!\n");
 	}
 
+	/** If we are doing temporal analysis, improve the WormHeadTail estimate based on prev frame **/
+	if (Params->TemporalOn) PrevFrameImproveWormHeadTail(Worm,Params,PrevWorm);
+
 	SegmentWorm(Worm,Params);
 	//Draw a circle on the tail.
 	DisplayWormHeadTail(Worm,"Boundary");
 	DisplayWormSegmentation(Worm,"Contours");
 
+	/** Illuminate the Worm**/
+	if (SimpleIlluminateWorm(Worm,IlluminationFrame,20,30)==0) cvShowImage("ToDLP",IlluminationFrame->iplimg);
+
+	/** Update PrevWorm Info **/
+	LoadWormGeom(PrevWorm,Worm);
 
 
 	/*
@@ -92,10 +101,21 @@ int main (int argc, char** argv){
 	Worm=CreateWormAnalysisDataStruct();
 	Params=CreateWormAnalysisParam();
 
+
+	CvCapture* capture;
 	IplImage* tempImg;
-	printf("This program reads in a jpg, finds a worm, and segments it.");
-	if( argc != 2 || !(tempImg = cvLoadImage(argv[1])) ) return -1;
-	printf("About to Initialize Empty Images\n");
+
+	printf("This program reads in an avi, finds a worm, and segments it.");
+	if( argc != 2  ) return -1;
+	capture = cvCreateFileCapture(argv[1]);
+
+	/*
+	 * Load in the first image to get the size of the image
+	 *
+	 */
+
+	tempImg=cvQueryFrame(capture);
+	if (tempImg==NULL) printf("There was an error querying the frame!\n");
 
 	/*
 	 * Fill up the Worm structure with Emtpy Images
@@ -104,12 +124,23 @@ int main (int argc, char** argv){
 	InitializeWormMemStorage(Worm);
 
 	/*
+	 * Allocate memory for IlluminationFrame
+	 */
+	 IlluminationFrame=CreateFrame(cvGetSize(tempImg));
+
+	 /*
+	  * Allocate Memory for PrevWorm
+	  */
+
+	 PrevWorm=CreateWormGeom();
+
+	/*
 	 * Load in the Color Source Image
 	 */
-	LoadWormColorOriginal(Worm,tempImg);
-	cvReleaseImage(&tempImg);
+
 
 	cvNamedWindow("Original");
+	cvNamedWindow("ToDLP");
 	cvNamedWindow("Boundary");
 	cvNamedWindow( "Thresholded");
 	cvNamedWindow( "Contours", 1);
@@ -121,7 +152,27 @@ int main (int argc, char** argv){
 	cvCreateTrackbar("Threshold", "Controls", &(Params->BinThresh),255, on_trackbar);
 	cvCreateTrackbar("Gauss=x*2+1","Controls", &(Params->GaussSize),5, on_trackbar);
 	cvCreateTrackbar("ScalePx","Controls", &(Params->LengthScale),50,on_trackbar);
-	cvCreateTrackbar("Offset Comp","Controls",&(Params->LengthOffset),15, on_trackbar);
+	cvCreateTrackbar("TemporalIQ","Controls",&(Params->TemporalOn),1, on_trackbar);
+	cvCreateTrackbar("Proximity","Controls",&(Params->MaxLocationChange),100, on_trackbar);
+
+
+
+
+
+	int i=0;
+	while(1){
+
+		if (i!=0) tempImg=cvQueryFrame( capture);
+		if (tempImg==NULL) {
+			printf("tempImg is NULL at frame %d.\n I assume this means we're done.",i);
+			break;
+		}
+		i++;
+		LoadWormColorOriginal(Worm,tempImg);
+		on_trackbar(0);
+		char c= cvWaitKey(33);
+		if (c==27) break;
+	}
 
 
 
@@ -143,10 +194,7 @@ if (0){
 	printf("Finished!\n");
 }
 
-	printf("About to enter on_trackbar(0)\n");
 
-	on_trackbar(0);
-	printf("Finished on_trackbar(0)\n");
 
 	cvWaitKey(0);
 	DestroyWormAnalysisDataStruct(Worm);
