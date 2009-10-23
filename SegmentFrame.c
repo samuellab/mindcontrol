@@ -46,6 +46,7 @@ void on_trackbar(int){
 	cvDrawContours(Worm->ImgSmooth, Worm->Boundary, cvScalar(255,0,0),cvScalar(0,255,0),100);
 	cvShowImage("Original",Worm->ImgOrig);
 	cvShowImage("Thresholded",Worm->ImgThresh);
+	//cvWriteFrame(Vid1,Worm->ImgThresh);
 
 
 
@@ -61,35 +62,15 @@ void on_trackbar(int){
 	SegmentWorm(Worm,Params);
 	//Draw a circle on the tail.
 	DisplayWormHeadTail(Worm,"Boundary");
+
 	DisplayWormSegmentation(Worm,"Contours");
 
 	/** Illuminate the Worm**/
 	if (SimpleIlluminateWorm(Worm,IlluminationFrame,20,30)==0) cvShowImage("ToDLP",IlluminationFrame->iplimg);
-
 	/** Update PrevWorm Info **/
 	LoadWormGeom(PrevWorm,Worm);
 
 
-	/*
-	 *
-	 * Draw a rectangle on the worm to illuminate it.
-	 */
-
-//	IplImage** image, CvSeq* centerline, CvSeq* Boundary, int segment
-
-//	if (ILLUMINATE){
-//	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,10);
-//	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,11);
-//	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,12);
-//	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,15);
-//	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,16);
-//	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundB,39);
-//	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundB,40);
-//	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundB,41);
-//	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,39);
-//	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,40);
-//	IlluminateWormSegment(&g_gray,SmoothCenterline,OptBoundA,41);
-//	}
 
 }
 
@@ -161,6 +142,7 @@ int main (int argc, char** argv){
 
 
 
+
 	int i=0;
 	while(1){
 
@@ -195,7 +177,6 @@ if (0){
 	}
 	printf("Finished!\n");
 }
-
 
 
 	cvWaitKey(0);

@@ -196,7 +196,7 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 
 	/** Frame-to-Frame Temporal Analysis Parameters **/
 	ParamPtr->TemporalOn=0;
-	ParamPtr->MaxLocationChange=10;
+	ParamPtr->MaxLocationChange=70;
 	ParamPtr->MaxPerimChange=10;
 
 
@@ -690,6 +690,10 @@ void DisplayWormHeadTail(WormAnalysisData* Worm, char* WindowName){
 	cvReleaseImage(&TempImage);
 }
 
+
+
+
+
 /*
  * Displays the original image of the worm
  * with segmentation in window WindowName
@@ -713,9 +717,12 @@ void DisplayWormSegmentation(WormAnalysisData* Worm, char* WindowName){
 		cvLine(TempImage,*tempPt,*tempPtB,cvScalar(255,255,255),1,CV_AA,0);
 	}
 	cvShowImage(WindowName, TempImage);
+	///// ANDY DELETE THIS NEXT LINE SOON!!!!
 	cvReleaseImage(&TempImage);
 
 }
+
+
 
 
 /**************************************
@@ -788,32 +795,57 @@ void LoadWormGeom(WormGeom* SimpleWorm, WormAnalysisData* Worm){
  * Returns -1 if the head and the tail do not match the previous frame at all
  * Returns 2 if there is no previous worm information
  */
-int PrevFrameImproveWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Params, WormGeom* PrevWorm){
-	if (PrevWorm->Head.x==NULL ||PrevWorm->Head.y==NULL ||PrevWorm->Tail.y==NULL || PrevWorm->Tail.x==NULL || PrevWorm->Perimeter==NULL ){
+int PrevFrameImproveWormHeadTail(WormAnalysisData* Worm,
+		WormAnalysisParam* Params, WormGeom* PrevWorm) {
+	int DEBUG = 1;
+	if (PrevWorm->Head.x == NULL || PrevWorm->Head.y == NULL
+			|| PrevWorm->Tail.y == NULL || PrevWorm->Tail.x == NULL
+			|| PrevWorm->Perimeter == NULL) {
 		/** No previous worm to provide information **/
+		if (DEBUG)
+			printf("No previous worm to provide information.\n");
 		return 2;
 	}
 
+
 	/** Is the Worm's Head and Tail Close to the Previous Frames **/
-	int SqDeltaHead=sqDist(*(Worm->Head),PrevWorm->Head);
-	int SqDeltaTail=sqDist(*(Worm->Tail),PrevWorm->Tail);
-	if ( (SqDeltaHead > (Params->MaxLocationChange)^2  )  || (SqDeltaTail < (Params->MaxLocationChange)^2)  ) {
+	CvPoint CurrHead=cvPoint(Worm->Head->x,Worm->Head->y);
+	CvPoint CurrTail=cvPoint(Worm->Tail->x,Worm->Tail->y);
+	int SqDeltaHead  = sqDist(CurrHead, PrevWorm->Head);
+	int SqDeltaTail = sqDist(CurrTail, PrevWorm->Tail);
+	if (DEBUG) printf("=======================\n");
+	if (DEBUG) printf("CurrHead=(%d,%d),CurrTail=(%d,%d)\n",Worm->Head->x,Worm->Head->y,Worm->Tail->x,Worm->Tail->y);
+	if (DEBUG) printf("PrevHead=(%d,%d),PrevTail=(%d,%d)\n",PrevWorm->Head.x,PrevWorm->Head.y,PrevWorm->Tail.x,PrevWorm->Tail.y);
+	printf("SqDeltaTail=%d,SqDeltaHead=%d\n",SqDeltaTail,SqDeltaHead);
+
+	int rsquared=(Params->MaxLocationChange) * (Params->MaxLocationChange);
+
+	if ((SqDeltaHead > rsquared) || (SqDeltaTail > rsquared)) {
 		/** The previous head/tail locations aren't close.. **/
 		/** Is the inverse close? **/
-		int SqDeltaHeadInv=sqDist(*(Worm->Head),PrevWorm->Tail);
-		int SqDeltaTailInv=sqDist(*(Worm->Tail),PrevWorm->Head);
-		if ( SqDeltaHead > (Params->MaxLocationChange)^2   || SqDeltaTail < (Params->MaxLocationChange)^2 ){
+		int SqDeltaHeadInv = sqDist(CurrHead, PrevWorm->Tail);
+		int SqDeltaTailInv = sqDist(CurrTail, PrevWorm->Head);
+		printf("SqDeltaTailInv=%d,SqDeltaHeadInv=%d\n",SqDeltaTailInv,SqDeltaTailInv);
+		if ( (SqDeltaHeadInv < rsquared) || (SqDeltaTailInv < rsquared )){
 			/** The inverse is close, so let's reverse the Head Tail**/
 			ReverseWormHeadTail(Worm);
+			if (DEBUG)
+				printf("ReversedWormHeadTail\n");
 			return 0;
 
 		} else {
 			/** The Head and Tail is screwed up and its not related to simply inverted **/
-			printf("Head moved by a squared distance of %d pixels\n Tail moved by a squared distance of %d pixels\n",SqDeltaHead,SqDeltaTail);
+			printf(
+					"Head moved by a squared distance of %d pixels\n Tail moved by a squared distance of %d pixels\n",
+					SqDeltaHead, SqDeltaTail);
+			if (DEBUG)
+				printf("Head and Tail Screwed Up");
 			return -1;
 
 		}
 	}
+	if (DEBUG)
+			printf("All good.\n");
 	return 1; /** The Head and Tail are within the required distance **/
 
 }
