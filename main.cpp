@@ -181,6 +181,7 @@ int main() {
 
 	DestroyFrame(&fromCCD);
 	DestroyFrame(&forDLP);
+	DestroyWormGeom(&PrevWorm);
 
 	//	cvDestroyAllWindows();
 	T2DLP_off(myDLP);
@@ -188,7 +189,6 @@ int main() {
 	/***** Turn off Camera & DLP ****/
 	T2Cam_TurnOff(&MyCamera);
 	T2Cam_CloseLib();
-
 	DestroyCalibData(Calib);
 	printf("Good bye.\n");
 	return 0;
