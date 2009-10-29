@@ -797,7 +797,7 @@ void LoadWormGeom(WormGeom* SimpleWorm, WormAnalysisData* Worm){
  */
 int PrevFrameImproveWormHeadTail(WormAnalysisData* Worm,
 		WormAnalysisParam* Params, WormGeom* PrevWorm) {
-	int DEBUG = 1;
+	int DEBUG = 0;
 	if (PrevWorm->Head.x == NULL || PrevWorm->Head.y == NULL
 			|| PrevWorm->Tail.y == NULL || PrevWorm->Tail.x == NULL
 			|| PrevWorm->Perimeter == NULL) {
@@ -816,7 +816,7 @@ int PrevFrameImproveWormHeadTail(WormAnalysisData* Worm,
 	if (DEBUG) printf("=======================\n");
 	if (DEBUG) printf("CurrHead=(%d,%d),CurrTail=(%d,%d)\n",Worm->Head->x,Worm->Head->y,Worm->Tail->x,Worm->Tail->y);
 	if (DEBUG) printf("PrevHead=(%d,%d),PrevTail=(%d,%d)\n",PrevWorm->Head.x,PrevWorm->Head.y,PrevWorm->Tail.x,PrevWorm->Tail.y);
-	printf("SqDeltaTail=%d,SqDeltaHead=%d\n",SqDeltaTail,SqDeltaHead);
+	if (DEBUG) printf("SqDeltaTail=%d,SqDeltaHead=%d\n",SqDeltaTail,SqDeltaHead);
 
 	int rsquared=(Params->MaxLocationChange) * (Params->MaxLocationChange);
 
@@ -825,7 +825,7 @@ int PrevFrameImproveWormHeadTail(WormAnalysisData* Worm,
 		/** Is the inverse close? **/
 		int SqDeltaHeadInv = sqDist(CurrHead, PrevWorm->Tail);
 		int SqDeltaTailInv = sqDist(CurrTail, PrevWorm->Head);
-		printf("SqDeltaTailInv=%d,SqDeltaHeadInv=%d\n",SqDeltaTailInv,SqDeltaTailInv);
+		if (DEBUG) printf("SqDeltaTailInv=%d,SqDeltaHeadInv=%d\n",SqDeltaTailInv,SqDeltaTailInv);
 		if ( (SqDeltaHeadInv < rsquared) || (SqDeltaTailInv < rsquared )){
 			/** The inverse is close, so let's reverse the Head Tail**/
 			ReverseWormHeadTail(Worm);
@@ -835,7 +835,7 @@ int PrevFrameImproveWormHeadTail(WormAnalysisData* Worm,
 
 		} else {
 			/** The Head and Tail is screwed up and its not related to simply inverted **/
-			printf(
+			if (DEBUG) printf(
 					"Head moved by a squared distance of %d pixels\n Tail moved by a squared distance of %d pixels\n",
 					SqDeltaHead, SqDeltaTail);
 			if (DEBUG)
