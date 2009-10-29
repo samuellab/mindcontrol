@@ -67,6 +67,10 @@ int main() {
 	}
 
 
+
+
+
+
 	/** Turn on Camera **/
 	T2Cam_InitializeLib();
 	CamData *MyCamera;
@@ -93,6 +97,9 @@ int main() {
 	long myDLP= T2DLP_on();
 	cvWaitKey(500);
 	unsigned long lastFrameSeenOutside = 0;
+
+	/** Prepare Video Out **/
+	CvVideoWriter* Vid=cvCreateVideoWriter("out.mpg",CV_FOURCC('P','I','M','1'),30,cvSize(NSIZEX,NSIZEY),0);
 
 	/*** Create Frames **/
 	Frame* fromCCD =CreateFrame(cvSize(NSIZEX,NSIZEY));
@@ -122,6 +129,7 @@ int main() {
 				LoadFrameWithBin(MyCamera->iImageData,fromCCD);
 
 				if (!e) cvShowImage("FromCamera", fromCCD->iplimg);
+				cvWriteFrame(Vid,fromCCD->iplimg);
 				cvWaitKey(1);
 
 
@@ -153,8 +161,8 @@ int main() {
 
 				/*** DIsplay Some Monitoring Output ***/
 				if (!e) cvShowImage("Original",Worm->ImgOrig);
-				if (!e) cvShowImage("Thresholded",Worm->ImgThresh);
-				if (!e) DisplayWormHeadTail(Worm,"Boundary");
+				//if (!e) cvShowImage("Thresholded",Worm->ImgThresh);
+				//if (!e) DisplayWormHeadTail(Worm,"Boundary");
 				if (!e) DisplayWormSegmentation(Worm,"Contours");
 
 
@@ -166,7 +174,7 @@ int main() {
 
 				if (!e) TransformFrameCam2DLP(IlluminationFrame,forDLP,Calib);
 				if (!e) T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
-				if (!e) cvShowImage("ToDLP", forDLP->iplimg);
+				//if (!e) cvShowImage("ToDLP", forDLP->iplimg);
 				cvWaitKey(1);
 				if (!e){
 					printf("*");
@@ -178,6 +186,9 @@ int main() {
 		if (kbhit()) break;
 
 	}
+
+	/** Finish Writing Video to File and Release Writer **/
+	cvReleaseVideoWriter(&Vid);
 
 	DestroyFrame(&fromCCD);
 	DestroyFrame(&forDLP);
