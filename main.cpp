@@ -56,7 +56,20 @@ void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 
 
 
-int main() {
+int main (int argc, char** argv){
+	int RECORDVID=0;
+	if( argc > 2  ){
+		printf("Runs the camera and DLP in closed loop. Specify an optional .avi file to write out.\n");
+		return -1;
+	}
+	char* fileout;
+	if (argc ==2 ){
+		fileout=argv[1];
+		RECORDVID=1;
+	}
+
+
+
 	DisplayOpenCVInstall();
 	/** Read In Calibration Data ***/
 	CalibData* Calib =CreateCalibData(cvSize(NSIZEX,NSIZEY),cvSize(NSIZEX,NSIZEY));
@@ -99,7 +112,7 @@ int main() {
 	unsigned long lastFrameSeenOutside = 0;
 
 	/** Prepare Video Out **/
-	CvVideoWriter* Vid=cvCreateVideoWriter("out.mpg",CV_FOURCC('P','I','M','1'),30,cvSize(NSIZEX,NSIZEY),0);
+	if (RECORDVID) CvVideoWriter* Vid=cvCreateVideoWriter(fileout,CV_FOURCC('P','I','M','1'),30,cvSize(NSIZEX,NSIZEY),0);
 
 	/*** Create Frames **/
 	Frame* fromCCD =CreateFrame(cvSize(NSIZEX,NSIZEY));
@@ -129,8 +142,7 @@ int main() {
 				LoadFrameWithBin(MyCamera->iImageData,fromCCD);
 
 				if (!e) cvShowImage("FromCamera", fromCCD->iplimg);
-				cvWriteFrame(Vid,fromCCD->iplimg);
-				cvWaitKey(1);
+				if (RECORDVID) cvWriteFrame(Vid,fromCCD->iplimg);
 
 
 				/***********************
@@ -143,7 +155,6 @@ int main() {
 
 				/*** Find Worm Boundary ***/
 				if (!e) FindWormBoundary(Worm,Params);
-				printf("Worm->Boundary->total=%d\n",Worm->Boundary->total);
 
 				/*** Find Worm Head and Tail ***/
 				if (!e) e=GivenBoundaryFindWormHeadTail(Worm,Params);
@@ -174,7 +185,7 @@ int main() {
 
 				if (!e) TransformFrameCam2DLP(IlluminationFrame,forDLP,Calib);
 				if (!e) T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
-				//if (!e) cvShowImage("ToDLP", forDLP->iplimg);
+				if (!e) cvShowImage("ToDLP", forDLP->iplimg);
 				cvWaitKey(1);
 				if (!e){
 					printf("*");
@@ -188,7 +199,7 @@ int main() {
 	}
 
 	/** Finish Writing Video to File and Release Writer **/
-	cvReleaseVideoWriter(&Vid);
+	if (RECORDVID) cvReleaseVideoWriter(&Vid);
 
 	DestroyFrame(&fromCCD);
 	DestroyFrame(&forDLP);
