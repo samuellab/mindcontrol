@@ -36,7 +36,7 @@ using namespace std;
 void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 
 	cvNamedWindow("Display");
-
+	cvNamedWindow("Controls");
 
 
 	cvCreateTrackbar("Threshold", "Controls", &(Params->BinThresh),255, (int) NULL);
@@ -45,14 +45,17 @@ void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 	cvCreateTrackbar("TemporalIQ","Controls",&(Params->TemporalOn),1, (int) NULL);
 	cvCreateTrackbar("Proximity","Controls",&(Params->MaxLocationChange),100, (int) NULL);
 	cvCreateTrackbar("InvDispRate", "Controls", &(Params->DispRate), 30, (int) NULL);
-	cvCreateTrackbar("Display", "Controls", &(Params->Display), 5, (int) NULL);
+	cvCreateTrackbar("Display", "Controls", &(Params->Display), 7, (int) NULL);
 	return;
 
 }
 
 int DispVid(int frameNum, int HowOften){
-	if (HowOften=0) return 0;
-	if (frameNum % HowOften) return 1;
+	if (frameNum==NULL || HowOften==NULL || frameNum<0 || HowOften<0) return 0;
+	if (HowOften==0) return 0;
+	if ((frameNum % HowOften)==0){
+		return 1;
+	}
 	return 0;
 }
 
@@ -135,11 +138,9 @@ int main (int argc, char** argv){
 			e=0;
 			lastFrameSeenOutside = MyCamera->iFrameNumber;
 			FramesReceived++;
-
 			/*** Create a local copy of the image***/
 				LoadFrameWithBin(MyCamera->iImageData,fromCCD);
 
-				if (!e && DispVid(FramesReceived,Params->DispRate)) cvShowImage("FromCamera", fromCCD->iplimg);
 				if (RECORDVID && !e ) cvWriteFrame(Vid,fromCCD->iplimg);
 
 
@@ -174,13 +175,14 @@ int main (int argc, char** argv){
 
 				if (!e) TransformFrameCam2DLP(IlluminationFrame,forDLP,Calib);
 				if (!e) T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
-
 				/*** DIsplay Some Monitoring Output ***/
-					if (!e && DispVid(FramesReceived,Params->DispRate) ){
+
+
+					if (!e &&  DispVid(FramesReceived,Params->DispRate) ){
 						/** There are no errors and we are displaying a frame **/
 						switch (Params->Display) {
 							case 1:
-
+								 cvShowImage("Display", Worm->ImgOrig);
 								break;
 							case 2:
 								 cvShowImage("Display",Worm->ImgThresh);
@@ -200,6 +202,7 @@ int main (int argc, char** argv){
 							default:
 								break;
 						}
+						cvWaitKey(1);
 
 					}
 
