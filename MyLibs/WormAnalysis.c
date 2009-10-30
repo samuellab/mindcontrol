@@ -686,14 +686,16 @@ int SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
 
 /*
  * Displays the original image of the worm
- * highlighting the head and tail in the window WindowName
+ * highlighting the head and tail
+ * And displays the worm's boundary
  *
  */
 void DisplayWormHeadTail(WormAnalysisData* Worm, char* WindowName){
 	int CircleDiameterSize=10;
 	IplImage* TempImage=cvCreateImage(cvGetSize(Worm->ImgSmooth),IPL_DEPTH_8U,1);
-	cvCopy(Worm->ImgSmooth,TempImage,0);
+	cvCopy(Worm->ImgOrig,TempImage,0);
 	//Want to also display boundary!
+	cvDrawContours(TempImage, Worm->Boundary, cvScalar(255,0,0),cvScalar(0,255,0),100);
 	cvCircle(TempImage,*(Worm->Tail),CircleDiameterSize,cvScalar(255,255,255),1,CV_AA,0);
 	cvCircle(TempImage,*(Worm->Head),CircleDiameterSize/2,cvScalar(255,255,255),1,CV_AA,0);
 	cvShowImage(WindowName,TempImage);
@@ -707,11 +709,11 @@ void DisplayWormHeadTail(WormAnalysisData* Worm, char* WindowName){
 /*
  * Displays the original image of the worm
  * with segmentation in window WindowName
- *
+ * And also the head and tail.
  */
 void DisplayWormSegmentation(WormAnalysisData* Worm, char* WindowName){
 	IplImage* TempImage=cvCreateImage(cvGetSize(Worm->ImgSmooth),IPL_DEPTH_8U,1);
-	cvCopyImage(Worm->ImgSmooth,TempImage);
+	cvCopyImage(Worm->ImgOrig,TempImage);
 
 	int i;
 	for (i = 0; i < Worm->Segmented->Centerline->total; i++) {
@@ -725,6 +727,10 @@ void DisplayWormSegmentation(WormAnalysisData* Worm, char* WindowName){
 
 		cvLine(TempImage,*tempPt,*tempPtA,cvScalar(255,255,255),1,CV_AA,0);
 		cvLine(TempImage,*tempPt,*tempPtB,cvScalar(255,255,255),1,CV_AA,0);
+
+		int CircleDiameterSize=10;
+		cvCircle(TempImage,*(Worm->Tail),CircleDiameterSize,cvScalar(255,255,255),1,CV_AA,0);
+		cvCircle(TempImage,*(Worm->Head),CircleDiameterSize/2,cvScalar(255,255,255),1,CV_AA,0);
 	}
 	cvShowImage(WindowName, TempImage);
 	///// ANDY DELETE THIS NEXT LINE SOON!!!!
@@ -733,6 +739,25 @@ void DisplayWormSegmentation(WormAnalysisData* Worm, char* WindowName){
 }
 
 
+/*
+ * Displays the original image of the worm
+ * highlighting the head and tail
+ * draws the boundaries and also overlays the illumination
+ *
+ */
+void DisplayIlluminatedWorm(WormAnalysisData* Worm, Frame* IllumFrame,char* WindowName){
+	int CircleDiameterSize=10;
+	IplImage* TempImage=cvCreateImage(cvGetSize(Worm->ImgOrig),IPL_DEPTH_8U,1);
+	cvCopy(Worm->ImgOrig,TempImage,0);
+	/** ANDY IMPLEMENTED cvAddWeighted() Here **/
+	cvDrawContours(TempImage, Worm->Boundary, cvScalar(255,0,0),cvScalar(0,255,0),100);
+	cvCircle(TempImage,*(Worm->Tail),CircleDiameterSize,cvScalar(255,255,255),1,CV_AA,0);
+	cvCircle(TempImage,*(Worm->Head),CircleDiameterSize/2,cvScalar(255,255,255),1,CV_AA,0);
+
+
+	cvShowImage(WindowName,TempImage);
+	cvReleaseImage(&TempImage);
+}
 
 
 /**************************************
