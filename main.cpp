@@ -169,7 +169,7 @@ int main (int argc, char** argv){
 
 
 				/*** Do Some Illumination ***/
-				if (!e) SimpleIlluminateWorm(Worm,IlluminationFrame,1,99);
+				if (!e) SimpleIlluminateWorm(Worm,IlluminationFrame,10,35);
 
 
 
