@@ -199,6 +199,9 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 	ParamPtr->MaxLocationChange=70;
 	ParamPtr->MaxPerimChange=10;
 
+	/** DIsplay Parameters **/
+	ParamPtr->DispRate=1;
+	ParamPtr->Display=1;
 
 	return ParamPtr;
 }
