@@ -187,6 +187,8 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 	WormAnalysisParam* ParamPtr;
 	ParamPtr=(WormAnalysisParam*) malloc(sizeof(WormAnalysisParam));
 
+	ParamPtr->OnOff=0;
+
 	/** Single Frame Analysis Parameters **/
 	ParamPtr->BinThresh=48;
 	ParamPtr->GaussSize=4;
@@ -202,6 +204,11 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 	/** DIsplay Parameters **/
 	ParamPtr->DispRate=1;
 	ParamPtr->Display=1;
+
+	/**Illumination Parameters **/
+	ParamPtr->SegStart=25;
+	ParamPtr->SegStop=40;
+
 
 	return ParamPtr;
 }

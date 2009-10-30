@@ -15,6 +15,9 @@
 #define WORMANALYSIS_H_
 
 typedef struct WormAnalysisParamStruct{
+	/** Turn Analysis On Generally **/
+	int OnOff;
+
 	/** Single Frame Analysis Parameters**/
 	int LengthScale;
 	int LengthOffset;
@@ -30,6 +33,10 @@ typedef struct WormAnalysisParamStruct{
 	/** Display Stuff**/
 	int DispRate;
 	int Display;
+
+	/** Illumination Parameters **/
+	int SegStart;
+	int SegStop;
 
 } WormAnalysisParam;
 

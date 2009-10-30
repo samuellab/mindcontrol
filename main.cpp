@@ -39,13 +39,27 @@ void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 	cvNamedWindow("Controls");
 
 
+	/** On Off **/
+	cvCreateTrackbar("On","Controls",&(Params->OnOff),1,(int) NULL);
+
+	/** SelectDispilay **/
+	cvCreateTrackbar("SelDisplay", "Controls", &(Params->Display), 7, (int) NULL);
+
+	/** Temporal Coding **/
+	cvCreateTrackbar("TemporalIQ","Controls",&(Params->TemporalOn),1, (int) NULL);
+
+	/** Segmentation Parameters**/
 	cvCreateTrackbar("Threshold", "Controls", &(Params->BinThresh),255, (int) NULL);
 	cvCreateTrackbar("Gauss=x*2+1","Controls", &(Params->GaussSize),15,(int) NULL);
 	cvCreateTrackbar("ScalePx","Controls", &(Params->LengthScale),50, (int) NULL);
-	cvCreateTrackbar("TemporalIQ","Controls",&(Params->TemporalOn),1, (int) NULL);
 	cvCreateTrackbar("Proximity","Controls",&(Params->MaxLocationChange),100, (int) NULL);
-	cvCreateTrackbar("InvDispRate", "Controls", &(Params->DispRate), 30, (int) NULL);
-	cvCreateTrackbar("Display", "Controls", &(Params->Display), 7, (int) NULL);
+
+
+	/**Illumination Parameters **/
+	cvCreateTrackbar("SegStart","Controls",&(Params->SegStart),100, (int) NULL);
+	cvCreateTrackbar("SegEnd","Controls",&(Params->SegStop),100, (int) NULL);
+
+
 	return;
 
 }
@@ -139,72 +153,81 @@ int main (int argc, char** argv){
 			lastFrameSeenOutside = MyCamera->iFrameNumber;
 			FramesReceived++;
 			/*** Create a local copy of the image***/
-				LoadFrameWithBin(MyCamera->iImageData,fromCCD);
+			LoadFrameWithBin(MyCamera->iImageData,fromCCD);
 
-				if (RECORDVID && !e ) cvWriteFrame(Vid,fromCCD->iplimg);
-
-
-				/***********************
-				 * Segment Frame
-				 */
-
-				/*** Load Frame into Worm **/
-				if (!e) e=RefreshWormMemStorage(Worm);
-				if (!e) e=LoadWormImg(Worm,fromCCD->iplimg);
-
-				/*** Find Worm Boundary ***/
-				if (!e) FindWormBoundary(Worm,Params);
-
-				/*** Find Worm Head and Tail ***/
-				if (!e) e=GivenBoundaryFindWormHeadTail(Worm,Params);
-				/** If we are doing temporal analysis, improve the WormHeadTail estimate based on prev frame **/
-				if (Params->TemporalOn && !e) PrevFrameImproveWormHeadTail(Worm,Params,PrevWorm);
+			if (Params->OnOff==0){
+				/**Don't perform any analysis**/
+				cvShowImage("Display", Worm->ImgOrig);
+				printf("Analysis is off. Displaying camera.\n");
+				continue;
+			}
 
 
-				/*** Segment the Worm ***/
-				if (!e) e=SegmentWorm(Worm,Params);
+			/***********************
+			 * Segment Frame
+			 */
 
-				/** Update PrevWorm Info **/
-				if (!e) LoadWormGeom(PrevWorm,Worm);
+			/*** Load Frame into Worm **/
+			if (!e) e=RefreshWormMemStorage(Worm);
+			if (!e) e=LoadWormImg(Worm,fromCCD->iplimg);
+
+			/*** Find Worm Boundary ***/
+			if (!e) FindWormBoundary(Worm,Params);
+
+			/*** Find Worm Head and Tail ***/
+			if (!e) e=GivenBoundaryFindWormHeadTail(Worm,Params);
+			/** If we are doing temporal analysis, improve the WormHeadTail estimate based on prev frame **/
+			if (Params->TemporalOn && !e) PrevFrameImproveWormHeadTail(Worm,Params,PrevWorm);
 
 
-				/*** Do Some Illumination ***/
-				if (!e) SimpleIlluminateWorm(Worm,IlluminationFrame,10,35);
+			/*** Segment the Worm ***/
+			if (!e) e=SegmentWorm(Worm,Params);
+
+			/** Update PrevWorm Info **/
+			if (!e) LoadWormGeom(PrevWorm,Worm);
+
+
+			/*** Do Some Illumination ***/
+			if (!e) SimpleIlluminateWorm(Worm,IlluminationFrame,Params->SegStart,Params->SegStop);
 
 
 
-				if (!e) TransformFrameCam2DLP(IlluminationFrame,forDLP,Calib);
-				if (!e) T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
-				/*** DIsplay Some Monitoring Output ***/
+			if (!e) TransformFrameCam2DLP(IlluminationFrame,forDLP,Calib);
+			if (!e) T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
 
+			/*** DIsplay Some Monitoring Output ***/
+				if (!e &&  DispVid(FramesReceived,Params->DispRate) ){
+					/** There are no errors and we are displaying a frame **/
+					switch (Params->Display) {
+						case 1:
+							 cvShowImage("Display", Worm->ImgOrig);
+							 if (RECORDVID) cvWriteFrame(Vid,Worm->ImgOrig);
+							break;
+						case 2:
+							 cvShowImage("Display",Worm->ImgThresh);
+							 if (RECORDVID) cvWriteFrame(Vid,Worm->ImgThresh);
+							 break;
+						case 3:
+							 DisplayWormHeadTail(Worm,"Display");
 
-					if (!e &&  DispVid(FramesReceived,Params->DispRate) ){
-						/** There are no errors and we are displaying a frame **/
-						switch (Params->Display) {
-							case 1:
-								 cvShowImage("Display", Worm->ImgOrig);
-								break;
-							case 2:
-								 cvShowImage("Display",Worm->ImgThresh);
-								 break;
-							case 3:
-								 DisplayWormHeadTail(Worm,"Display");
-								 break;
-							case 4:
-								DisplayWormSegmentation(Worm,"Display");
-								break;
-							case 5:
-								cvShowImage("Display",IlluminationFrame->iplimg);
-								break;
-							case 6:
-								cvShowImage("Display", forDLP->iplimg);
-								break;
-							default:
-								break;
-						}
-						cvWaitKey(1);
-
+							 break;
+						case 4:
+							DisplayWormSegmentation(Worm,"Display");
+							break;
+						case 5:
+							cvShowImage("Display",IlluminationFrame->iplimg);
+							if (RECORDVID) cvWriteFrame(Vid,IlluminationFrame->iplimg);
+							break;
+						case 6:
+							cvShowImage("Display", forDLP->iplimg);
+							if (RECORDVID) cvWriteFrame(Vid,forDLP->iplimg);
+							break;
+						default:
+							break;
 					}
+					cvWaitKey(1);
+
+				}
 
 
 				if (!e){
