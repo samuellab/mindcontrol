@@ -33,6 +33,7 @@ WormAnalysisData* Worm;
 WormAnalysisParam* Params;
 Frame* IlluminationFrame;
 WormGeom* PrevWorm;
+int DISPVID;
 
 
 void on_trabckar(int);
@@ -44,8 +45,8 @@ void on_trackbar(int){
 	FindWormBoundary(Worm,Params);
 
 	cvDrawContours(Worm->ImgSmooth, Worm->Boundary, cvScalar(255,0,0),cvScalar(0,255,0),100);
-	cvShowImage("Original",Worm->ImgOrig);
-	cvShowImage("Thresholded",Worm->ImgThresh);
+	if (DISPVID) cvShowImage("Original",Worm->ImgOrig);
+	if (DISPVID) cvShowImage("Thresholded",Worm->ImgThresh);
 	//cvWriteFrame(Vid1,Worm->ImgThresh);
 
 
@@ -61,14 +62,16 @@ void on_trackbar(int){
 
 	SegmentWorm(Worm,Params);
 	//Draw a circle on the tail.
-	DisplayWormHeadTail(Worm,"Boundary");
+	  DisplayWormHeadTail(Worm,"Boundary");
 
-	DisplayWormSegmentation(Worm,"Contours");
+	if (DISPVID)   DisplayWormSegmentation(Worm,"Contours");
 
 	/** Illuminate the Worm**/
 	if (SimpleIlluminateWorm(Worm,IlluminationFrame,20,30)==0) cvShowImage("ToDLP",IlluminationFrame->iplimg);
 	/** Update PrevWorm Info **/
 	LoadWormGeom(PrevWorm,Worm);
+
+	//if (!DISPVID) printf(".");
 
 
 
@@ -79,6 +82,7 @@ void on_trackbar(int){
 
 
 int main (int argc, char** argv){
+	DISPVID=1;
 	/* This will let us know if  the intel primitives are installed*/
 	DisplayOpenCVInstall();
 	Worm=CreateWormAnalysisDataStruct();
@@ -122,13 +126,13 @@ int main (int argc, char** argv){
 	 */
 
 
-	cvNamedWindow("Original");
-	cvNamedWindow("ToDLP");
-	cvNamedWindow("Boundary");
-	cvNamedWindow( "Thresholded");
-	cvNamedWindow( "Contours", 1);
-	cvNamedWindow("Controls");
-	cvResizeWindow("Controls",300,400);
+	 if (DISPVID)  cvNamedWindow("Original");
+	 if (DISPVID) cvNamedWindow("ToDLP");
+	  cvNamedWindow("Boundary");
+	 if (DISPVID) cvNamedWindow( "Thresholded");
+	 if (DISPVID)  cvNamedWindow( "Contours", 1);
+	 if (DISPVID) cvNamedWindow("Controls");
+	 if (DISPVID) cvResizeWindow("Controls",300,400);
 
 
 
@@ -154,7 +158,7 @@ int main (int argc, char** argv){
 		i++;
 		LoadWormColorOriginal(Worm,tempImg);
 		on_trackbar(0);
-		char c= cvWaitKey(33);
+		char c= cvWaitKey(3);
 		if (c==27) break;
 	}
 

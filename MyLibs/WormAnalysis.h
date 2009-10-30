@@ -27,6 +27,10 @@ typedef struct WormAnalysisParamStruct{
 	int MaxLocationChange;
 	int MaxPerimChange;
 
+	/** Display Stuff**/
+	int DispRate;
+	int Display;
+
 } WormAnalysisParam;
 
 typedef struct SegmentedWormStruct{

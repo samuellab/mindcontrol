@@ -34,12 +34,8 @@ using namespace std;
 
 
 void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
-	cvNamedWindow("Original");
-	cvNamedWindow("Boundary");
-	cvNamedWindow( "Thresholded");
-	cvNamedWindow( "Contours", 1);
-	cvNamedWindow("Controls");
-	cvResizeWindow("Controls",300,400);
+
+	cvNamedWindow("Display");
 
 
 
@@ -48,11 +44,17 @@ void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 	cvCreateTrackbar("ScalePx","Controls", &(Params->LengthScale),50, (int) NULL);
 	cvCreateTrackbar("TemporalIQ","Controls",&(Params->TemporalOn),1, (int) NULL);
 	cvCreateTrackbar("Proximity","Controls",&(Params->MaxLocationChange),100, (int) NULL);
+	cvCreateTrackbar("InvDispRate", "Controls", &(Params->DispRate), 30, (int) NULL);
+	cvCreateTrackbar("Display", "Controls", &(Params->Display), 5, (int) NULL);
 	return;
 
 }
 
-
+int DispVid(int frameNum, int HowOften){
+	if (HowOften=0) return 0;
+	if (frameNum % HowOften) return 1;
+	return 0;
+}
 
 
 
@@ -96,13 +98,6 @@ int main (int argc, char** argv){
 
 
 
-	/*** SetUp Gui ***/
-	cvNamedWindow("FromCamera", CV_WINDOW_AUTOSIZE);
-	cvMoveWindow("FromCamera", 200, 200);
-	cvNamedWindow("ToDLP", CV_WINDOW_AUTOSIZE);
-	cvNamedWindow("TestOut", CV_WINDOW_AUTOSIZE);
-
-
 
 
 
@@ -112,7 +107,8 @@ int main (int argc, char** argv){
 	unsigned long lastFrameSeenOutside = 0;
 
 	/** Prepare Video Out **/
-	if (RECORDVID) CvVideoWriter* Vid=cvCreateVideoWriter(fileout,CV_FOURCC('P','I','M','1'),30,cvSize(NSIZEX,NSIZEY),0);
+	CvVideoWriter* Vid;
+	if (RECORDVID) Vid =cvCreateVideoWriter(fileout,CV_FOURCC('P','I','M','1'),30,cvSize(NSIZEX,NSIZEY),0);
 
 	/*** Create Frames **/
 	Frame* fromCCD =CreateFrame(cvSize(NSIZEX,NSIZEY));
@@ -133,16 +129,18 @@ int main (int argc, char** argv){
 
 
 	int e;
+	int FramesReceived=0;
 	while (1 == 1) {
 		if (MyCamera->iFrameNumber > lastFrameSeenOutside) {
 			e=0;
 			lastFrameSeenOutside = MyCamera->iFrameNumber;
+			FramesReceived++;
 
 			/*** Create a local copy of the image***/
 				LoadFrameWithBin(MyCamera->iImageData,fromCCD);
 
-				if (!e) cvShowImage("FromCamera", fromCCD->iplimg);
-				if (RECORDVID) cvWriteFrame(Vid,fromCCD->iplimg);
+				if (!e && DispVid(FramesReceived,Params->DispRate)) cvShowImage("FromCamera", fromCCD->iplimg);
+				if (RECORDVID && !e ) cvWriteFrame(Vid,fromCCD->iplimg);
 
 
 				/***********************
@@ -169,24 +167,43 @@ int main (int argc, char** argv){
 				if (!e) LoadWormGeom(PrevWorm,Worm);
 
 
-
-				/*** DIsplay Some Monitoring Output ***/
-				if (!e) cvShowImage("Original",Worm->ImgOrig);
-				//if (!e) cvShowImage("Thresholded",Worm->ImgThresh);
-				//if (!e) DisplayWormHeadTail(Worm,"Boundary");
-				if (!e) DisplayWormSegmentation(Worm,"Contours");
-
-
-
 				/*** Do Some Illumination ***/
 				if (!e) SimpleIlluminateWorm(Worm,IlluminationFrame,1,99);
-				if (!e) cvShowImage("TestOut",IlluminationFrame->iplimg);
+
 
 
 				if (!e) TransformFrameCam2DLP(IlluminationFrame,forDLP,Calib);
 				if (!e) T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
-				if (!e) cvShowImage("ToDLP", forDLP->iplimg);
-				cvWaitKey(1);
+
+				/*** DIsplay Some Monitoring Output ***/
+					if (!e && DispVid(FramesReceived,Params->DispRate) ){
+						/** There are no errors and we are displaying a frame **/
+						switch (Params->Display) {
+							case 1:
+
+								break;
+							case 2:
+								 cvShowImage("Display",Worm->ImgThresh);
+								 break;
+							case 3:
+								 DisplayWormHeadTail(Worm,"Display");
+								 break;
+							case 4:
+								DisplayWormSegmentation(Worm,"Display");
+								break;
+							case 5:
+								cvShowImage("Display",IlluminationFrame->iplimg);
+								break;
+							case 6:
+								cvShowImage("Display", forDLP->iplimg);
+								break;
+							default:
+								break;
+						}
+
+					}
+
+
 				if (!e){
 					printf("*");
 				} else {
