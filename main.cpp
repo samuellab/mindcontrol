@@ -66,16 +66,6 @@ void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 
 }
 
-int DispVid(int frameNum, int HowOften){
-	if (frameNum==NULL || HowOften==NULL || frameNum<0 || HowOften<0) return 0;
-	if (HowOften==0) return 0;
-	if ((frameNum % HowOften)==0){
-		return 1;
-	}
-	return 0;
-}
-
-
 
 int main (int argc, char** argv){
 	int RECORDVID=0;
@@ -199,7 +189,7 @@ int main (int argc, char** argv){
 			if (!e) T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
 
 			/*** DIsplay Some Monitoring Output ***/
-				if (!e &&  DispVid(FramesReceived,Params->DispRate) ){
+				if (!e &&  EverySoOften(FramesReceived,Params->DispRate) ){
 					/** There are no errors and we are displaying a frame **/
 					switch (Params->Display) {
 						case 1:
