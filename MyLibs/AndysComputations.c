@@ -26,10 +26,10 @@
  */
 int DistBetPtsOnCircBound(int PtsOnBound, int IndexA, int IndexB){
 	int distance;
-	if (labs(IndexA-IndexB)<labs(PtsOnBound-(IndexA-IndexB))){//go with the smallest value
+	if (labs(IndexA-IndexB)<labs(PtsOnBound- labs(IndexA-IndexB))){//go with the smallest value
 		distance=labs(IndexA-IndexB);
 	}else{
-		distance=labs(PtsOnBound-(IndexA-IndexB));
+		distance=labs(PtsOnBound- labs(IndexA-IndexB));
 	}
 	return distance;
 }
