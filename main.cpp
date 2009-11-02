@@ -209,7 +209,6 @@ int main (int argc, char** argv){
 							 break;
 						case 3:
 							 DisplayWormHeadTail(Worm,"Display");
-
 							 break;
 						case 4:
 							DisplayWormSegmentation(Worm,"Display");
