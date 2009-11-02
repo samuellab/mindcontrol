@@ -351,18 +351,14 @@ void DrawSequence(IplImage** image, CvSeq* Seq) {
 
 
 
+
+
 /*
  *
  * Resamples a boundary and stores it by omitting points. There is no interpolation.
- * This means that, if the points of an original were evenly spaced (a big if)
- * then if the number of original points is not an even multiple of Numsegments than the
- * distance between the last two points will be the same as all the other points.
  *
- * Basically because there is no interpolation, there is no way to ensure that all the points
- * are evenly spaced. I think this will good enough though. The other alternative would
- * be to use interpolation and that would require square roots and floats which I think
- * would take too long.
- *
+ *	Note that this function resampleSeq always includes the first point of the sequence
+ *	in the new sequence, but it does not necessarily include the last point.
  */
 void resampleSeq(CvSeq* sequence, CvSeq* ResampledSeq, int Numsegments) {
 	if (sequence->total < 1) printf("Error! Sequence passed to resampleSeq() is empty!\n");
@@ -374,24 +370,22 @@ void resampleSeq(CvSeq* sequence, CvSeq* ResampledSeq, int Numsegments) {
 	cvStartAppendToSeq(ResampledSeq, &writer);
 	if (PRINTOUT) printf("Seq->total=%d; n=%f\n", sequence->total, n);
 	CvPoint* tempPt;
-	int i;
+	int i=0;
 	int tempPos;
 
 
-	for (i = 0; i < Numsegments ; i++) {
-		//if (PRINTOUT) printf("#");
+
+
+
+	while (i<Numsegments){
+		tempPos=(int) (i *n + 0.5);
+		cvSetSeqReaderPos(&reader, tempPos, 0);
 		tempPt = (CvPoint*) reader.ptr;
 		CV_WRITE_SEQ_ELEM( *tempPt, writer );
-		tempPos=(int) (i *n + 0.5);
-		if (tempPos < sequence->total || tempPos >= 0){
-			cvSetSeqReaderPos(&reader, tempPos, 0);
-		} else {
-			printf(" Error. Position to set sequence reader to is out of range in resampleSeq()\n");
+		if (!(tempPos < sequence->total && tempPos >= 0)){
+					printf(" Error. Position to set sequence reader to is out of range in resampleSeq()\n");
 		}
-
-
-
-
+		i++;
 	}
 
 
@@ -567,6 +561,9 @@ void SegmentSides (const CvSeq *contourA, const CvSeq *contourB, const CvSeq *ce
 	ptincrement = 3*((contourA->total > contourB->total ? contourA->total : contourB->total) / centerline->total + 1);
 
 	/*find the first points*/
+	/*
+	 * These points are the first along the boundary next to the head/tail
+	 */
 	current = *(CvPoint *) cvGetSeqElem (centerline, 0);
 	lastA = FirstDoesNotMatch(current, contourA, 0, 1);
 	lastB = FirstDoesNotMatch(current, contourB, 0, 1);
@@ -751,3 +748,6 @@ CvSeq *smoothPtSequence (const CvSeq *src, double sigma, CvMemStorage *mem) {
 	free(kernel);
 	return dst;
 }
+
+
+
