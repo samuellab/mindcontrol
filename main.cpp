@@ -37,13 +37,15 @@ void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 
 	cvNamedWindow("Display");
 	cvNamedWindow("Controls");
+	cvResizeWindow("Controls",300,700);
+
+
+	/** SelectDispilay **/
+	cvCreateTrackbar("SelDisplay", "Controls", &(Params->Display), 7, (int) NULL);
 
 
 	/** On Off **/
 	cvCreateTrackbar("On","Controls",&(Params->OnOff),1,(int) NULL);
-
-	/** SelectDispilay **/
-	cvCreateTrackbar("SelDisplay", "Controls", &(Params->Display), 7, (int) NULL);
 
 	/** Temporal Coding **/
 	cvCreateTrackbar("TemporalIQ","Controls",&(Params->TemporalOn),1, (int) NULL);
@@ -157,8 +159,9 @@ int main (int argc, char** argv){
 
 			if (Params->OnOff==0){
 				/**Don't perform any analysis**/
-				cvShowImage("Display", Worm->ImgOrig);
+				cvShowImage("Display", fromCCD->iplimg);
 				printf("Analysis is off. Displaying camera.\n");
+				cvWaitKey(10);
 				continue;
 			}
 
@@ -237,6 +240,7 @@ int main (int argc, char** argv){
 
 		}
 		if (kbhit()) break;
+		if (e) cvWaitKey(1); /**Wait so that we don't end up in a loop lockign up the UI in case of error**/
 
 	}
 
