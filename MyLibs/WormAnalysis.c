@@ -624,7 +624,9 @@ int SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
 	CvSeq* OrigBoundB=cvSeqSlice(Worm->Boundary,cvSlice(Worm->TailIndex,Worm->HeadIndex),Worm->MemScratchStorage,1);
 
 	if (OrigBoundA->total < Params->NumSegments || OrigBoundB->total < Params->NumSegments ){
-		printf("Error in SegmentWorm()! When splitting  the original boundary into two, one or the other has less than the number of desired segments!\n");
+		printf("Error in SegmentWorm():\n\tWhen splitting  the original boundary into two, one or the other has less than the number of desired segments!\n");
+		printf("OrigBoundA->total=%d\nOrigBoundB->total=%d\nParams->NumSegments=%d\n",OrigBoundA->total,OrigBoundB->total,Params->NumSegments);
+		printf("Worm->HeadIndex=%d\nWorm->TailIndex=%d\n",Worm->HeadIndex,Worm->TailIndex);
 		return -1; /** Andy make this return -1 **/
 
 	}
@@ -661,13 +663,19 @@ int SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
 	/*** Compute Centerline, from Head To Tail ***/
 	FindCenterline(NBoundA,NBoundB,Worm->Centerline);
 
+
+
 	/*** Smooth the Centerline***/
 	CvSeq* SmoothUnresampledCenterline = smoothPtSequence (Worm->Centerline, 0.5*Worm->Centerline->total/Params->NumSegments, Worm->MemScratchStorage);
 
 	/*** Note: If you wanted to you could smooth the centerline a second time here. ***/
 
-	/*** Resample the Centerline So it has the desired Number of Points ***/
+
+	/*** Resample the Centerline So it has the specified Number of Points ***/
 	resampleSeq(SmoothUnresampledCenterline,Worm->Segmented->Centerline,Params->NumSegments);
+
+	/*** Remove Repeat Points***/
+	//RemoveSequentialDuplicatePoints (Worm->Segmented->Centerline);
 
 	/*** Use Marc's Perpendicular Segmentation Algorithm
 	 *   To Segment the Left and Right Boundaries and store them
@@ -737,6 +745,47 @@ void DisplayWormSegmentation(WormAnalysisData* Worm, char* WindowName){
 	cvReleaseImage(&TempImage);
 
 }
+
+
+/*
+ * Displays the original image and the points of the
+ * segmented boundary and then the points of the centerline
+ */
+void DisplaySegPts(WormAnalysisData* Worm, char* WindowName){
+	printf("NEW FRAME============\n");
+	IplImage* TempImage=cvCreateImage(cvGetSize(Worm->ImgOrig),IPL_DEPTH_8U,1);
+	cvCopyImage(Worm->ImgOrig,TempImage);
+	int CircleDiameterSize=10;
+	int i;
+	printf("Worm->Segmented->Centerline->total=%d\n",Worm->Segmented->Centerline->total);
+	for (i = 0; i < Worm->Segmented->Centerline->total; i++) {
+		CvPoint* tempPt = (CvPoint*) cvGetSeqElem(Worm->Segmented->Centerline, i);
+
+		cvCircle(TempImage,*tempPt,1,cvScalar(255,255,255),1,CV_AA,0);
+
+		cvWaitKey(30);cvShowImage(WindowName, TempImage); printf("( %d , %d )\n",tempPt->x, tempPt->y);
+		}
+
+	printf("Worm->Segmented->RightBound->total=%d\n",Worm->Segmented->RightBound->total);
+	for (i = 0; i < Worm->Segmented->RightBound->total; i++) {
+
+		CvPoint* tempPtA = (CvPoint*) cvGetSeqElem(Worm->Segmented->RightBound, i);
+		CvPoint* tempPtB = (CvPoint*) cvGetSeqElem(Worm->Segmented->LeftBound, i);
+
+		cvCircle(TempImage,*tempPtA,1,cvScalar(255,255,255),1,CV_AA,0);
+		cvCircle(TempImage,*tempPtB,1,cvScalar(255,255,255),1,CV_AA,0);
+		cvWaitKey(30);cvShowImage(WindowName, TempImage); printf("A: ( %d, %d ) B: ( %d, %d ) \n",tempPtA->x, tempPtA->y,tempPtB->x, tempPtB->y);
+	}
+
+	cvCircle(TempImage,*(Worm->Tail),CircleDiameterSize,cvScalar(255,255,255),1,CV_AA,0);
+	cvCircle(TempImage,*(Worm->Head),CircleDiameterSize/2,cvScalar(255,255,255),1,CV_AA,0);
+
+	cvShowImage(WindowName, TempImage);
+	///// ANDY DELETE THIS NEXT LINE SOON!!!!
+	cvReleaseImage(&TempImage);
+
+}
+
 
 
 /*

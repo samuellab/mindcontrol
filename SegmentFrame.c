@@ -61,17 +61,19 @@ void on_trackbar(int){
 	}
 
 	SegmentWorm(Worm,Params);
+
+
 	//Draw a circle on the tail.
 	  DisplayWormHeadTail(Worm,"Boundary");
 
 	if (DISPVID)   DisplayWormSegmentation(Worm,"Contours");
 
+	//DisplaySegPts(Worm,"Boundary");
+
 	/** Illuminate the Worm**/
-	if (SimpleIlluminateWorm(Worm,IlluminationFrame,20,30)==0) cvShowImage("ToDLP",IlluminationFrame->iplimg);
+	if (SimpleIlluminateWorm(Worm,IlluminationFrame,2,3)==0) cvShowImage("ToDLP",IlluminationFrame->iplimg);
 	/** Update PrevWorm Info **/
 	LoadWormGeom(PrevWorm,Worm);
-
-	//if (!DISPVID) printf(".");
 
 
 
@@ -88,6 +90,8 @@ int main (int argc, char** argv){
 	Worm=CreateWormAnalysisDataStruct();
 	Params=CreateWormAnalysisParam();
 
+	/** Choose only 20 segments **/
+	Params->NumSegments=20;
 
 	CvCapture* capture;
 	IplImage* tempImg;
@@ -141,6 +145,7 @@ int main (int argc, char** argv){
 	cvCreateTrackbar("ScalePx","Controls", &(Params->LengthScale),50,on_trackbar);
 	cvCreateTrackbar("TemporalIQ","Controls",&(Params->TemporalOn),1, on_trackbar);
 	cvCreateTrackbar("Proximity","Controls",&(Params->MaxLocationChange),100, on_trackbar);
+	cvCreateTrackbar("NumSegments","Controls",&(Params->NumSegments),200, on_trackbar);
 
 
 

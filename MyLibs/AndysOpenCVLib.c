@@ -375,8 +375,6 @@ void resampleSeq(CvSeq* sequence, CvSeq* ResampledSeq, int Numsegments) {
 
 
 
-
-
 	while (i<Numsegments){
 		tempPos=(int) (i *n + 0.5);
 		cvSetSeqReaderPos(&reader, tempPos, 0);
@@ -558,40 +556,52 @@ void SegmentSides (const CvSeq *contourA, const CvSeq *contourB, const CvSeq *ce
 	int noduplicates = 0;
 	CvPoint current, forward, backward, tangent;
 
+
+
+	/** This defines the search area with which we will look for a point on the boundary **/
 	ptincrement = 3*((contourA->total > contourB->total ? contourA->total : contourB->total) / centerline->total + 1);
 
-	/*find the first points*/
-	/*
-	 * These points are the first along the boundary next to the head/tail
-	 */
-	current = *(CvPoint *) cvGetSeqElem (centerline, 0);
-	lastA = FirstDoesNotMatch(current, contourA, 0, 1);
-	lastB = FirstDoesNotMatch(current, contourB, 0, 1);
-	cvSeqPush (segmentedA, cvGetSeqElem(contourA, lastA));
-	cvSeqPush (segmentedB, cvGetSeqElem(contourB, lastB));
 
 
-	/*find all middle points*/
-	for (j = 1; j < centerline->total - 1; j++) {
-		backward = *(CvPoint *) cvGetSeqElem (centerline, j - 1);
-		current = *(CvPoint *) cvGetSeqElem (centerline, j);
-		forward = *(CvPoint *) cvGetSeqElem (centerline, j+1);
-		tangent.x = forward.x - backward.x;
-		tangent.y = forward.y - backward.y;
-		lastA = FindPerpPoint (current, tangent, contourA, lastA - ptincrement, lastA + ptincrement);
-		lastB = FindPerpPoint (current, tangent, contourB, lastB - ptincrement, lastB + ptincrement);
-		cvSeqPush (segmentedA, cvGetSeqElem(contourA, lastA));
-		cvSeqPush (segmentedB, cvGetSeqElem(contourB, lastB));
-	}
+	lastA=0;
+	lastB=0;
+	/** walk along the centerline and find the points perpendicular to the tangent of the centerline along the boundary **/
+		for (j = 0; j < centerline->total; j++) {
 
-	/*find the last points*/
-	current = *(CvPoint *) cvGetSeqElem (centerline, -1);
-	lastA = FirstDoesNotMatch(current, contourA, contourA->total-1, -1);
-	lastB = FirstDoesNotMatch(current, contourB, contourB->total-1, -1);
-	cvSeqPush (segmentedA, cvGetSeqElem(contourA, lastA));
-	cvSeqPush (segmentedB, cvGetSeqElem(contourB, lastB));
+			/** Find the point behind current on the centerline **/
+			if (j==0){
+				/** If current is the first point on the centerline **/
+				/** Use the Head as backwards **/
+				backward = *(CvPoint *) cvGetSeqElem (contourA, 0);
+			}else{
+				backward = *(CvPoint *) cvGetSeqElem (centerline, j - 1);
+			}
+
+			/** Find the current point along the centerline **/
+			current = *(CvPoint *) cvGetSeqElem (centerline, j);
+
+			/** Find the point in front of current on the centerline **/
+			if (j==centerline->total-1){
+				/** If current is the last point on the centerline **/
+				/** use the tail as forward **/
+				forward = *(CvPoint *) cvGetSeqElem (contourA, centerline->total-1);
+			}else{
+				forward = *(CvPoint *) cvGetSeqElem (centerline, j+1);
+			}
+			/** The tangent vector is forward minus backward **/
+			tangent.x = forward.x - backward.x;
+			tangent.y = forward.y - backward.y;
+
+			/** Find the index along the boundary for the perpendicular pointer and store it **/
+			lastA = FindPerpPoint (current, tangent, contourA, lastA - ptincrement, lastA + ptincrement);
+			lastB = FindPerpPoint (current, tangent, contourB, lastB - ptincrement, lastB + ptincrement);
+			cvSeqPush (segmentedA, cvGetSeqElem(contourA, lastA));
+			cvSeqPush (segmentedB, cvGetSeqElem(contourB, lastB));
+		}
 
 }
+
+
 /*int FirstDoesNotMatch (CvPoint a, const CvSeq *b, int startInd, int dir)
  *
  *given a sequence of CvPoints b, starting at index startInd and proceeding in
