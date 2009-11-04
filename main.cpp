@@ -12,7 +12,7 @@
 #include <conio.h>
 #include <math.h>
 
-//C++ hearder
+//C++ header
 #include <iostream>
 #include <limits>
 
@@ -217,7 +217,7 @@ int main (int argc, char** argv){
 						default:
 							break;
 					}
-					cvWaitKey(1);
+					cvWaitKey(1); // Pause one second for things to display onscreen.
 
 				}
 

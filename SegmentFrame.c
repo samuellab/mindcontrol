@@ -72,6 +72,8 @@ void on_trackbar(int){
 
 	/** Illuminate the Worm**/
 	if (SimpleIlluminateWorm(Worm,IlluminationFrame,2,3)==0) cvShowImage("ToDLP",IlluminationFrame->iplimg);
+
+
 	/** Update PrevWorm Info **/
 	LoadWormGeom(PrevWorm,Worm);
 
@@ -149,6 +151,9 @@ int main (int argc, char** argv){
 
 
 
+	/** SetUp Write Out to File **/
+	CvFileStorage* fs=cvOpenFileStorage("data.yaml",Worm->MemStorage,CV_STORAGE_WRITE);
+	cvStartWriteStruct(fs,"Frames",CV_NODE_SEQ,NULL);
 
 
 
@@ -163,12 +168,22 @@ int main (int argc, char** argv){
 		i++;
 		LoadWormColorOriginal(Worm,tempImg);
 		on_trackbar(0);
-		char c= cvWaitKey(3);
+
+		/** Write Out Data to File **/
+		cvStartWriteStruct(fs,NULL,CV_NODE_MAP,NULL);
+		cvWriteInt(fs,"FrameNumber",i);
+		cvWrite(fs,"SegmentedCenterline",Worm->Segmented->Centerline);
+		cvEndWriteStruct(fs);
+
+		char c= cvWaitKey(1);
 		if (c==27) break;
 	}
 
 
-
+	/** Finish writing this structure **/
+	cvEndWriteStruct(fs);
+	/** Close File Storage and Finish Writing Out to File **/
+	cvReleaseFileStorage(&fs);
 
 if (0){
 	/*
