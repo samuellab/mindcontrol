@@ -171,8 +171,24 @@ int main (int argc, char** argv){
 
 		/** Write Out Data to File **/
 		cvStartWriteStruct(fs,NULL,CV_NODE_MAP,NULL);
-		cvWriteInt(fs,"FrameNumber",i);
-		cvWrite(fs,"SegmentedCenterline",Worm->Segmented->Centerline);
+			cvWriteInt(fs,"FrameNumber",i);
+			if (  (Worm->Segmented->Head->x >=0) && (Worm->Segmented->Head->y >= 0) ){
+
+			cvStartWriteStruct(fs,"Head",CV_NODE_MAP,NULL);
+			cvWriteInt(fs,"x",0);
+				cvWriteInt(fs,"x",Worm->Segmented->Head->x);
+				cvWriteInt(fs,"y",Worm->Segmented->Head->y);
+			cvEndWriteStruct(fs);
+			}
+			cvStartWriteStruct(fs,"Tail",CV_NODE_MAP,NULL);
+				cvWriteInt(fs,"x",Worm->Segmented->Tail->x);
+				cvWriteInt(fs,"y",Worm->Segmented->Tail->y);
+			cvEndWriteStruct(fs);
+
+
+			cvWrite(fs,"BoundaryA",Worm->Segmented->LeftBound);
+			cvWrite(fs,"BoundaryB",Worm->Segmented->RightBound);
+			cvWrite(fs,"SegmentedCenterline",Worm->Segmented->Centerline);
 		cvEndWriteStruct(fs);
 
 		char c= cvWaitKey(1);

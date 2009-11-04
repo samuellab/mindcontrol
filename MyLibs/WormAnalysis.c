@@ -604,13 +604,15 @@ int SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
 	}
 
 
-	Worm->Segmented->Head=Worm->Head;
-	Worm->Segmented->Tail=Worm->Tail;
+
 
 	Worm->Segmented->NumSegments=Params->NumSegments;
 
 	/***Clear Out any stale Segmented Information Already in the Worm Structure***/
 	ClearSegmentedInfo(Worm->Segmented);
+
+	Worm->Segmented->Head=Worm->Head;
+	Worm->Segmented->Tail=Worm->Tail;
 
 	/*** It would be nice to check that Worm->Boundary exists ***/
 
