@@ -9,25 +9,13 @@
 #define WRITEOUTWORM_H_
 
 
-typedef struct SaveWormFrameStruct{
+typedef struct WriteOutStruct{
 	/** Current Frame **/
-	int FrameId;
-	int CamFrameId;
+	CvFileStorage* fs;
+	// Whatever the video file id thingie is.
 
-	/** Frame to Frame Temporal Analysis**/
-	int TemporalOn;
-	int MaxLocationChange;
-	int MaxPerimChange;
 
-	/** Display Stuff**/
-	int DispRate;
-	int Display;
-
-	/** Illumination Parameters **/
-	int SegStart;
-	int SegStop;
-
-} SaveWormFrame;
+} WriteOut;
 
 
 

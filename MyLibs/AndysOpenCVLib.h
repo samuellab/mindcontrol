@@ -277,12 +277,7 @@ int FindPerpPoint (CvPoint x, CvPoint t, const CvSeq *a, int startInd, int endIn
 void RemoveSequentialDuplicatePoints (CvSeq *seq);
 
 
-/*
- * Check's to see if sequence exists
- * Exists=nonzero
- * False = 0
- */
-bool cvSeqExists(CvSeq* MySeq);
+
 
 //Marc's functions for convolution
 void ConvolveInt1D (const int *src, int *dst, int length, int *kernel, int klength, int normfactor);
@@ -294,6 +289,30 @@ void CreateGaussianKernel (double sigma, int **kernel, int *klength, int *normfa
 
 CvSeq *smoothPtSequence (const CvSeq *src, double sigma, CvMemStorage *mem);
 
+
+
+/**** Testing Functions ****/
+
+/*
+ * Check's to see if sequence exists
+ * Exists=nonzero
+ * False = 0
+ */
+bool cvSeqExists(CvSeq* MySeq);
+
+/*
+ * Check's to see if point exists
+ * Exists=nonzero
+ * False = 0
+ */
+bool cvPointExists(CvPoint* MyPt);
+
+/*
+ * Check's to see if int exists
+ * Exists=nonzero
+ * False = 0
+ */
+bool IntExists(int MyInt);
 
 
 #endif /* ANDYSOPENCVLIB_H_ */

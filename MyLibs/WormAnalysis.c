@@ -56,6 +56,9 @@ WormAnalysisData* CreateWormAnalysisDataStruct(){
 	WormPtr->ImgSmooth =NULL;
 	WormPtr->ImgThresh =NULL;
 
+	WormPtr->frameNum=NULL;
+	WormPtr->frameNumCamInternal=NULL;
+
 
 	WormPtr->SizeOfImage.height = NULL;
 	WormPtr->SizeOfImage.width= NULL;

@@ -50,31 +50,48 @@ typedef struct SegmentedWormStruct{
 	int NumSegments;
 } SegmentedWorm;
 
+/*
+ * This structure holds information about how the worm is illuminated.
+ * ANDY CREATE functions to create and destroy this data type.
+ */
+typedef struct WormIlluminationStruct{
+	int Center;
+	int Width;
+}WormIlluminationData;
+
+
 
 typedef struct WormImageAnalysisStruct{
 	CvSize SizeOfImage;
+
+	/** Frame Info **/
+	int frameNum;
+	int frameNumCamInternal;
+
+	/** Images **/
 	IplImage* ImgOrig;
 	IplImage* ImgSmooth;
 	IplImage* ImgThresh;
+
+	/** Memory **/
 	CvMemStorage* MemStorage;
 	CvMemStorage* MemScratchStorage;
+
+	/** Features **/
 	CvSeq* Boundary;
 	CvPoint* Head;
 	CvPoint* Tail;
 	int TailIndex;
 	int HeadIndex;
 	CvSeq* Centerline;
+
+	/** Segmented Worm **/
 	SegmentedWorm* Segmented;
+
+
+	//WormIlluminationData* Illum;
 }WormAnalysisData;
 
-
-typedef struct WormIlluminationStcut{
-	IplImage* IlluminationPattern;
-	CvSeq* SegmentCenterline;
-	CvSeq* SegmentLeft;
-	CvSeq* SegmentRight;
-	int* IlluminationArr;
-}WormIlluminationData;
 
 
 /*

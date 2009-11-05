@@ -649,16 +649,6 @@ int FindPerpPoint (CvPoint x, CvPoint t, const CvSeq *a, int startInd, int endIn
 }
 
 
-/*
- * Check's to see if sequence exists
- * Exists=nonzero
- * False = 0
- */
-bool cvSeqExists(CvSeq* MySeq){
-	return ((MySeq != NULL) && (MySeq->total >0));
-}
-
-
 
 /* void RemoveSequentialDuplicatePoints (CvSeq *seq)
  *
@@ -757,6 +747,54 @@ CvSeq *smoothPtSequence (const CvSeq *src, double sigma, CvMemStorage *mem) {
 	ConvolveCvPtSeq(src, dst, kernel, klength, normfactor);
 	free(kernel);
 	return dst;
+}
+
+
+
+/*** Testing Functions ***/
+/*
+ * Check's to see if sequence exists
+ * Exists=nonzero
+ * False = 0
+ */
+bool cvSeqExists(CvSeq* MySeq){
+	if((MySeq != NULL) && (MySeq->total >0)){
+		return 1;
+	} else{
+		return 0;
+	}
+
+}
+
+
+/*
+ * Check's to see if point exists
+ * Exists=nonzero
+ * False = 0
+ */
+bool cvPointExists(CvPoint* MyPt){
+	if((MyPt != NULL) && (MyPt->x >=0) && (MyPt->y >=0)){
+			return 1;
+		} else{
+			return 0;
+		}
+
+
+}
+
+/*
+ * Check's to see if int exists
+ * Exists=nonzero
+ * False = 0
+ */
+bool IntExists(int MyInt){
+	if((MyInt != NULL) && (MyInt >=0)){
+			return 1;
+		} else{
+			return 0;
+		}
+
+
 }
 
 
