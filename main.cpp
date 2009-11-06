@@ -140,7 +140,7 @@ int main (int argc, char** argv){
 	WormGeom* PrevWorm=CreateWormGeom();
 
 
-	/** SetUp Recording **/
+	/** SetUp Dataa Recording **/
 	printf("About to setup recording\n");
 	WriteOut* DataWriter;
 	if (RECORDDATA)	{
@@ -148,14 +148,23 @@ int main (int argc, char** argv){
 		printf("Initialized data recording\n");
 	}
 
+	/** Set Up Video Recording **/
+	/**
+	 * Note this section really needs help.
+	 * ANDY: incorporate this into its own library so its not so kludgy.
+	 *
+	 */
 	CvVideoWriter* Vid;  //Video Writer
-	// Note this is realy kludgy. Andy: incorporate this with SetUpWriteToDisk or something
+	IplImage* SubSampled = cvCreateImage(cvSize(NSIZEX/2,NSIZEY/2),IPL_DEPTH_8U,1);
 	if (RECORDVID) {
 		char* moviefile = (char*) malloc(strlen(basefilename) + 1 + strlen(".avi"));
 		strcpy(moviefile, basefilename);
 		strcat(moviefile, ".avi");
-		Vid = cvCreateVideoWriter(moviefile, CV_FOURCC('I','4','2','0'), 30,
-				cvSize(NSIZEX, NSIZEY), 0);
+	//	Vid = cvCreateVideoWriter(moviefile, CV_FOURCC('I','4','2','0'), 30,
+	//			cvSize(NSIZEX/2, NSIZEY/2), 0);
+		Vid = cvCreateVideoWriter(moviefile, CV_FOURCC('U', '2', '6', '3'), 30,
+					cvSize(NSIZEX/2, NSIZEY/2), 0);
+
 		free(&moviefile);
 		printf("Initialized video recording\n");
 	}
@@ -245,7 +254,8 @@ int main (int argc, char** argv){
 					cvWaitKey(1); // Pause one second for things to display onscreen.
 
 					/** Record Frame **/
-					if (RECORDVID && Params->Record) cvWriteFrame(Vid,Worm->ImgOrig);
+					cvResize(Worm->ImgOrig,SubSampled,CV_INTER_LINEAR);
+					if (RECORDVID && Params->Record) cvWriteFrame(Vid,SubSampled);
 					if (RECORDDATA && Params->Record) AppendWormFrameToDisk(Worm,Params,DataWriter);
 
 
@@ -265,6 +275,7 @@ int main (int argc, char** argv){
 	}
 
 	/** Finish Writing Video to File and Release Writer **/
+	cvReleaseImage(&SubSampled);
 	if (RECORDVID) cvReleaseVideoWriter(&Vid);
 	if (RECORDDATA) FinishWriteToDisk(&DataWriter);
 

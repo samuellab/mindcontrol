@@ -157,9 +157,10 @@ int main (int argc, char** argv){
 
 //	CvVideoWriter* Vid = cvCreateVideoWriter("data.mov", CV_FOURCC('P','I','M','1'), 30,
 //				cvGetSize(Worm->ImgOrig), 0);
-	CvVideoWriter* Vid = cvCreateVideoWriter("blah.avi", CV_FOURCC('I','4','2','0'), 30,
-								cvGetSize(Worm->ImgOrig), 0);
-
+//	CvVideoWriter* Vid = cvCreateVideoWriter("blah.avi", CV_FOURCC('I','4','2','0'), 30,
+//								cvGetSize(Worm->ImgOrig), 0);
+	CvVideoWriter* Vid = cvCreateVideoWriter("blah.avi", CV_FOURCC('M','J','P','G'), 30,
+									cvGetSize(Worm->ImgOrig), 0);
 
 
 	int i=0;
