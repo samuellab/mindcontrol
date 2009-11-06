@@ -162,7 +162,7 @@ int main (int argc, char** argv){
 		strcat(moviefile, ".avi");
 	//	Vid = cvCreateVideoWriter(moviefile, CV_FOURCC('I','4','2','0'), 30,
 	//			cvSize(NSIZEX/2, NSIZEY/2), 0);
-		Vid = cvCreateVideoWriter(moviefile, CV_FOURCC('U', '2', '6', '3'), 30,
+		Vid = cvCreateVideoWriter(moviefile, CV_FOURCC('M','J','P','G'), 30,
 					cvSize(NSIZEX/2, NSIZEY/2), 0);
 
 		free(&moviefile);
@@ -256,6 +256,7 @@ int main (int argc, char** argv){
 					/** Record Frame **/
 					cvResize(Worm->ImgOrig,SubSampled,CV_INTER_LINEAR);
 					if (RECORDVID && Params->Record) cvWriteFrame(Vid,SubSampled);
+					Worm->frameNum=FramesReceived;
 					if (RECORDDATA && Params->Record) AppendWormFrameToDisk(Worm,Params,DataWriter);
 
 
