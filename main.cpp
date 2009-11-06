@@ -235,7 +235,7 @@ int main (int argc, char** argv){
 							// if (RECORDVID) cvWriteFrame(Vid,Worm->ImgThresh);
 							 break;
 						case 3:
-							// DisplayWormHeadTail(Worm,"Display");
+							 DisplayWormHeadTail(Worm,"Display");
 							 break;
 						case 4:
 							DisplayWormSegmentation(Worm,"Display");
