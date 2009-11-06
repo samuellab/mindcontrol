@@ -153,8 +153,7 @@ int main (int argc, char** argv){
 
 
 	/** SetUp Write Out to File **/
-	WriteOut* Files = SetUpWriteToDisk("data", Worm->MemStorage);
-	return 0;
+	WriteOut* DataWriter = SetUpWriteToDisk("data", Worm->MemStorage);
 
 
 	int i=0;
@@ -171,13 +170,13 @@ int main (int argc, char** argv){
 
 		/** Write Out Data to File **/
 		Worm->frameNum=i;
-		AppendWormFrameToDisk(Worm,Files);
+		AppendWormFrameToDisk(Worm,DataWriter);
 
 		char c= cvWaitKey(1);
 		if (c==27) break;
 	}
 
-	FinishWriteToDisk(Files);
+	FinishWriteToDisk(&DataWriter);
 
 if (0){
 	/*

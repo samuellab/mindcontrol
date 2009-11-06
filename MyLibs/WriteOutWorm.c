@@ -31,7 +31,7 @@ WriteOut* SetUpWriteToDisk(char* filename, CvMemStorage* Mem){
 	DataWriter->fs=cvOpenFileStorage("data.yaml",Mem,CV_STORAGE_WRITE);
 	//cvWriteComment(Files->fs, "Worm experiment data made from mindcontrol project.\nleifer@fas.harvard.edu");
 	cvStartWriteStruct(DataWriter->fs,"Frames",CV_NODE_SEQ,NULL);
-	return 0;
+	return DataWriter;
 }
 
 
@@ -48,9 +48,13 @@ WriteOut* SetUpWriteToDisk(char* filename, CvMemStorage* Mem){
  * Worm->Segmented->Centerline
  */
 int AppendWormFrameToDisk(WormAnalysisData* Worm, WriteOut* DataWriter){
+
 	CvFileStorage* fs=DataWriter->fs;
-	cvStartWriteStruct(fs,NULL,CV_NODE_MAP,NULL);
-		cvWriteInt(fs,"FrameNumber",Worm->frameNum);
+
+	cvStartWriteStruct(DataWriter->fs,NULL,CV_NODE_MAP,NULL);
+
+		if (IntExists(Worm->frameNum)) cvWriteInt(fs,"FrameNumber",Worm->frameNum);
+
 		if(cvPointExists(Worm->Segmented->Head)){
 		cvStartWriteStruct(fs,"Head",CV_NODE_MAP,NULL);
 		cvWriteInt(fs,"x",0);
@@ -79,7 +83,7 @@ int AppendWormFrameToDisk(WormAnalysisData* Worm, WriteOut* DataWriter){
  *
  */
 int FinishWriteToDisk(WriteOut** DataWriter){
-	CvFileStorage* fs=*(DataWriter->fs);
+	CvFileStorage* fs=(*DataWriter)->fs;
 	/** Finish writing this structure **/
 	cvEndWriteStruct(fs);
 	/** Close File Storage and Finish Writing Out to File **/
