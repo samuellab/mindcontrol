@@ -141,6 +141,7 @@ int main (int argc, char** argv){
 
 
 	/** SetUp Recording **/
+	printf("About to setup recording\n");
 	WriteOut* DataWriter;
 	if (RECORDDATA)	{
 		DataWriter=SetUpWriteToDisk(basefilename,Worm->MemStorage);
