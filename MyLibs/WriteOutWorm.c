@@ -87,10 +87,10 @@ int AppendWormFrameToDisk(WormAnalysisData* Worm, WormAnalysisParam* Params, Wri
 		if(cvSeqExists(Worm->Segmented->Centerline)) cvWrite(fs,"SegmentedCenterline",Worm->Segmented->Centerline);
 
 		/** Illumination Information **/
-		if (IntExists(Params->SegStart)) cvWriteInt(fs,"IllumSegStart",Params->SegStart);
-		if (IntExists(Params->SegStop)) cvWriteInt(fs,"IllumSegStop",Params->SegStop);
+		if (IntExists(Params->IllumSegCenter)) cvWriteInt(fs,"IllumSegCenter",Params->IllumSegCenter);
+		if (IntExists(Params->IllumSegRadius)) cvWriteInt(fs,"IllumSegRadius",Params->IllumSegCenter);
 
-		if (IntExists(Params->DLPOn)) cvWriteInt(fs,"DLPisOn",Params->DLPOn);
+		if (IntExists(Params->IllumLRC)) cvWriteInt(fs,"IllumNullLeftRightBoth",Params->IllumLRC);
 	cvEndWriteStruct(fs);
 
 	return 0;
