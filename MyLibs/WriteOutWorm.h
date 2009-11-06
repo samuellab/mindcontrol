@@ -13,6 +13,9 @@ typedef struct WriteOutStruct{
 	/** Current Frame **/
 	CvFileStorage* fs;
 	// Whatever the video file id thingie is.
+
+	/** Experiment Time **/
+
 } WriteOut;
 
 /*
@@ -23,7 +26,7 @@ typedef struct WriteOutStruct{
  * pass in the string "myexperiment"
  *
  */
-WriteOut* SetUpWriteToDisk(char* filename, CvMemStorage* Mem);
+WriteOut* SetUpWriteToDisk(const char* filename, CvMemStorage* Mem);
 
 /*
  * Writes Out information of one frame of the worm to a disk
@@ -37,7 +40,7 @@ WriteOut* SetUpWriteToDisk(char* filename, CvMemStorage* Mem);
  * Worm->Segmented->RightBound
  * Worm->Segmented->Centerline
  */
-int AppendWormFrameToDisk(WormAnalysisData* Worm, WriteOut* DataWriter);
+int AppendWormFrameToDisk(WormAnalysisData* Worm, WormAnalysisParam* Params, WriteOut* DataWriter);
 
 /*
  * Finish writing to disk and close the file and such.

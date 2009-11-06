@@ -5,6 +5,7 @@
  *      Author: Andy
  */
 #include <stdio.h>
+#include <time.h>
 
 //OpenCV Headers
 #include <cxcore.h>
@@ -26,9 +27,18 @@
  * pass in the string "myexperiment"
  *
  */
-WriteOut* SetUpWriteToDisk(char* filename, CvMemStorage* Mem){
+WriteOut* SetUpWriteToDisk(const char* filename, CvMemStorage* Mem){
+	/** Create new instance of WriteOut object **/
 	WriteOut* DataWriter =(WriteOut*) malloc(sizeof(WriteOut));
-	DataWriter->fs=cvOpenFileStorage("data.yaml",Mem,CV_STORAGE_WRITE);
+
+	/** Append .yaml to the end of filename **/
+	char* datafile = (char* ) malloc (strlen(filename)+1+strlen(".yaml"));
+	strcpy(datafile,filename);
+	strcat(datafile,".yaml");
+
+	DataWriter->fs=cvOpenFileStorage(datafile,Mem,CV_STORAGE_WRITE);
+	free(&datafile);
+
 	//cvWriteComment(Files->fs, "Worm experiment data made from mindcontrol project.\nleifer@fas.harvard.edu");
 	cvStartWriteStruct(DataWriter->fs,"Frames",CV_NODE_SEQ,NULL);
 	return DataWriter;
@@ -47,17 +57,17 @@ WriteOut* SetUpWriteToDisk(char* filename, CvMemStorage* Mem){
  * Worm->Segmented->RightBound
  * Worm->Segmented->Centerline
  */
-int AppendWormFrameToDisk(WormAnalysisData* Worm, WriteOut* DataWriter){
+int AppendWormFrameToDisk(WormAnalysisData* Worm, WormAnalysisParam* Params, WriteOut* DataWriter){
 
 	CvFileStorage* fs=DataWriter->fs;
 
-	cvStartWriteStruct(DataWriter->fs,NULL,CV_NODE_MAP,NULL);
-
+	cvStartWriteStruct(fs,NULL,CV_NODE_MAP,NULL);
+		/** Frame Number Info **/
 		if (IntExists(Worm->frameNum)) cvWriteInt(fs,"FrameNumber",Worm->frameNum);
 
+		/** Segmentation Info **/
 		if(cvPointExists(Worm->Segmented->Head)){
 		cvStartWriteStruct(fs,"Head",CV_NODE_MAP,NULL);
-		cvWriteInt(fs,"x",0);
 			cvWriteInt(fs,"x",Worm->Segmented->Head->x);
 			cvWriteInt(fs,"y",Worm->Segmented->Head->y);
 		cvEndWriteStruct(fs);
@@ -73,7 +83,12 @@ int AppendWormFrameToDisk(WormAnalysisData* Worm, WriteOut* DataWriter){
 		if(cvSeqExists(Worm->Segmented->LeftBound)) cvWrite(fs,"BoundaryA",Worm->Segmented->LeftBound);
 		if(cvSeqExists(Worm->Segmented->RightBound)) cvWrite(fs,"BoundaryB",Worm->Segmented->RightBound);
 		if(cvSeqExists(Worm->Segmented->Centerline)) cvWrite(fs,"SegmentedCenterline",Worm->Segmented->Centerline);
+
+
+		if (IntExists(Params->SegStart)) cvWriteInt(fs,"IllumSegStart",Params->SegStart);
+		if (IntExists(Params->SegStop)) cvWriteInt(fs,"IllumSegStop",Params->SegStop);
 	cvEndWriteStruct(fs);
+
 	return 0;
 }
 

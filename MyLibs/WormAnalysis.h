@@ -37,6 +37,10 @@ typedef struct WormAnalysisParamStruct{
 	/** Illumination Parameters **/
 	int SegStart;
 	int SegStop;
+	int DLPOn;
+
+	/** Record Data Parameters **/
+	int Record;
 
 } WormAnalysisParam;
 
@@ -50,14 +54,7 @@ typedef struct SegmentedWormStruct{
 	int NumSegments;
 } SegmentedWorm;
 
-/*
- * This structure holds information about how the worm is illuminated.
- * ANDY CREATE functions to create and destroy this data type.
- */
-typedef struct WormIlluminationStruct{
-	int Center;
-	int Width;
-}WormIlluminationData;
+
 
 
 

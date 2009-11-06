@@ -31,6 +31,7 @@ using namespace std;
 #include "MyLibs/AndysComputations.h"
 #include "MyLibs/TransformLib.h"
 #include "MyLibs/WormAnalysis.h"
+#include "MyLibs/WriteOutWorm.h"
 
 
 void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
@@ -60,7 +61,10 @@ void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 	/**Illumination Parameters **/
 	cvCreateTrackbar("SegStart","Controls",&(Params->SegStart),100, (int) NULL);
 	cvCreateTrackbar("SegEnd","Controls",&(Params->SegStop),100, (int) NULL);
+	cvCreateTrackbar("DLPOn","Controls",&(Params->DLPOn),1,(int) NULL);
 
+	/** Record Data **/
+	cvCreateTrackbar("RecordOn","Controls",&(Params->Record),1,(int) NULL);
 
 	return;
 
@@ -73,9 +77,9 @@ int main (int argc, char** argv){
 		printf("Runs the camera and DLP in closed loop. Specify an optional .avi file to write out.\n");
 		return -1;
 	}
-	char* fileout;
+	char* basefilename;
 	if (argc ==2 ){
-		fileout=argv[1];
+		basefilename=argv[1];
 		RECORDVID=1;
 	}
 
@@ -115,9 +119,6 @@ int main (int argc, char** argv){
 	cvWaitKey(500);
 	unsigned long lastFrameSeenOutside = 0;
 
-	/** Prepare Video Out **/
-	CvVideoWriter* Vid;
-	if (RECORDVID) Vid =cvCreateVideoWriter(fileout,CV_FOURCC('P','I','M','1'),30,cvSize(NSIZEX,NSIZEY),0);
 
 	/*** Create Frames **/
 	Frame* fromCCD =CreateFrame(cvSize(NSIZEX,NSIZEY));
@@ -135,6 +136,24 @@ int main (int argc, char** argv){
 
 	/** Setup Previous Worm **/
 	WormGeom* PrevWorm=CreateWormGeom();
+
+
+	/** SetUp Recording **/
+	WriteOut* DataWriter;  // Write To Disk
+	SetUpWriteToDisk(basefilename,Worm->MemStorage);
+
+	CvVideoWriter* Vid;  //Video Writer
+	// Note this is realy kludgy. Andy: incorporate this with SetUpWriteToDisk or something
+	if (RECORDVID) {
+		char* moviefile = (char*) malloc(strlen(basefilename) + 1 + strlen(".avi"));
+		strcpy(moviefile, basefilename);
+		strcat(moviefile, ".avi");
+		Vid = cvCreateVideoWriter(moviefile, CV_FOURCC('P','I','M','1'), 30,
+				cvSize(NSIZEX, NSIZEY), 0);
+		free(&moviefile);
+	}
+
+
 
 
 	int e;
@@ -194,30 +213,35 @@ int main (int argc, char** argv){
 					switch (Params->Display) {
 						case 1:
 							 cvShowImage("Display", Worm->ImgOrig);
-							 if (RECORDVID) cvWriteFrame(Vid,Worm->ImgOrig);
+							// if (RECORDVID) cvWriteFrame(Vid,Worm->ImgOrig);
 							break;
 						case 2:
 							 cvShowImage("Display",Worm->ImgThresh);
-							 if (RECORDVID) cvWriteFrame(Vid,Worm->ImgThresh);
+							// if (RECORDVID) cvWriteFrame(Vid,Worm->ImgThresh);
 							 break;
 						case 3:
-							 DisplayWormHeadTail(Worm,"Display");
+							// DisplayWormHeadTail(Worm,"Display");
 							 break;
 						case 4:
 							DisplayWormSegmentation(Worm,"Display");
 							break;
 						case 5:
 							cvShowImage("Display",IlluminationFrame->iplimg);
-							if (RECORDVID) cvWriteFrame(Vid,IlluminationFrame->iplimg);
+							//if (RECORDVID) cvWriteFrame(Vid,IlluminationFrame->iplimg);
 							break;
 						case 6:
 							cvShowImage("Display", forDLP->iplimg);
-							if (RECORDVID) cvWriteFrame(Vid,forDLP->iplimg);
+						//	if (RECORDVID) cvWriteFrame(Vid,forDLP->iplimg);
 							break;
 						default:
 							break;
 					}
 					cvWaitKey(1); // Pause one second for things to display onscreen.
+
+					/** Record Frame **/
+					if (RECORDVID && Params->Record) cvWriteFrame(Vid,Worm->ImgOrig);
+					if (Params->Record) AppendWormFrameToDisk(Worm,Params,DataWriter);
+
 
 				}
 
@@ -236,7 +260,9 @@ int main (int argc, char** argv){
 
 	/** Finish Writing Video to File and Release Writer **/
 	if (RECORDVID) cvReleaseVideoWriter(&Vid);
+	FinishWriteToDisk(&DataWriter);
 
+	/** Free Up Memory **/
 	DestroyFrame(&fromCCD);
 	DestroyFrame(&forDLP);
 	DestroyWormGeom(&PrevWorm);
@@ -248,7 +274,7 @@ int main (int argc, char** argv){
 	T2Cam_TurnOff(&MyCamera);
 	T2Cam_CloseLib();
 	DestroyCalibData(Calib);
-	printf("Good bye.\n");
+	printf("\nGood bye.\n");
 	return 0;
 }
 

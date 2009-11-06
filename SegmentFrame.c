@@ -87,7 +87,7 @@ void on_trackbar(int){
 
 
 int main (int argc, char** argv){
-	DISPVID=1;
+	DISPVID=0;
 	/* This will let us know if  the intel primitives are installed*/
 	DisplayOpenCVInstall();
 	Worm=CreateWormAnalysisDataStruct();
@@ -169,8 +169,8 @@ int main (int argc, char** argv){
 		on_trackbar(0);
 
 		/** Write Out Data to File **/
-		Worm->frameNum=i;
-		AppendWormFrameToDisk(Worm,DataWriter);
+		//Worm->frameNum=i;
+		AppendWormFrameToDisk(Worm,Params,DataWriter);
 
 		char c= cvWaitKey(1);
 		if (c==27) break;

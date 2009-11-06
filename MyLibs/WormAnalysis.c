@@ -213,7 +213,10 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 	/**Illumination Parameters **/
 	ParamPtr->SegStart=25;
 	ParamPtr->SegStop=40;
+	ParamPtr->DLPOn=1;
 
+	/**Record Parameters **/
+	ParamPtr->Record=0;
 
 	return ParamPtr;
 }
