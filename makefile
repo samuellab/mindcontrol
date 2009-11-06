@@ -28,8 +28,8 @@ openCVincludes = -I$(CVdir)/cxcore/include -I$(CVdir)/otherlibs/highgui -I$(CVdi
 # objects that I have written, in order of dependency. 
 # e.g. If object B depends on A, then object A should be to the left of B (but apparently only sometimes). 
 myOpenCVlibraries= AndysOpenCVLib.o
-mylibraries=  AndysComputations.o Talk2DLP.o Talk2Camera.o $(myOpenCVlibraries) Talk2Matlab.o TransformLib.o WormAnalysis.o
-WormSpecificLibs= WormAnalysis.o 
+mylibraries=  AndysComputations.o Talk2DLP.o Talk2Camera.o $(myOpenCVlibraries) Talk2Matlab.o TransformLib.o WormAnalysis.o WriteOutWorm.o
+WormSpecificLibs= WormAnalysis.o WriteOutWorm.o
 
 #3rd party statically linked objects
 CVlibs=$(CVdir)/lib/cv.lib $(CVdir)/lib/highgui.lib $(CVdir)/lib/cxcore.lib
@@ -88,6 +88,9 @@ SegmentFrame.o : SegmentFrame.c $(myOpenCVlibraries) $(WormSpecificLibs)
 	
 WormAnalysis.o : $(MyLibs)/WormAnalysis.c $(MyLibs)/WormAnalysis.h $(myOpenCVlibraries) 
 	g++ -c -Wall $(MyLibs)/WormAnalysis.c -I$(MyLibs) $(openCVincludes) $(TailOpts)
+
+WriteOutWorm.o : $(MyLibs)/WormAnalysis.c $(MyLibs)/WormAnalysis.h $(MyLibs)/WriteOutWorm.c $(MyLibs)/WriteOutWorm.h $(myOpenCVlibraries) 
+	g++ -c -Wall $(MyLibs)/WriteOutWorm.c -I$(MyLibs) $(openCVincludes) $(TailOpts)
 
 ###### IlluminateWorm.exe
 $(targetDir)/IlluminateWorm.exe : $(illumworm_objects)

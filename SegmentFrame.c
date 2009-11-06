@@ -19,6 +19,7 @@
 //Andy's Personal Headers
 #include "MyLibs/AndysOpenCVLib.h"
 #include "MyLibs/WormAnalysis.h"
+#include "MyLibs/WriteOutWorm.h"
 
 
 //C Libraries
@@ -152,9 +153,7 @@ int main (int argc, char** argv){
 
 
 	/** SetUp Write Out to File **/
-	CvFileStorage* fs=cvOpenFileStorage("data.yaml",Worm->MemStorage,CV_STORAGE_WRITE);
-	cvStartWriteStruct(fs,"Frames",CV_NODE_SEQ,NULL);
-
+	WriteOut* Files = SetUpWriteToDisk("data", Worm);
 
 
 	int i=0;
@@ -170,36 +169,14 @@ int main (int argc, char** argv){
 		on_trackbar(0);
 
 		/** Write Out Data to File **/
-		cvStartWriteStruct(fs,NULL,CV_NODE_MAP,NULL);
-			cvWriteInt(fs,"FrameNumber",i);
-			if (  (Worm->Segmented->Head->x >=0) && (Worm->Segmented->Head->y >= 0) ){
-
-			cvStartWriteStruct(fs,"Head",CV_NODE_MAP,NULL);
-			cvWriteInt(fs,"x",0);
-				cvWriteInt(fs,"x",Worm->Segmented->Head->x);
-				cvWriteInt(fs,"y",Worm->Segmented->Head->y);
-			cvEndWriteStruct(fs);
-			}
-			cvStartWriteStruct(fs,"Tail",CV_NODE_MAP,NULL);
-				cvWriteInt(fs,"x",Worm->Segmented->Tail->x);
-				cvWriteInt(fs,"y",Worm->Segmented->Tail->y);
-			cvEndWriteStruct(fs);
-
-
-			cvWrite(fs,"BoundaryA",Worm->Segmented->LeftBound);
-			cvWrite(fs,"BoundaryB",Worm->Segmented->RightBound);
-			cvWrite(fs,"SegmentedCenterline",Worm->Segmented->Centerline);
-		cvEndWriteStruct(fs);
+		Worm->frameNum=i;
+		AppendWormFrameToDisk(Worm,Files);
 
 		char c= cvWaitKey(1);
 		if (c==27) break;
 	}
 
-
-	/** Finish writing this structure **/
-	cvEndWriteStruct(fs);
-	/** Close File Storage and Finish Writing Out to File **/
-	cvReleaseFileStorage(&fs);
+	FinishWriteToDisk(Files);
 
 if (0){
 	/*
