@@ -17,12 +17,13 @@ typedef struct WriteOutStruct{
 
 /*
  * Sets up the WriteToDisk  given the base of a filname.
+ * Creates a WriteOut Object.
  *
  * e.g. if you want to create a files named myexperiment.yaml and myexperiment.mov
  * pass in the string "myexperiment"
  *
  */
-WriteOut* SetUpWriteToDisk(char* filename, WormAnalysisData* Worm);
+WriteOut* SetUpWriteToDisk(char* filename, CvMemStorage* Mem);
 
 /*
  * Writes Out information of one frame of the worm to a disk
@@ -36,13 +37,14 @@ WriteOut* SetUpWriteToDisk(char* filename, WormAnalysisData* Worm);
  * Worm->Segmented->RightBound
  * Worm->Segmented->Centerline
  */
-int AppendWormFrameToDisk(WormAnalysisData* Worm, WriteOut* Files);
+int AppendWormFrameToDisk(WormAnalysisData* Worm, WriteOut* DataWriter);
 
 /*
  * Finish writing to disk and close the file and such.
+ * Destroys the Data Writer
  *
  */
-int FinishWriteToDisk(WriteOut* Files);
+int FinishWriteToDisk(WriteOut** DataWriter);
 
 
 #endif /* WRITEOUTWORM_H_ */

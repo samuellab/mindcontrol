@@ -4,6 +4,7 @@
  *  Created on: Nov 3, 2009
  *      Author: Andy
  */
+#include <stdio.h>
 
 //OpenCV Headers
 #include <cxcore.h>
@@ -19,17 +20,17 @@
 
 /*
  * Sets up the WriteToDisk  given the base of a filname.
+ * Creates a WriteOut Object.
  *
  * e.g. if you want to create a files named myexperiment.yaml and myexperiment.mov
  * pass in the string "myexperiment"
  *
  */
-WriteOut* SetUpWriteToDisk(char* filename,WormAnalysisData* Worm){
-	WriteOut* Files;
-	/**  SetUp Write Out to File **/
-	Files->fs=cvOpenFileStorage(strcat(filename,".yaml"),Worm->MemStorage,CV_STORAGE_WRITE);
+WriteOut* SetUpWriteToDisk(char* filename, CvMemStorage* Mem){
+	WriteOut* DataWriter =(WriteOut*) malloc(sizeof(WriteOut));
+	DataWriter->fs=cvOpenFileStorage("data.yaml",Mem,CV_STORAGE_WRITE);
 	//cvWriteComment(Files->fs, "Worm experiment data made from mindcontrol project.\nleifer@fas.harvard.edu");
-	cvStartWriteStruct(Files->fs,"Frames",CV_NODE_SEQ,NULL);
+	cvStartWriteStruct(DataWriter->fs,"Frames",CV_NODE_SEQ,NULL);
 	return 0;
 }
 
@@ -46,8 +47,8 @@ WriteOut* SetUpWriteToDisk(char* filename,WormAnalysisData* Worm){
  * Worm->Segmented->RightBound
  * Worm->Segmented->Centerline
  */
-int AppendWormFrameToDisk(WormAnalysisData* Worm, WriteOut* Files){
-	CvFileStorage* fs=Files->fs;
+int AppendWormFrameToDisk(WormAnalysisData* Worm, WriteOut* DataWriter){
+	CvFileStorage* fs=DataWriter->fs;
 	cvStartWriteStruct(fs,NULL,CV_NODE_MAP,NULL);
 		cvWriteInt(fs,"FrameNumber",Worm->frameNum);
 		if(cvPointExists(Worm->Segmented->Head)){
@@ -74,13 +75,16 @@ int AppendWormFrameToDisk(WormAnalysisData* Worm, WriteOut* Files){
 
 /*
  * Finish writing to disk and close the file and such.
+ * Destroys the Data Writer
  *
  */
-int FinishWriteToDisk(WriteOut* Files){
-	CvFileStorage* fs=Files->fs;
+int FinishWriteToDisk(WriteOut** DataWriter){
+	CvFileStorage* fs=*(DataWriter->fs);
 	/** Finish writing this structure **/
 	cvEndWriteStruct(fs);
 	/** Close File Storage and Finish Writing Out to File **/
 	cvReleaseFileStorage(&fs);
+	free(*DataWriter);
+	*DataWriter=NULL;
 	return 0;
 }

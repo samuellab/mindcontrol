@@ -153,7 +153,8 @@ int main (int argc, char** argv){
 
 
 	/** SetUp Write Out to File **/
-	WriteOut* Files = SetUpWriteToDisk("data", Worm);
+	WriteOut* Files = SetUpWriteToDisk("data", Worm->MemStorage);
+	return 0;
 
 
 	int i=0;
