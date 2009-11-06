@@ -155,6 +155,12 @@ int main (int argc, char** argv){
 	/** SetUp Write Out to File **/
 	WriteOut* DataWriter = SetUpWriteToDisk("data", Worm->MemStorage);
 
+//	CvVideoWriter* Vid = cvCreateVideoWriter("data.mov", CV_FOURCC('P','I','M','1'), 30,
+//				cvGetSize(Worm->ImgOrig), 0);
+	CvVideoWriter* Vid = cvCreateVideoWriter("blah.avi", CV_FOURCC('I','4','2','0'), 30,
+								cvGetSize(Worm->ImgOrig), 0);
+
+
 
 	int i=0;
 	while(1){
@@ -171,12 +177,14 @@ int main (int argc, char** argv){
 		/** Write Out Data to File **/
 		//Worm->frameNum=i;
 		AppendWormFrameToDisk(Worm,Params,DataWriter);
+		cvWriteFrame(Vid,Worm->ImgOrig);
 
 		char c= cvWaitKey(1);
 		if (c==27) break;
 	}
 
 	FinishWriteToDisk(&DataWriter);
+	cvReleaseVideoWriter(&Vid);
 
 if (0){
 	/*

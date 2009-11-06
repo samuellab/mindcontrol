@@ -153,7 +153,7 @@ int main (int argc, char** argv){
 		char* moviefile = (char*) malloc(strlen(basefilename) + 1 + strlen(".avi"));
 		strcpy(moviefile, basefilename);
 		strcat(moviefile, ".avi");
-		Vid = cvCreateVideoWriter(moviefile, CV_FOURCC('P','I','M','1'), 30,
+		Vid = cvCreateVideoWriter(moviefile, CV_FOURCC('I','4','2','0'), 30,
 				cvSize(NSIZEX, NSIZEY), 0);
 		free(&moviefile);
 		printf("Initialized video recording\n");
