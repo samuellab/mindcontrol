@@ -214,6 +214,10 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 	ParamPtr->SegStart=25;
 	ParamPtr->SegStop=40;
 	ParamPtr->DLPOn=1;
+	ParamPtr->IllumLRC=3;
+	ParamPtr->IllumSegCenter=25;
+	ParamPtr->IllumSegCenter=5;
+
 
 	/**Record Parameters **/
 	ParamPtr->Record=0;
@@ -567,7 +571,7 @@ int SimpleIlluminateWormLR(WormAnalysisData* Worm, Frame* IllumFrame,int center,
 
 	int i;
 	for (i=startSeg; i<endSeg; i++){
-	if (lrc==1 || lrc==3) IlluminateWormSegment(TempImage,Worm->Segmented->Centerline,Worm->Segmented->LeftBound,i);
+	if (lrc==1 || lrc<3) IlluminateWormSegment(TempImage,Worm->Segmented->Centerline,Worm->Segmented->LeftBound,i);
 	if (lrc >1) IlluminateWormSegment(TempImage,Worm->Segmented->Centerline,Worm->Segmented->RightBound,i);
 	}
 		LoadFrameWithImage(TempImage,IllumFrame);

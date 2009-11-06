@@ -215,7 +215,7 @@ int main (int argc, char** argv){
 
 
 			/*** Do Some Illumination ***/
-			if (!e) SimpleIlluminateWormLR(Worm, fromCCD, Params->IllumSegCenter, Params->IllumSegRadius, Params->IllumLRC);
+			if (!e) SimpleIlluminateWormLR(Worm, forDLP, Params->IllumSegCenter, Params->IllumSegRadius, Params->IllumLRC);
 
 
 
