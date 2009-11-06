@@ -474,6 +474,7 @@ int ReverseWormHeadTail(WormAnalysisData* Worm){
 
 
 /*
+ * DEPRECATED!!
  * This is a Wrapper function for Illuminate Worm Segment
  * It will create an image of a range of segments on both sides of the worm
  *
@@ -522,6 +523,60 @@ int SimpleIlluminateWorm(WormAnalysisData* Worm, Frame* IllumFrame,int start, in
 	cvReleaseImage(&TempImage);
 	return 0;
 }
+/*
+ * This is another wrapper for Illuminate Worm.
+ * In this paradigm center is the segment with which the illumination centers on
+ * radius is the number of segments wide that the illumination encompasses
+ * and lrc is either 0,1,2,3 for nothing, left,right,DLP
+ */
+int SimpleIlluminateWormLR(WormAnalysisData* Worm, Frame* IllumFrame,int center, int radius, int lrc){
+	IplImage* TempImage=cvCreateImage(Worm->SizeOfImage, IPL_DEPTH_8U, 1);
+	if (0>center || center > Worm->Segmented->NumSegments){
+		printf("ERROR: Segmented out of bounds! \n");
+		return -1;
+	}
+
+	int endSeg=0;
+	int startSeg=0;
+	if ( (center+radius) > Worm->Segmented->NumSegments){
+		endSeg=Worm->Segmented->NumSegments;
+	}else{
+		endSeg=center+radius;
+	}
+
+	if ( (center-radius) <0){
+		endSeg=0;
+	}else{
+		endSeg=center-radius;
+	}
+
+
+
+
+	/** Check to See if the Worm->Segmented has any NULL values**/
+	if (Worm->Segmented->Centerline==NULL || Worm->Segmented->LeftBound==NULL || Worm->Segmented->RightBound ==NULL ){
+		printf("Error! The Worm->Segmented had NULL children. in SimpleIlluminateWorm()\n");
+		return -1;
+	}
+
+	/** Check to See that the Segmented Values are Not Zero **/
+	if (Worm->Segmented->Centerline->total==0 || Worm->Segmented->LeftBound->total==0 || Worm->Segmented->RightBound->total ==0 ){
+		printf("Error! At least one of the following: Centerline or Right and Left Boundaries in Worm->Segmented has zero points in SimpleIlluminateWorm()\n");
+		return -1;
+	}
+
+	int i;
+	for (i=startSeg; i<endSeg; i++){
+	if (lrc==1 || lrc==3) IlluminateWormSegment(TempImage,Worm->Segmented->Centerline,Worm->Segmented->LeftBound,i);
+	if (lrc >1) IlluminateWormSegment(TempImage,Worm->Segmented->Centerline,Worm->Segmented->RightBound,i);
+	}
+		LoadFrameWithImage(TempImage,IllumFrame);
+	//	cvShowImage("TestOut",IllumFrame);
+
+	cvReleaseImage(&TempImage);
+	return 0;
+}
+
 
 
 /*

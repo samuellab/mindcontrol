@@ -59,9 +59,9 @@ void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 
 
 	/**Illumination Parameters **/
-	cvCreateTrackbar("SegStart","Controls",&(Params->SegStart),100, (int) NULL);
-	cvCreateTrackbar("SegEnd","Controls",&(Params->SegStop),100, (int) NULL);
-	cvCreateTrackbar("DLPOn","Controls",&(Params->DLPOn),1,(int) NULL);
+	cvCreateTrackbar("Center","Controls",&(Params->IllumSegCenter),100, (int) NULL);
+	cvCreateTrackbar("Radius","Controls",&(Params->IllumSegRadius),100, (int) NULL);
+	cvCreateTrackbar("LRC","Controls",&(Params->IllumLRC),3,(int) NULL);
 
 	/** Record Data **/
 	cvCreateTrackbar("RecordOn","Controls",&(Params->Record),1,(int) NULL);
@@ -215,7 +215,7 @@ int main (int argc, char** argv){
 
 
 			/*** Do Some Illumination ***/
-			if (!e) SimpleIlluminateWorm(Worm,IlluminationFrame,Params->SegStart,Params->SegStop);
+			if (!e) SimpleIlluminateWormLR(Worm, fromCCD, Params->IllumSegCenter, Params->IllumSegRadius, Params->IllumLRC);
 
 
 

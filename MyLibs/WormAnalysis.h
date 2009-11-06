@@ -35,6 +35,9 @@ typedef struct WormAnalysisParamStruct{
 	int Display;
 
 	/** Illumination Parameters **/
+	int IllumSegCenter;
+	int IllumSegRadius;
+	int IllumLRC;
 	int SegStart;
 	int SegStop;
 	int DLPOn;
@@ -288,6 +291,13 @@ int SimpleIlluminateWorm(WormAnalysisData* Worm, Frame* IllumFrame,int start, in
 void IlluminateWormSegment(IplImage* image, CvSeq* centerline, CvSeq* Boundary, int segment);
 
 
+/*
+ * This is another wrapper for Illuminate Worm.
+ * In this paradigm center is the segment with which the illumination centers on
+ * radius is the number of segments wide that the illumination encompasses
+ * and lrc is either 0,1,2,3 for nothing, left,right,DLP
+ */
+int SimpleIlluminateWormLR(WormAnalysisData* Worm, Frame* IllumFrame,int center, int radius, int lrc);
 
 /*
  * This Function segments a worm.
