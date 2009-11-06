@@ -38,7 +38,7 @@ void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 
 	cvNamedWindow("Display");
 	cvNamedWindow("Controls");
-	cvResizeWindow("Controls",300,700);
+	cvResizeWindow("Controls",500,700);
 
 
 	/** SelectDispilay **/
@@ -219,7 +219,7 @@ int main (int argc, char** argv){
 
 
 
-			if (!e) TransformFrameCam2DLP(IlluminationFrame,forDLP,Calib);
+			if (!e) TransformFrameCam2DLP(IlluminationFrame,IlluminationFrame,Calib);
 			if (!e) T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
 
 			/*** DIsplay Some Monitoring Output ***/

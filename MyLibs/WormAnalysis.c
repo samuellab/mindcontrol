@@ -215,8 +215,8 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 	ParamPtr->SegStop=40;
 	ParamPtr->DLPOn=1;
 	ParamPtr->IllumLRC=3;
+	ParamPtr->IllumSegRadius=5;
 	ParamPtr->IllumSegCenter=25;
-	ParamPtr->IllumSegCenter=5;
 
 
 	/**Record Parameters **/
@@ -539,22 +539,21 @@ int SimpleIlluminateWormLR(WormAnalysisData* Worm, Frame* IllumFrame,int center,
 		printf("ERROR: Segmented out of bounds! \n");
 		return -1;
 	}
-
+	printf("cente=%d,radius=%d,lrc=%d",center,radius,lrc);
 	int endSeg=0;
 	int startSeg=0;
-	if ( (center+radius) > Worm->Segmented->NumSegments){
-		endSeg=Worm->Segmented->NumSegments;
+	if ( (center+radius) > Worm->Segmented->NumSegments-1){
+		endSeg=Worm->Segmented->NumSegments-1;
 	}else{
 		endSeg=center+radius;
 	}
 
 	if ( (center-radius) <0){
-		endSeg=0;
+		startSeg=0;
 	}else{
-		endSeg=center-radius;
+		startSeg=center-radius;
 	}
-
-
+	printf("startSeg=%d,endSeg=%d\n",startSeg,endSeg);
 
 
 	/** Check to See if the Worm->Segmented has any NULL values**/
@@ -571,7 +570,7 @@ int SimpleIlluminateWormLR(WormAnalysisData* Worm, Frame* IllumFrame,int center,
 
 	int i;
 	for (i=startSeg; i<endSeg; i++){
-	if (lrc==1 || lrc<3) IlluminateWormSegment(TempImage,Worm->Segmented->Centerline,Worm->Segmented->LeftBound,i);
+	if (lrc==1 || lrc==3) IlluminateWormSegment(TempImage,Worm->Segmented->Centerline,Worm->Segmented->LeftBound,i);
 	if (lrc >1) IlluminateWormSegment(TempImage,Worm->Segmented->Centerline,Worm->Segmented->RightBound,i);
 	}
 		LoadFrameWithImage(TempImage,IllumFrame);
