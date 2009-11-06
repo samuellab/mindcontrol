@@ -73,6 +73,7 @@ void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 
 int main (int argc, char** argv){
 	int RECORDVID=0;
+	int RECORDDATA=0;
 	if( argc > 2  ){
 		printf("Runs the camera and DLP in closed loop. Specify an optional .avi file to write out.\n");
 		return -1;
@@ -81,6 +82,7 @@ int main (int argc, char** argv){
 	if (argc ==2 ){
 		basefilename=argv[1];
 		RECORDVID=1;
+		RECORDDATA=1;
 	}
 
 
@@ -139,8 +141,11 @@ int main (int argc, char** argv){
 
 
 	/** SetUp Recording **/
-	WriteOut* DataWriter;  // Write To Disk
-	SetUpWriteToDisk(basefilename,Worm->MemStorage);
+	WriteOut* DataWriter;
+	if (RECORDDATA)	{
+		DataWriter=SetUpWriteToDisk(basefilename,Worm->MemStorage);
+		printf("Initialized data recording\n");
+	}
 
 	CvVideoWriter* Vid;  //Video Writer
 	// Note this is realy kludgy. Andy: incorporate this with SetUpWriteToDisk or something
@@ -151,8 +156,8 @@ int main (int argc, char** argv){
 		Vid = cvCreateVideoWriter(moviefile, CV_FOURCC('P','I','M','1'), 30,
 				cvSize(NSIZEX, NSIZEY), 0);
 		free(&moviefile);
+		printf("Initialized video recording\n");
 	}
-
 
 
 
@@ -240,7 +245,7 @@ int main (int argc, char** argv){
 
 					/** Record Frame **/
 					if (RECORDVID && Params->Record) cvWriteFrame(Vid,Worm->ImgOrig);
-					if (Params->Record) AppendWormFrameToDisk(Worm,Params,DataWriter);
+					if (RECORDDATA && Params->Record) AppendWormFrameToDisk(Worm,Params,DataWriter);
 
 
 				}
@@ -260,7 +265,7 @@ int main (int argc, char** argv){
 
 	/** Finish Writing Video to File and Release Writer **/
 	if (RECORDVID) cvReleaseVideoWriter(&Vid);
-	FinishWriteToDisk(&DataWriter);
+	if (RECORDDATA) FinishWriteToDisk(&DataWriter);
 
 	/** Free Up Memory **/
 	DestroyFrame(&fromCCD);
