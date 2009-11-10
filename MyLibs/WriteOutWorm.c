@@ -38,6 +38,7 @@ char* CreateFileName(const char* dir, const char* core, const char* suffix){
 	/* Allocate memory for filename */
 	char* filename= (char*) malloc(strlen(timestamp)+strlen(dir)+strlen(core)+strlen(suffix)+1);
 
+	printf("filename=%s\n",filename);
 	/*Concatenate Strings */
 	strcpy(filename,dir);
 	strcat(filename,timestamp);
