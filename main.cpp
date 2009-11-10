@@ -92,7 +92,7 @@ int main (int argc, char** argv){
 	CalibData* Calib =CreateCalibData(cvSize(NSIZEX,NSIZEY),cvSize(NSIZEX,NSIZEY));
 	int ret=LoadCalibFromFile(Calib,"calib.dat");
 	if (ret!=0){
-		printf("Error reading in calibration!! \n");
+		printf("Error reading in calibrationfile!!\nPlease run CalibrateApparatus to generate calibration file calib.dat\nThank you.\nGoodbye.\n");
 		return 0;
 	}
 
