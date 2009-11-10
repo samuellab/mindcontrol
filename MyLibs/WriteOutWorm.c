@@ -72,16 +72,8 @@ WriteOut* SetUpWriteToDisk(const char* filename, CvMemStorage* Mem){
 	WriteOut* DataWriter =(WriteOut*) malloc(sizeof(WriteOut));
 
 	/** Append .yaml to the end of filename **/
-	char* datafile = (char* ) malloc (strlen(filename)+1+strlen(".yaml"));
-	strcpy(datafile,filename);
-	strcat(datafile,".yaml");
-	printf("About to initialize cvopenFileStorage(): %s\n", datafile);
-	DataWriter->fs=cvOpenFileStorage(datafile,Mem,CV_STORAGE_WRITE);
-
-	//free(&datafile);
-
-	//cvWriteComment(Files->fs, "Worm experiment data made from mindcontrol project.\nleifer@fas.harvard.edu");
-	printf("About to start cvSTartWriteStruc()\n");
+	DataWriter->fs=cvOpenFileStorage(filename,Mem,CV_STORAGE_WRITE);
+	cvWriteComment(DataWriter->fs, "Remote Control Worm Experiment Data Log\nMade by OpticalMindControl software\nleifer@fas.harvard.edu",0);
 	cvStartWriteStruct(DataWriter->fs,"Frames",CV_NODE_SEQ,NULL);
 	return DataWriter;
 }
