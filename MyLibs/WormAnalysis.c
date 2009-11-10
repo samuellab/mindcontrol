@@ -779,6 +779,23 @@ void DisplayWormHeadTail(WormAnalysisData* Worm, char* WindowName){
 }
 
 
+/*
+ * This function overlays the illumination frame translucently
+ * over the original image.
+ * It also draws the worm's boundary and the worm's head and tail.
+ *
+ */
+void DisplayWormHUDS(WormAnalysisData* Worm, Frame* IlluminationFrame,char* WindowName){
+	int CircleDiameterSize=10;
+	IplImage* TempImage=cvCreateImage(cvGetSize(Worm->ImgSmooth),IPL_DEPTH_8U,1);
+	cvAddWeighted(Worm->ImgOrig,1,IlluminationFrame->iplimg,0.3,0,TempImage);
+	//Want to also display boundary!
+	cvDrawContours(TempImage, Worm->Boundary, cvScalar(255,0,0),cvScalar(0,255,0),100);
+	cvCircle(TempImage,*(Worm->Tail),CircleDiameterSize,cvScalar(255,255,255),1,CV_AA,0);
+	cvCircle(TempImage,*(Worm->Head),CircleDiameterSize/2,cvScalar(255,255,255),1,CV_AA,0);
+	cvShowImage(WindowName,TempImage);
+	cvReleaseImage(&TempImage);
+}
 
 
 

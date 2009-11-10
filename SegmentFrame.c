@@ -65,7 +65,8 @@ void on_trackbar(int){
 
 
 	//Draw a circle on the tail.
-	  DisplayWormHeadTail(Worm,"Boundary");
+	 // DisplayWormHeadTail(Worm,"Boundary");
+
 
 	if (DISPVID)   DisplayWormSegmentation(Worm,"Contours");
 
@@ -73,6 +74,9 @@ void on_trackbar(int){
 
 	/** Illuminate the Worm**/
 	if (SimpleIlluminateWorm(Worm,IlluminationFrame,2,3)==0) cvShowImage("ToDLP",IlluminationFrame->iplimg);
+
+	if (DISPVID) DisplayWormHUDS(Worm,  IlluminationFrame,"Boundary");
+
 
 
 	/** Update PrevWorm Info **/
@@ -87,7 +91,7 @@ void on_trackbar(int){
 
 
 int main (int argc, char** argv){
-	DISPVID=0;
+	DISPVID=1;
 	/* This will let us know if  the intel primitives are installed*/
 	DisplayOpenCVInstall();
 	Worm=CreateWormAnalysisDataStruct();

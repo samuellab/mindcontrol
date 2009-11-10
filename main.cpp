@@ -233,8 +233,7 @@ int main (int argc, char** argv){
 							 cvShowImage("Display", Worm->ImgOrig);
 							break;
 						case 1:
-							 cvShowImage("Display",Worm->ImgOrig);
-							//DisplayWormHUDS("Display",Worm);
+							DisplayWormHUDS(Worm,IlluminationFrame,"Display");
 							break;
 						case 2:
 							 cvShowImage("Display",Worm->ImgThresh);
@@ -247,11 +246,9 @@ int main (int argc, char** argv){
 							break;
 						case 5:
 							cvShowImage("Display",IlluminationFrame->iplimg);
-							//if (RECORDVID) cvWriteFrame(Vid,IlluminationFrame->iplimg);
 							break;
 						case 6:
 							cvShowImage("Display", forDLP->iplimg);
-						//	if (RECORDVID) cvWriteFrame(Vid,forDLP->iplimg);
 							break;
 						default:
 							break;
