@@ -72,6 +72,7 @@ void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 
 
 int main (int argc, char** argv){
+
 	int RECORDVID=0;
 	int RECORDDATA=0;
 	if( argc == 2 || argc > 3 ){
@@ -87,7 +88,6 @@ int main (int argc, char** argv){
 		RECORDVID=1;
 		RECORDDATA=1;
 	}
-
 
 
 	DisplayOpenCVInstall();

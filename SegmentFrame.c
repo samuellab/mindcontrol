@@ -99,8 +99,12 @@ int main (int argc, char** argv){
 	CvCapture* capture;
 	IplImage* tempImg;
 
+
+
 	printf("This program reads in an avi, finds a worm, and segments it.");
 	if( argc != 2  ) return -1;
+
+
 	capture = cvCreateFileCapture(argv[1]);
 
 	/*

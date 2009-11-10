@@ -30,20 +30,21 @@ char* CreateFileName(const char* dir, const char* core, const char* suffix){
 	char timestamp[30];
 	time_t curtime;
 	struct tm *loctime;
-
 	/* Get the current time. */
-	curtime= time (NULL);
-	strftime(timestamp,30,"%Y%m%d_%H%M",loctime);
-
+		curtime= time (NULL);
+	/* Convert to Local Time */
+	loctime = localtime (&curtime);
+	strftime(timestamp,30,"%Y%m%d_%H%M_",loctime);
 	/* Allocate memory for filename */
 	char* filename= (char*) malloc(strlen(timestamp)+strlen(dir)+strlen(core)+strlen(suffix)+1);
 
-	printf("filename=%s\n",filename);
+
 	/*Concatenate Strings */
 	strcpy(filename,dir);
 	strcat(filename,timestamp);
 	strcat(filename,core);
 	strcat(filename,suffix);
+	printf("Preparing filename: %s\n",filename);
 
 	free(&timestamp);
 	return filename;
