@@ -16,8 +16,31 @@
 
 #include "AndysOpenCVLib.h"
 #include "WormAnalysis.h"
-
 #include "WriteOutWorm.h"
+
+
+
+/*
+ * Shortcut function to create a filname.
+ * Basically just concatenates three strings together.
+ *
+ */
+char* CreateFileName(const char* dir, const char* core, const char* suffix){
+	char* filename= (char*) malloc(strlen(dir)+strlen(core)+strlen(suffix)+1);
+	strcpy(filename,dir);
+	strcat(filename,core);
+	strcat(filename,suffix);
+	return filename;
+}
+
+/*
+ * Destroy's a filename and deallocates the poitner and such.
+ */
+void DestroyFilename(char** filename){
+	free(*filename);
+	*filename=NULL;
+}
+
 
 /*
  * Sets up the WriteToDisk  given the base of a filname.

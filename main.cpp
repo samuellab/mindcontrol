@@ -74,13 +74,19 @@ void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 int main (int argc, char** argv){
 	int RECORDVID=0;
 	int RECORDDATA=0;
-	if( argc > 2  ){
-		printf("Runs the camera and DLP in closed loop. Specify an optional .avi file to write out.\n");
+	if( argc == 2 || argc > 3 ){
+		printf("Runs the camera and DLP in closed loop.\n");
+		printf("Run without any arguments, or, to save data in a directory use the following usage:\n");
+		printf("\tClosedLoop.exe D:/Data/MyDirectory/  basefilename\n\n");
+		printf("IMPORTANT: Remeber to include the trailing slash on the directory!");
+
 		return -1;
 	}
-	char* basefilename;
+//	char* basefilename;
+//	char* dir;
 	if (argc ==2 ){
-		basefilename=argv[1];
+//		dir=argv[1];
+//		basefilename=argv[2];
 		RECORDVID=1;
 		RECORDDATA=1;
 	}
@@ -143,9 +149,12 @@ int main (int argc, char** argv){
 	/** SetUp Dataa Recording **/
 	printf("About to setup recording\n");
 	WriteOut* DataWriter;
+	char* DataFileName;
 	if (RECORDDATA)	{
-		DataWriter=SetUpWriteToDisk(basefilename,Worm->MemStorage);
+		DataFileName=CreateFileName(argv[1],argv[2],".yaml");
+		DataWriter=SetUpWriteToDisk(DataFileName,Worm->MemStorage);
 		printf("Initialized data recording\n");
+		DestroyFilename(&DataFileName);
 	}
 
 	/** Set Up Video Recording **/
@@ -154,18 +163,15 @@ int main (int argc, char** argv){
 	 * ANDY: incorporate this into its own library so its not so kludgy.
 	 *
 	 */
+	char* MovieFileName;
 	CvVideoWriter* Vid;  //Video Writer
-	IplImage* SubSampled = cvCreateImage(cvSize(NSIZEX/2,NSIZEY/2),IPL_DEPTH_8U,1);
+	IplImage* SubSampled;
 	if (RECORDVID) {
-		char* moviefile = (char*) malloc(strlen(basefilename) + 1 + strlen(".avi"));
-		strcpy(moviefile, basefilename);
-		strcat(moviefile, ".avi");
-	//	Vid = cvCreateVideoWriter(moviefile, CV_FOURCC('I','4','2','0'), 30,
-	//			cvSize(NSIZEX/2, NSIZEY/2), 0);
-		Vid = cvCreateVideoWriter(moviefile, CV_FOURCC('M','J','P','G'), 30,
+		SubSampled = cvCreateImage(cvSize(NSIZEX/2,NSIZEY/2),IPL_DEPTH_8U,1);
+		MovieFileName=CreateFileName(argv[1],argv[2],".avi");
+		Vid = cvCreateVideoWriter(MovieFileName, CV_FOURCC('M','J','P','G'), 30,
 					cvSize(NSIZEX/2, NSIZEY/2), 0);
-
-		free(&moviefile);
+		DestroyFilename(&MovieFileName);
 		printf("Initialized video recording\n");
 	}
 

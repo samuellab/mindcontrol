@@ -18,6 +18,22 @@ typedef struct WriteOutStruct{
 
 } WriteOut;
 
+
+
+
+/*
+ * Shortcut function to create a filname.
+ * Basically just concatenates three strings together.
+ *
+ */
+char* CreateFileName(const char* dir, const char* core, const char* suffix);
+
+/*
+ * Destroy's a filename and deallocates the poitner and such.
+ */
+void DestroyFilename(char**);
+
+
 /*
  * Sets up the WriteToDisk  given the base of a filname.
  * Creates a WriteOut Object.
