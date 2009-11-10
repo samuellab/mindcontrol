@@ -21,15 +21,30 @@
 
 
 /*
- * Shortcut function to create a filname.
+ * Shortcut function to create a filename.
  * Basically just concatenates three strings together.
  *
  */
 char* CreateFileName(const char* dir, const char* core, const char* suffix){
-	char* filename= (char*) malloc(strlen(dir)+strlen(core)+strlen(suffix)+1);
+	/* Prepare String with Time Stamp */
+	char timestamp[30];
+	time_t curtime;
+	struct tm *loctime;
+
+	/* Get the current time. */
+	curtime= time (NULL);
+	strftime(timestamp,30,"%Y%m%d_%H%M",loctime);
+
+	/* Allocate memory for filename */
+	char* filename= (char*) malloc(strlen(timestamp)+strlen(dir)+strlen(core)+strlen(suffix)+1);
+
+	/*Concatenate Strings */
 	strcpy(filename,dir);
+	strcat(filename,timestamp);
 	strcat(filename,core);
 	strcat(filename,suffix);
+
+	free(&timestamp);
 	return filename;
 }
 

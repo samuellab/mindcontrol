@@ -232,13 +232,15 @@ int main (int argc, char** argv){
 				if (!e &&  EverySoOften(FramesReceived,Params->DispRate) ){
 					/** There are no errors and we are displaying a frame **/
 					switch (Params->Display) {
-						case 1:
+						case 0:
 							 cvShowImage("Display", Worm->ImgOrig);
-							// if (RECORDVID) cvWriteFrame(Vid,Worm->ImgOrig);
+							break;
+						case 1:
+							 cvShowImage("Display",Worm->ImgOrig);
+							//DisplayWormHUDS("Display",Worm);
 							break;
 						case 2:
 							 cvShowImage("Display",Worm->ImgThresh);
-							// if (RECORDVID) cvWriteFrame(Vid,Worm->ImgThresh);
 							 break;
 						case 3:
 							 DisplayWormHeadTail(Worm,"Display");
