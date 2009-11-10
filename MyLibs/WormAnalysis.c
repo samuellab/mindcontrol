@@ -539,7 +539,7 @@ int SimpleIlluminateWormLR(WormAnalysisData* Worm, Frame* IllumFrame,int center,
 		printf("ERROR: Segmented out of bounds! \n");
 		return -1;
 	}
-	printf("cente=%d,radius=%d,lrc=%d",center,radius,lrc);
+//	printf("cente=%d,radius=%d,lrc=%d",center,radius,lrc);
 	int endSeg=0;
 	int startSeg=0;
 	if ( (center+radius) > Worm->Segmented->NumSegments-1){
@@ -553,7 +553,7 @@ int SimpleIlluminateWormLR(WormAnalysisData* Worm, Frame* IllumFrame,int center,
 	}else{
 		startSeg=center-radius;
 	}
-	printf("startSeg=%d,endSeg=%d\n",startSeg,endSeg);
+//	printf("startSeg=%d,endSeg=%d\n",startSeg,endSeg);
 
 
 	/** Check to See if the Worm->Segmented has any NULL values**/

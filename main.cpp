@@ -82,11 +82,8 @@ int main (int argc, char** argv){
 
 		return -1;
 	}
-//	char* basefilename;
-//	char* dir;
+
 	if (argc ==2 ){
-//		dir=argv[1];
-//		basefilename=argv[2];
 		RECORDVID=1;
 		RECORDDATA=1;
 	}
@@ -127,6 +124,8 @@ int main (int argc, char** argv){
 	cvWaitKey(500);
 	unsigned long lastFrameSeenOutside = 0;
 
+	/*** Create IplImage **/
+	IplImage* SubSampled=cvCreateImage(cvSize(NSIZEX/2,NSIZEY/2),IPL_DEPTH_8U,1);
 
 	/*** Create Frames **/
 	Frame* fromCCD =CreateFrame(cvSize(NSIZEX,NSIZEY));
@@ -165,9 +164,7 @@ int main (int argc, char** argv){
 	 */
 	char* MovieFileName;
 	CvVideoWriter* Vid;  //Video Writer
-	IplImage* SubSampled;
 	if (RECORDVID) {
-		SubSampled = cvCreateImage(cvSize(NSIZEX/2,NSIZEY/2),IPL_DEPTH_8U,1);
 		MovieFileName=CreateFileName(argv[1],argv[2],".avi");
 		Vid = cvCreateVideoWriter(MovieFileName, CV_FOURCC('M','J','P','G'), 30,
 					cvSize(NSIZEX/2, NSIZEY/2), 0);
