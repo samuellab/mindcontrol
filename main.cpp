@@ -38,7 +38,7 @@ void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 
 	cvNamedWindow("Display");
 	cvNamedWindow("Controls");
-	cvResizeWindow("Controls",300,700);
+	cvResizeWindow("Controls",450,700);
 
 
 	/** SelectDispilay **/
@@ -215,7 +215,7 @@ int main (int argc, char** argv){
 
 
 			/*** Do Some Illumination ***/
-			if (!e) SimpleIlluminateWormLR(Worm, forDLP, Params->IllumSegCenter, Params->IllumSegRadius, Params->IllumLRC);
+			if (!e) SimpleIlluminateWormLR(Worm, IlluminationFrame, Params->IllumSegCenter, Params->IllumSegRadius, Params->IllumLRC);
 
 
 
