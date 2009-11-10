@@ -15,6 +15,11 @@ int T2DLP_SendFrame(unsigned char *image, long alpid);
 unsigned char *SampleImages( unsigned long nSizeX, unsigned long nSizeY );
 
 
+/*
+ * Clear the DLP mirrors
+ */
+int T2DLP_clear(long myDLP);
+
 #define	T2DLP_HAPPY	 	0
 #define	T2DLP_SAD		-1
 

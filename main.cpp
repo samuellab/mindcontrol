@@ -62,6 +62,7 @@ void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 	cvCreateTrackbar("Center","Controls",&(Params->IllumSegCenter),100, (int) NULL);
 	cvCreateTrackbar("Radius","Controls",&(Params->IllumSegRadius),100, (int) NULL);
 	cvCreateTrackbar("LRC","Controls",&(Params->IllumLRC),3,(int) NULL);
+	cvCreateTrackbar("DLPOn","Controls",&(Params->DLPOn),1,(int) NULL);
 
 	/** Record Data **/
 	cvCreateTrackbar("RecordOn","Controls",&(Params->Record),1,(int) NULL);
@@ -72,19 +73,20 @@ void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 
 
 int main (int argc, char** argv){
-
 	int RECORDVID=0;
 	int RECORDDATA=0;
-	if( argc == 2 || argc > 3 ){
+
+	/** Handle Variable Arguments **/
+	if( argc !=1 && argc!=3 ){
 		printf("Runs the camera and DLP in closed loop.\n");
 		printf("Run without any arguments, or, to save data in a directory use the following usage:\n");
 		printf("\tClosedLoop.exe D:/Data/MyDirectory/  basefilename\n\n");
-		printf("IMPORTANT: Remeber to include the trailing slash on the directory!");
+		printf("IMPORTANT: Remember to include the trailing slash on the directory!");
 
 		return -1;
 	}
 
-	if (argc ==3 ){
+	if (argc ==3 ){ /** The user implicitly wants to record data **/
 		RECORDVID=1;
 		RECORDDATA=1;
 	}
@@ -116,13 +118,11 @@ int main (int argc, char** argv){
 
 
 
-
-
-
 	/** Prepare DLP ***/
 	long myDLP= T2DLP_on();
-	cvWaitKey(500);
+	T2DLP_clear(myDLP);
 	unsigned long lastFrameSeenOutside = 0;
+
 
 	/*** Create IplImage **/
 	IplImage* SubSampled=cvCreateImage(cvSize(NSIZEX/2,NSIZEY/2),IPL_DEPTH_8U,1);
@@ -157,11 +157,6 @@ int main (int argc, char** argv){
 	}
 
 	/** Set Up Video Recording **/
-	/**
-	 * Note this section really needs help.
-	 * ANDY: incorporate this into its own library so its not so kludgy.
-	 *
-	 */
 	char* MovieFileName;
 	CvVideoWriter* Vid;  //Video Writer
 	if (RECORDVID) {
@@ -175,12 +170,15 @@ int main (int argc, char** argv){
 
 
 	int e;
-	int FramesReceived=0;
+
+
+	Worm->frameNum=0;
 	while (1 == 1) {
 		if (MyCamera->iFrameNumber > lastFrameSeenOutside) {
 			e=0;
 			lastFrameSeenOutside = MyCamera->iFrameNumber;
-			FramesReceived++;
+			Worm->frameNum++;
+
 			/*** Create a local copy of the image***/
 			LoadFrameWithBin(MyCamera->iImageData,fromCCD);
 
@@ -190,6 +188,11 @@ int main (int argc, char** argv){
 				printf("Analysis is off. Displaying camera.\n");
 				cvWaitKey(10);
 				continue;
+			}
+
+			/** If the DLP is not displaying **/
+			if (Params->DLPOn==0){
+				T2DLP_clear(myDLP);
 			}
 
 
@@ -226,7 +229,7 @@ int main (int argc, char** argv){
 			if (!e) T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
 
 			/*** DIsplay Some Monitoring Output ***/
-				if (!e &&  EverySoOften(FramesReceived,Params->DispRate) ){
+				if (!e &&  EverySoOften(Worm->frameNum,Params->DispRate) ){
 					/** There are no errors and we are displaying a frame **/
 					switch (Params->Display) {
 						case 0:
@@ -253,12 +256,11 @@ int main (int argc, char** argv){
 						default:
 							break;
 					}
-					cvWaitKey(1); // Pause one second for things to display onscreen.
+					cvWaitKey(1); // Pause one millisecond for things to display onscreen.
 
 					/** Record Frame **/
 					cvResize(Worm->ImgOrig,SubSampled,CV_INTER_LINEAR);
 					if (RECORDVID && Params->Record) cvWriteFrame(Vid,SubSampled);
-					Worm->frameNum=FramesReceived;
 					if (RECORDDATA && Params->Record) AppendWormFrameToDisk(Worm,Params,DataWriter);
 
 

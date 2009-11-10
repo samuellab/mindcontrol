@@ -212,6 +212,11 @@ int CopyCharArrayToIplImage(const unsigned char *arr, IplImage *dest,  int nsize
 	return 0;
 }
 
+/**************************************************************
+ * Useful OpenCv shortcuts
+ *
+ *
+ */
 
 /*
  * Prints out some input, like whether the Intel Performance Primitives are installed
@@ -522,6 +527,21 @@ CvPoint FindNormalPt(CvPoint* Centerline, CvPoint* CenterVec, CvSeq* Contour){
 
 }
 
+
+/**
+ * Creates a Blue Image.
+ * This has yet to be tested.
+ *
+ */
+IplImage* CreateBlueImage(CvSize size){
+	IplImage* rgb=cvCreateImage(size,IPL_DEPTH_8U,3);
+	IplImage* zeros=cvCreateImage(size,IPL_DEPTH_8U,1);
+	IplImage* ones=cvCreateImage(size,IPL_DEPTH_8U,1);
+	cvSet(ones,cvScalar(255));
+	cvSet(zeros,cvScalar(0));
+	cvMerge(zeros,zeros,ones,NULL,rgb);
+	return rgb;
+}
 
 
 /*

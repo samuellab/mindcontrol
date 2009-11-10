@@ -52,6 +52,14 @@ long T2DLP_on(){
 
 
 
+/*
+ * Clear the DLP mirrors
+ */
+int T2DLP_clear(long myDLP){
+	AlpbDevReset((ALPB_HDEVICE) myDLP, ALPB_RESET_GLOBAL,0);
+	return 0;
+}
+
 int T2DLP_off(long alpid){
 	printf("Inside T2DLP_off().. Closing the device driver.");
 	AlpbDevReset((ALPB_HDEVICE) alpid, ALPB_RESET_GLOBAL,0);

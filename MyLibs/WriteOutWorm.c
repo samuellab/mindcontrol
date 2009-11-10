@@ -90,6 +90,12 @@ WriteOut* SetUpWriteToDisk(const char* filename, CvMemStorage* Mem){
  * Worm->Segmented->LeftBound
  * Worm->Segmented->RightBound
  * Worm->Segmented->Centerline
+ *
+ * and Params object must have
+ * Params->DLPOn
+ * Params->IllumSegCenter
+ * Params->IllumSegRadius
+ * Params->IllumLRC
  */
 int AppendWormFrameToDisk(WormAnalysisData* Worm, WormAnalysisParam* Params, WriteOut* DataWriter){
 
@@ -119,6 +125,7 @@ int AppendWormFrameToDisk(WormAnalysisData* Worm, WormAnalysisParam* Params, Wri
 		if(cvSeqExists(Worm->Segmented->Centerline)) cvWrite(fs,"SegmentedCenterline",Worm->Segmented->Centerline);
 
 		/** Illumination Information **/
+		if (IntExists(Params->DLPOn)) cvWriteInt(fs,"DLPIsOn",Params->DLPOn);
 		if (IntExists(Params->IllumSegCenter)) cvWriteInt(fs,"IllumSegCenter",Params->IllumSegCenter);
 		if (IntExists(Params->IllumSegRadius)) cvWriteInt(fs,"IllumSegRadius",Params->IllumSegCenter);
 

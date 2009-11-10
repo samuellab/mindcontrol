@@ -192,6 +192,7 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 	WormAnalysisParam* ParamPtr;
 	ParamPtr=(WormAnalysisParam*) malloc(sizeof(WormAnalysisParam));
 
+	/** Turn the System On or Off **/
 	ParamPtr->OnOff=0;
 
 	/** Single Frame Analysis Parameters **/
