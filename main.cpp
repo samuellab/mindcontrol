@@ -196,7 +196,8 @@ int main (int argc, char** argv){
 			/** If the DLP is not displaying **/
 			if (Params->DLPOn==0){
 				/** Clear the DLP **/
-				T2DLP_clear(myDLP);
+				RefreshFrame(IlluminationFrame);
+				T2DLP_SendFrame((unsigned char *) IlluminationFrame->binary, myDLP);
 			}
 
 
