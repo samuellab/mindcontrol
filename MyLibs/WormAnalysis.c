@@ -764,13 +764,17 @@ int SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
  *
  */
 int CreateWormHUDS(IplImage* TempImage, WormAnalysisData* Worm, WormAnalysisParam* Params, Frame* IlluminationFrame){
+
 	int CircleDiameterSize=10;
 	cvAddWeighted(Worm->ImgOrig,1,IlluminationFrame->iplimg,0.3,0,TempImage);
+	printf("marco\n");
+
 	//Want to also display boundary!
 	cvDrawContours(TempImage, Worm->Boundary, cvScalar(255,0,0),cvScalar(0,255,0),100);
 	cvCircle(TempImage,*(Worm->Tail),CircleDiameterSize,cvScalar(255,255,255),1,CV_AA,0);
 	cvCircle(TempImage,*(Worm->Head),CircleDiameterSize/2,cvScalar(255,255,255),1,CV_AA,0);
 
+	printf("polo\n");
 
 	/** Prepare Text **/
 	CvFont font;

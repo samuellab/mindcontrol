@@ -126,7 +126,7 @@ int main (int argc, char** argv){
 
 	/*** Create IplImage **/
 	IplImage* SubSampled=cvCreateImage(cvSize(NSIZEX/2,NSIZEY/2),IPL_DEPTH_8U,1);
-	IplImage* HUDS;
+	IplImage* HUDS=cvCreateImage(cvSize(NSIZEX,NSIZEY),IPL_DEPTH_8U,1); ;
 
 	/*** Create Frames **/
 	Frame* fromCCD =CreateFrame(cvSize(NSIZEX,NSIZEY));
@@ -195,8 +195,6 @@ int main (int argc, char** argv){
 			if (Params->OnOff==0){
 				/**Don't perform any analysis**/
 				cvShowImage("Display", fromCCD->iplimg);
-				printf("Analysis is off. Displaying camera.\n");
-				cvWaitKey(10);
 				continue;
 			}
 
@@ -239,7 +237,9 @@ int main (int argc, char** argv){
 			if (!e && Params->DLPOn) T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
 
 			/*** DIsplay Some Monitoring Output ***/
+			printf("ping\n");
 			if (!e) CreateWormHUDS(HUDS,Worm,Params,IlluminationFrame);
+			printf("pong\n");
 				if (!e &&  EverySoOften(Worm->frameNum,Params->DispRate) ){
 					/** There are no errors and we are displaying a frame **/
 					switch (Params->Display) {
@@ -274,8 +274,9 @@ int main (int argc, char** argv){
 						cvResize(Worm->ImgOrig,SubSampled,CV_INTER_LINEAR);
 						cvWriteFrame(Vid,SubSampled);
 						cvResize(HUDS,SubSampled,CV_INTER_LINEAR);
-						cvWriteFrame(Vid,SubSampled);
+						cvWriteFrame(VidHUDS,SubSampled);
 					}
+
 
 					/** Record data frame to diskl **/
 					if (RECORDDATA && Params->Record) AppendWormFrameToDisk(Worm,Params,DataWriter);
