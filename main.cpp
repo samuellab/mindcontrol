@@ -174,7 +174,7 @@ int main (int argc, char** argv){
 
 	Worm->frameNum=0;
 	while (1 == 1) {
-		if (MyCamera->iFrameNumber > lastFrameSeenOutside) {
+		if (MyCamera->iFrameNumber > lastFrameSeenOutside) {s
 			e=0;
 			lastFrameSeenOutside = MyCamera->iFrameNumber;
 			Worm->frameNum++;
@@ -221,7 +221,7 @@ int main (int argc, char** argv){
 
 
 			/*** Do Some Illumination ***/
-			if (!e) SimpleIlluminateWormLR(Worm, IlluminationFrame, Params->IllumSegCenter, Params->IllumSegRadius, Params->IllumLRC);
+			if (!e && !Params->DLPOn) SimpleIlluminateWormLR(Worm, IlluminationFrame, Params->IllumSegCenter, Params->IllumSegRadius, Params->IllumLRC);
 
 
 
