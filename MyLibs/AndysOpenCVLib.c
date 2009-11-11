@@ -798,17 +798,12 @@ bool cvPointExists(CvPoint* MyPt){
 
 }
 
-/*
- * Check's to see if int exists
- * Exists=nonzero
- * False = 0
+/* DEPRECATED. DOESN'T DO ANYTHING
+ * Always returns 1.
  */
 bool IntExists(int MyInt){
-	if(MyInt != NULL){
 			return 1;
-		} else{
-			return 0;
-		}
+
 
 }
 

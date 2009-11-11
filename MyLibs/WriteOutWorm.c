@@ -103,7 +103,7 @@ int AppendWormFrameToDisk(WormAnalysisData* Worm, WormAnalysisParam* Params, Wri
 
 	cvStartWriteStruct(fs,NULL,CV_NODE_MAP,NULL);
 		/** Frame Number Info **/
-		if (IntExists(Worm->frameNum)) cvWriteInt(fs,"FrameNumber",Worm->frameNum);
+		if (Worm->frameNum) cvWriteInt(fs,"FrameNumber",Worm->frameNum);
 
 		/** Segmentation Info **/
 		if(cvPointExists(Worm->Segmented->Head)){
@@ -125,11 +125,11 @@ int AppendWormFrameToDisk(WormAnalysisData* Worm, WormAnalysisParam* Params, Wri
 		if(cvSeqExists(Worm->Segmented->Centerline)) cvWrite(fs,"SegmentedCenterline",Worm->Segmented->Centerline);
 
 		/** Illumination Information **/
-		if (IntExists(Params->DLPOn)) cvWriteInt(fs,"DLPIsOn",Params->DLPOn);
-		if (IntExists(Params->IllumSegCenter)) cvWriteInt(fs,"IllumSegCenter",Params->IllumSegCenter);
-		if (IntExists(Params->IllumSegRadius)) cvWriteInt(fs,"IllumSegRadius",Params->IllumSegCenter);
+		if (Params->DLPOn) cvWriteInt(fs,"DLPIsOn",Params->DLPOn);
+		if (Params->IllumSegCenter) cvWriteInt(fs,"IllumSegCenter",Params->IllumSegCenter);
+		if (Params->IllumSegRadius) cvWriteInt(fs,"IllumSegRadius",Params->IllumSegCenter);
 
-		if (IntExists(Params->IllumLRC)) cvWriteInt(fs,"IllumNullLeftRightBoth",Params->IllumLRC);
+		if (Params->IllumLRC) cvWriteInt(fs,"IllumNullLeftRightBoth",Params->IllumLRC);
 	cvEndWriteStruct(fs);
 
 	return 0;
