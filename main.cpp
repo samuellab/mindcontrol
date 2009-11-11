@@ -126,6 +126,7 @@ int main (int argc, char** argv){
 
 	/*** Create IplImage **/
 	IplImage* SubSampled=cvCreateImage(cvSize(NSIZEX/2,NSIZEY/2),IPL_DEPTH_8U,1);
+	IplImage* HUDS;
 
 	/*** Create Frames **/
 	Frame* fromCCD =CreateFrame(cvSize(NSIZEX,NSIZEY));
@@ -158,12 +159,18 @@ int main (int argc, char** argv){
 
 	/** Set Up Video Recording **/
 	char* MovieFileName;
+	char* HUDSFileName;
 	CvVideoWriter* Vid;  //Video Writer
+	CvVideoWriter* VidHUDS;
 	if (RECORDVID) {
 		MovieFileName=CreateFileName(argv[1],argv[2],".avi");
+		HUDSFileName=CreateFileName(argv[1],argv[2],"_HUDS.avi");
 		Vid = cvCreateVideoWriter(MovieFileName, CV_FOURCC('M','J','P','G'), 30,
 					cvSize(NSIZEX/2, NSIZEY/2), 0);
+		VidHUDS=cvCreateVideoWriter(HUDSFileName, CV_FOURCC('M','J','P','G'), 30,
+					cvSize(NSIZEX/2, NSIZEY/2), 0);
 		DestroyFilename(&MovieFileName);
+		DestroyFilename(&HUDSFileName);
 		printf("Initialized video recording\n");
 	}
 
@@ -232,6 +239,7 @@ int main (int argc, char** argv){
 			if (!e && Params->DLPOn) T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
 
 			/*** DIsplay Some Monitoring Output ***/
+			if (!e) CreateWormHUDS(HUDS,Worm,Params,IlluminationFrame);
 				if (!e &&  EverySoOften(Worm->frameNum,Params->DispRate) ){
 					/** There are no errors and we are displaying a frame **/
 					switch (Params->Display) {
@@ -239,7 +247,7 @@ int main (int argc, char** argv){
 							 cvShowImage("Display", Worm->ImgOrig);
 							break;
 						case 1:
-							DisplayWormHUDS(Worm,Params,IlluminationFrame,"Display");
+							cvShowImage("Display",HUDS);
 							break;
 						case 2:
 							 cvShowImage("Display",Worm->ImgThresh);
@@ -261,9 +269,15 @@ int main (int argc, char** argv){
 					}
 					cvWaitKey(1); // Pause one millisecond for things to display onscreen.
 
-					/** Record Frame **/
-					cvResize(Worm->ImgOrig,SubSampled,CV_INTER_LINEAR);
-					if (RECORDVID && Params->Record) cvWriteFrame(Vid,SubSampled);
+					/** Record VideoFrame to Disk**/
+					if (RECORDVID && Params->Record) {
+						cvResize(Worm->ImgOrig,SubSampled,CV_INTER_LINEAR);
+						cvWriteFrame(Vid,SubSampled);
+						cvResize(HUDS,SubSampled,CV_INTER_LINEAR);
+						cvWriteFrame(Vid,SubSampled);
+					}
+
+					/** Record data frame to diskl **/
 					if (RECORDDATA && Params->Record) AppendWormFrameToDisk(Worm,Params,DataWriter);
 
 
@@ -273,7 +287,7 @@ int main (int argc, char** argv){
 				if (!e){
 					printf("*");
 				} else {
-					printf(":(\n");
+					printf("\n:(\n");
 				}
 
 		}
@@ -284,7 +298,7 @@ int main (int argc, char** argv){
 
 	/** Finish Writing Video to File and Release Writer **/
 	cvReleaseImage(&SubSampled);
-	if (RECORDVID) cvReleaseVideoWriter(&Vid);
+	if (RECORDVID) cvReleaseVideoWriter(&Vid); cvReleaseVideoWriter(&VidHUDS);
 	if (RECORDDATA) FinishWriteToDisk(&DataWriter);
 
 	/** Free Up Memory **/

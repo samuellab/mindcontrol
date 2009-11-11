@@ -754,6 +754,42 @@ int SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
 
 }
 
+
+/**
+ *
+ * Creates the Worm heads up display for monitoring or for saving to disk
+ * You must first pass a pointer to an IplImage that has already been allocated and
+ * has dimensions of Worm->SizeOfImage
+ *
+ *
+ */
+int CreateWormHUDS(IplImage* TempImage, WormAnalysisData* Worm, WormAnalysisParam* Params, Frame* IlluminationFrame){
+	int CircleDiameterSize=10;
+	cvAddWeighted(Worm->ImgOrig,1,IlluminationFrame->iplimg,0.3,0,TempImage);
+	//Want to also display boundary!
+	cvDrawContours(TempImage, Worm->Boundary, cvScalar(255,0,0),cvScalar(0,255,0),100);
+	cvCircle(TempImage,*(Worm->Tail),CircleDiameterSize,cvScalar(255,255,255),1,CV_AA,0);
+	cvCircle(TempImage,*(Worm->Head),CircleDiameterSize/2,cvScalar(255,255,255),1,CV_AA,0);
+
+
+	/** Prepare Text **/
+	CvFont font;
+	cvInitFont(&font,CV_FONT_HERSHEY_TRIPLEX ,1.0,1.0,0,2,CV_AA);
+
+	/** Display DLP On Off **/
+	if (Params->DLPOn) {
+		cvPutText(TempImage,"DLP ON",cvPoint(20,70),&font,cvScalar(255,255,255));
+	}
+	/** Display Recording if we are recording **/
+	if (Params->Record){
+		cvPutText(TempImage,"Recording",cvPoint(20,100),&font,cvScalar(255,255,255));
+	}
+
+	//cvPutText(TempImage,itoa(Worm->frameNum),cvPoint(Worm->SizeOfImage->height - 20,Worm->SizeOfImage->width - 70 ),&font,cvScalar(255,255,255) );
+	return 0;
+}
+
+
 /************************************************************/
 /* Monitoring Routines										*/
 /* These routines help visualize whats going on.			*/
@@ -787,27 +823,8 @@ void DisplayWormHeadTail(WormAnalysisData* Worm, char* WindowName){
  *
  */
 void DisplayWormHUDS(WormAnalysisData* Worm, WormAnalysisParam* Params, Frame* IlluminationFrame,char* WindowName){
-	int CircleDiameterSize=10;
-	IplImage* TempImage=cvCreateImage(cvGetSize(Worm->ImgSmooth),IPL_DEPTH_8U,1);
-	cvAddWeighted(Worm->ImgOrig,1,IlluminationFrame->iplimg,0.3,0,TempImage);
-	//Want to also display boundary!
-	cvDrawContours(TempImage, Worm->Boundary, cvScalar(255,0,0),cvScalar(0,255,0),100);
-	cvCircle(TempImage,*(Worm->Tail),CircleDiameterSize,cvScalar(255,255,255),1,CV_AA,0);
-	cvCircle(TempImage,*(Worm->Head),CircleDiameterSize/2,cvScalar(255,255,255),1,CV_AA,0);
-
-
-	/** Prepare Text **/
-	CvFont font;
-	cvInitFont(&font,CV_FONT_HERSHEY_TRIPLEX ,1.0,1.0,0,2,CV_AA);
-
-	/** Display DLP On Off **/
-	if (Params->DLPOn) {
-		cvPutText(TempImage,"DLP ON",cvPoint(20,70),&font,cvScalar(255,255,255));
-	}
-	if (Params->Record){
-		cvPutText(TempImage,"Recording",cvPoint(20,100),&font,cvScalar(255,255,255));
-	}
-
+	IplImage* TempImage =cvCreateImage(Worm->SizeOfImage,IPL_DEPTH_8U,1);
+	CreateWormHUDS(TempImage,Worm,Params,IlluminationFrame);
 	cvShowImage(WindowName,TempImage);
 	cvReleaseImage(&TempImage);
 }

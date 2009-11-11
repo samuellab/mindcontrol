@@ -309,6 +309,16 @@ int SimpleIlluminateWormLR(WormAnalysisData* Worm, Frame* IllumFrame,int center,
 int SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params);
 
 
+/**
+ *
+ * Creates the Worm heads up display for monitoring or for saving to disk
+ * You must first pass a pointer to an IplImage that has already been allocated and
+ * has dimensions of Worm->SizeOfImage
+ *
+ *
+ */
+int CreateWormHUDS(IplImage* TempImage, WormAnalysisData* Worm, WormAnalysisParam* Params, Frame* IlluminationFrame);
+
 /*****************************************
  *
  * Monitoring functions
