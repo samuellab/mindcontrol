@@ -796,13 +796,16 @@ void DisplayWormHUDS(WormAnalysisData* Worm, WormAnalysisParam* Params, Frame* I
 	cvCircle(TempImage,*(Worm->Head),CircleDiameterSize/2,cvScalar(255,255,255),1,CV_AA,0);
 
 
-	/** Prepare Text to Whether DLP is on or off **/
+	/** Prepare Text **/
 	CvFont font;
 	cvInitFont(&font,CV_FONT_HERSHEY_TRIPLEX ,1.0,1.0,0,2,CV_AA);
+
+	/** Display DLP On Off **/
 	if (Params->DLPOn) {
 		cvPutText(TempImage,"DLP ON",cvPoint(20,70),&font,cvScalar(255,255,255));
-	} else{
-		cvPutText(TempImage,"DLP OFF",cvPoint(20,70),&font,cvScalar(255,255,255));
+	}
+	if (Params->Record){
+		cvPutText(TempImage,"Recording",cvPoint(20,100),&font,cvScalar(255,255,255));
 	}
 
 	cvShowImage(WindowName,TempImage);
