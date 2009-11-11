@@ -804,7 +804,7 @@ bool cvPointExists(CvPoint* MyPt){
  * False = 0
  */
 bool IntExists(int MyInt){
-	if((MyInt != NULL) && (MyInt >=0)){
+	if(MyInt != NULL){
 			return 1;
 		} else{
 			return 0;
