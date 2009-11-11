@@ -129,6 +129,17 @@ void DestroyFrame(Frame** myFrame){
 }
 
 /*
+ * RefreshFrame
+ *
+ * This function sets all of the pixels of a frame to zero
+ * in both the iplImage and binary representations of the frame.
+ */
+void RefreshFrame(Frame* myFrame){
+	cvSetZero(myFrame->iplimg);
+	LoadFrameWithImage(myFrame->iplimg,myFrame);
+}
+
+/*
  * Load the Frame with a Binary Image
  *
  * copies the binary image into the frame's memory and

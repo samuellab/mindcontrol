@@ -76,6 +76,14 @@ void DestroyFrame(Frame** myFrame);
 void LoadFrameWithBin(unsigned char* binsrc, Frame* myFrame);
 
 /*
+ * RefreshFrame
+ *
+ * This function sets all of the pixels of a frame to zero
+ * in both the iplImage and binary representations of the frame.
+ */
+void RefreshFrame(Frame* myFrame);
+
+/*
  * Load the Frame with a IplImage
  *
  * copies the IplImage into the frame's memory and
