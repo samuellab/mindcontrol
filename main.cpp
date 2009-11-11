@@ -236,7 +236,7 @@ int main (int argc, char** argv){
 							 cvShowImage("Display", Worm->ImgOrig);
 							break;
 						case 1:
-							DisplayWormHUDS(Worm,IlluminationFrame,"Display");
+							DisplayWormHUDS(Worm,Params,IlluminationFrame,"Display");
 							break;
 						case 2:
 							 cvShowImage("Display",Worm->ImgThresh);

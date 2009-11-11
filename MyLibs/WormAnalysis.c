@@ -786,7 +786,7 @@ void DisplayWormHeadTail(WormAnalysisData* Worm, char* WindowName){
  * It also draws the worm's boundary and the worm's head and tail.
  *
  */
-void DisplayWormHUDS(WormAnalysisData* Worm, Frame* IlluminationFrame,char* WindowName){
+void DisplayWormHUDS(WormAnalysisData* Worm, WormAnalysisParam* Params, Frame* IlluminationFrame,char* WindowName){
 	int CircleDiameterSize=10;
 	IplImage* TempImage=cvCreateImage(cvGetSize(Worm->ImgSmooth),IPL_DEPTH_8U,1);
 	cvAddWeighted(Worm->ImgOrig,1,IlluminationFrame->iplimg,0.3,0,TempImage);
@@ -794,6 +794,17 @@ void DisplayWormHUDS(WormAnalysisData* Worm, Frame* IlluminationFrame,char* Wind
 	cvDrawContours(TempImage, Worm->Boundary, cvScalar(255,0,0),cvScalar(0,255,0),100);
 	cvCircle(TempImage,*(Worm->Tail),CircleDiameterSize,cvScalar(255,255,255),1,CV_AA,0);
 	cvCircle(TempImage,*(Worm->Head),CircleDiameterSize/2,cvScalar(255,255,255),1,CV_AA,0);
+
+
+	/** Prepare Text to Whether DLP is on or off **/
+	CvFont font;
+	cvInitFont(&font,CV_FONT_HERSHEY_TRIPLEX ,1.0,1.0,0,2,CV_AA);
+	if (Params->DLPOn) {
+		cvPutText(TempImage,"DLP ON",cvPoint(20,70),&font,cvScalar(255,255,255));
+	} else{
+		cvPutText(TempImage,"DLP OFF",cvPoint(20,70),&font,cvScalar(255,255,255));
+	}
+
 	cvShowImage(WindowName,TempImage);
 	cvReleaseImage(&TempImage);
 }

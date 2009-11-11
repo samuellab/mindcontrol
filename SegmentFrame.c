@@ -74,9 +74,7 @@ void on_trackbar(int){
 
 	/** Illuminate the Worm**/
 	if (SimpleIlluminateWorm(Worm,IlluminationFrame,2,3)==0) cvShowImage("ToDLP",IlluminationFrame->iplimg);
-
-	if (DISPVID) DisplayWormHUDS(Worm,  IlluminationFrame,"Boundary");
-
+	if (DISPVID) DisplayWormHUDS(Worm, Params,  IlluminationFrame,"Boundary");
 
 
 	/** Update PrevWorm Info **/

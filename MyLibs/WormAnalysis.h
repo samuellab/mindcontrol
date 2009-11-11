@@ -328,7 +328,7 @@ void DisplayWormHeadTail(WormAnalysisData* Worm, char* WindowName);
  * It also draws the worm's boundary and the worm's head and tail.
  *
  */
-void DisplayWormHUDS(WormAnalysisData* Worm, Frame* IlluminationFrame,char* WindowName);
+void DisplayWormHUDS(WormAnalysisData* Worm, WormAnalysisParam* Params, Frame* IlluminationFrame,char* WindowName);
 
 /*
  * Displays the original image of the worm
