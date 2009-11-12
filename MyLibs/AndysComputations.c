@@ -14,9 +14,11 @@
  *
  */
 
-#include "AndysComputations.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+
+#include "AndysComputations.h"
 
 /*
  * Calculates the distance between two points on a ciruclar boundar
@@ -55,5 +57,14 @@ int EverySoOften(int frameNum, int HowOften){
 }
 
 
+/*
+ * Given two clock_t objects, this function returns an int
+ * containing the elapsed time in milliseconds
+ *
+ */
+unsigned long msElapsed(clock_t start, clock_t end){
+	unsigned long temp = (end-start * 1000);
+	return temp / CLOCKS_PER_SEC;
+}
 
 

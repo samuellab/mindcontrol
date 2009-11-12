@@ -14,6 +14,7 @@
 
 // Andy's Libraries
 
+#include "AndysComputations.h"
 #include "AndysOpenCVLib.h"
 #include "WormAnalysis.h"
 #include "WriteOutWorm.h"
@@ -103,7 +104,10 @@ int AppendWormFrameToDisk(WormAnalysisData* Worm, WormAnalysisParam* Params, Wri
 
 	cvStartWriteStruct(fs,NULL,CV_NODE_MAP,NULL);
 		/** Frame Number Info **/
-		if (Worm->frameNum) cvWriteInt(fs,"FrameNumber",Worm->frameNum);
+		cvWriteInt(fs,"FrameNumber",Worm->frameNum);
+
+		/** TimeStamp **/
+		cvWriteInt(fs,"msElapsed",msElapsed(Params->TimeStart,Worm->timestamp));
 
 		/** Segmentation Info **/
 		if(cvPointExists(Worm->Segmented->Head)){

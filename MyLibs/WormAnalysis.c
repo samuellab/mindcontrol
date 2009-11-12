@@ -1,5 +1,5 @@
 #include <stdio.h>
-
+#include <time.h>
 
 
 //OpenCV Headers
@@ -52,18 +52,20 @@ WormAnalysisData* CreateWormAnalysisDataStruct(){
 	/*** Set Everythingm To NULL ***/
 	WormPtr->Head=NULL;
 	WormPtr->Tail=NULL;
-	WormPtr->HeadIndex=NULL;
-	WormPtr->TailIndex=NULL;
+	WormPtr->HeadIndex=0;
+	WormPtr->TailIndex=0;
 	WormPtr->ImgOrig =NULL;
 	WormPtr->ImgSmooth =NULL;
 	WormPtr->ImgThresh =NULL;
 
-	WormPtr->frameNum=NULL;
-	WormPtr->frameNumCamInternal=NULL;
+	WormPtr->frameNum=0;
+	WormPtr->frameNumCamInternal=0;
 
 
-	WormPtr->SizeOfImage.height = NULL;
-	WormPtr->SizeOfImage.width= NULL;
+	WormPtr->SizeOfImage.height = 0;
+	WormPtr->SizeOfImage.width= 0;
+
+	WormPtr->timestamp=0;
 
 	/*** Initialze Worm Memory Storage***/
 	InitializeWormMemStorage(WormPtr);
@@ -71,6 +73,7 @@ WormAnalysisData* CreateWormAnalysisDataStruct(){
 	/**** Allocate Memory for CvSeq ***/
 	WormPtr->Boundary=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),WormPtr->MemStorage);
 	WormPtr->Centerline=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),WormPtr->MemStorage);
+
 
 
 	/*** Create Segmented Worm Object ***/
@@ -142,6 +145,9 @@ void InitializeEmptyWormImages(WormAnalysisData* Worm, CvSize ImageSize){
 	Worm->ImgSmooth=cvCreateImage(ImageSize,IPL_DEPTH_8U,1);
 	Worm->ImgThresh=cvCreateImage(ImageSize,IPL_DEPTH_8U,1);
 
+	/** Clear the Time Stamp **/
+	Worm->timestamp=0;
+
 }
 
 
@@ -151,6 +157,8 @@ void InitializeEmptyWormImages(WormAnalysisData* Worm, CvSize ImageSize){
  * This function is run after IntializeEmptyImages.
  * And it loads a color original into the WormAnalysisData strucutre.
  * The color image is converted to an 8 bit grayscale image.
+ *
+ * It also sets the time stamp.
  */
 void LoadWormColorOriginal(WormAnalysisData* Worm, IplImage* ImgColorOrig){
 	CvSize CurrentSize = cvGetSize(ImgColorOrig);
@@ -160,12 +168,17 @@ void LoadWormColorOriginal(WormAnalysisData* Worm, IplImage* ImgColorOrig){
 	}
 	cvCvtColor( ImgColorOrig, Worm->ImgOrig, CV_BGR2GRAY);
 
+	/** Set the TimeStamp **/
+	Worm->timestamp=clock();
+
 }
 
 /*
  * This function is run after IntializeEmptyImages.
  * And it loads a properly formated 8 bit grayscale image
  * into the WormAnalysisData strucutre.
+ *
+ * It also sets the timestamp.
  */
 int LoadWormImg(WormAnalysisData* Worm, IplImage* Img){
 	CvSize CurrentSize = cvGetSize(Img);
@@ -173,6 +186,10 @@ int LoadWormImg(WormAnalysisData* Worm, IplImage* Img){
 		printf("Error. Image size does not match in  LoadWormImg()");
 		return -1;
 	}
+	/** Set the TimeStamp **/
+	Worm->timestamp=clock();
+
+	/** Copy the Image **/
 	cvCopy( Img, Worm->ImgOrig,0);
 	return 0;
 
@@ -219,6 +236,8 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 	ParamPtr->IllumSegRadius=5;
 	ParamPtr->IllumSegCenter=25;
 
+	/** Time Parameters**/
+	ParamPtr->TimeStart=clock();
 
 	/**Record Parameters **/
 	ParamPtr->Record=0;
@@ -766,7 +785,12 @@ int SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
 int CreateWormHUDS(IplImage* TempImage, WormAnalysisData* Worm, WormAnalysisParam* Params, Frame* IlluminationFrame){
 
 	int CircleDiameterSize=10;
-	cvAddWeighted(Worm->ImgOrig,1,IlluminationFrame->iplimg,0.3,0,TempImage);
+
+	/** Overly a translucent image of the illumination pattern**/
+
+	double weighting=0.20; //Alpha blend weighting
+	if (Params->DLPOn) weighting=0.45; // if DLP is on make the illumination pattern more opaque
+	cvAddWeighted(Worm->ImgOrig,1,IlluminationFrame->iplimg,weighting,0,TempImage);
 
 	//Want to also display boundary!
 	cvDrawContours(TempImage, Worm->Boundary, cvScalar(255,0,0),cvScalar(0,255,0),100);

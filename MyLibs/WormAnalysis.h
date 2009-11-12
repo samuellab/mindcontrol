@@ -34,6 +34,9 @@ typedef struct WormAnalysisParamStruct{
 	int DispRate;
 	int Display;
 
+	/** Time Data **/
+	unsigned long TimeStart;
+
 	/** Illumination Parameters **/
 	int IllumSegCenter;
 	int IllumSegRadius;
@@ -84,6 +87,10 @@ typedef struct WormImageAnalysisStruct{
 	int TailIndex;
 	int HeadIndex;
 	CvSeq* Centerline;
+
+	/** TimeStamp **/
+
+	unsigned long timestamp;
 
 	/** Segmented Worm **/
 	SegmentedWorm* Segmented;

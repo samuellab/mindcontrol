@@ -32,4 +32,11 @@ int DistBetPtsOnCircBound(int PtsOnBound, int IndexA, int IndexB);
 int EverySoOften(int frameNum, int HowOften);
 
 
+/*
+ * Given two clock_t objects, this function returns an int
+ * containing the elapsed time in milliseconds
+ *
+ */
+unsigned long msElapsed(clock_t start, clock_t end);
+
 #endif /* ANDYSCOMPUTATIONS_H_ */
