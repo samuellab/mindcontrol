@@ -236,9 +236,6 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 	ParamPtr->IllumSegRadius=5;
 	ParamPtr->IllumSegCenter=25;
 
-	/** Time Parameters**/
-	ParamPtr->TimeStart=clock();
-
 	/**Record Parameters **/
 	ParamPtr->Record=0;
 

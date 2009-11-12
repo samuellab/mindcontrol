@@ -107,7 +107,9 @@ int AppendWormFrameToDisk(WormAnalysisData* Worm, WormAnalysisParam* Params, Wri
 		cvWriteInt(fs,"FrameNumber",Worm->frameNum);
 
 		/** TimeStamp **/
-		cvWriteInt(fs,"msElapsed",msElapsed(Params->TimeStart,Worm->timestamp));
+		cvWriteInt(fs,"sElapsed",GetSeconds(Worm->timestamp));
+		cvWriteInt(fs,"msRemElapsed",GetMilliSeconds(Worm->timestamp));
+
 
 		/** Segmentation Info **/
 		if(cvPointExists(Worm->Segmented->Head)){

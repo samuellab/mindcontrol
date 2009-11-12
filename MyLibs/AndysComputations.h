@@ -39,4 +39,24 @@ int EverySoOften(int frameNum, int HowOften);
  */
 unsigned long msElapsed(clock_t start, clock_t end);
 
+
+
+/*
+ * takes a clock_t type and returns an integer with the number of seconds
+ * For the reamining milliseconds use GetMilliseconds
+ *
+ */
+int GetSeconds(clock_t time);
+
+/*
+ * takes a clock_t type and returns the remaining number of ms
+ * since GetSeconds();
+ *
+ *
+ */
+int GetMilliSeconds(clock_t time);
+
+
+
+
 #endif /* ANDYSCOMPUTATIONS_H_ */

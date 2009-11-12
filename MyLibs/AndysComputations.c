@@ -68,3 +68,23 @@ unsigned long msElapsed(clock_t start, clock_t end){
 }
 
 
+
+int GetSeconds(clock_t time){
+	double seconds = (double) time / (double) CLOCKS_PER_SEC;
+	return (int) seconds;
+}
+
+int GetMilliSeconds(clock_t time){
+	/* Get number of seconds very accurately */
+	double seconds = (double) time / (double) CLOCKS_PER_SEC;
+
+	/* Round off to get the whole number of seconds */
+	int rounded= (int) seconds;
+
+	/* Subtract off the whole number of secods and multiply by 1000 */
+	double ms= ( (double) seconds-rounded) *1000;
+	return (int) ms;
+}
+
+
+
