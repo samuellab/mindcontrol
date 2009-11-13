@@ -9,6 +9,7 @@
 //Standard C headers
 #include <stdio.h>
 #include <ctime>
+#include <time.h>
 #include <conio.h>
 #include <math.h>
 
@@ -70,11 +71,17 @@ void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 	return;
 
 }
-
+#define _N_TIME_PTS 100
+static int total_time[_N_TIME_PTS];
+static int _n_frames_run = 0;
 
 int main (int argc, char** argv){
 	int RECORDVID=0;
 	int RECORDDATA=0;
+
+	for (int j = 0; j < _N_TIME_PTS; ++j) {
+		total_time[j] = 0;
+	}
 
 	/** Handle Variable Arguments **/
 	if( argc !=1 && argc!=3 ){
@@ -178,18 +185,30 @@ int main (int argc, char** argv){
 
 	int e;
 
+	/** initialize start time **/
+	long prevTime=clock();
+	int prevFrames=0;
 
 	Worm->frameNum=0;
-	while (1 == 1) {
+	int tnum = 0;
+	int nframes = 0;
+	while (1) {
 		if (MyCamera->iFrameNumber > lastFrameSeenOutside) {
 			e=0;
 			lastFrameSeenOutside = MyCamera->iFrameNumber;
 			Worm->frameNum++;
 
+			/*** Print out Frame Rate ***/
+			if ( (Worm->timestamp-prevTime) > CLOCKS_PER_SEC){
+				printf("%d fps\n",Worm->frameNum-prevFrames);
+				prevFrames=Worm->frameNum;
+				prevTime=Worm->timestamp;
+			}
 
 
 			/*** Create a local copy of the image***/
 			LoadFrameWithBin(MyCamera->iImageData,fromCCD);
+
 
 			/** Do we even bother doing analysis?**/
 			if (Params->OnOff==0){
@@ -199,12 +218,18 @@ int main (int argc, char** argv){
 				continue;
 			}
 
+			clock_t now;
+			clock_t last = clock();
+			tnum = 0;
+			++nframes;
 			/** If the DLP is not displaying **/
 			if (Params->DLPOn==0){
 				/** Clear the DLP **/
 				RefreshFrame(IlluminationFrame);
 				T2DLP_SendFrame((unsigned char *) IlluminationFrame->binary, myDLP);
 			}
+			total_time[tnum++] += ((now = clock()) - last); //0
+			last = now;
 
 
 			/***********************
@@ -215,27 +240,65 @@ int main (int argc, char** argv){
 			if (!e) e=RefreshWormMemStorage(Worm);
 			if (!e) e=LoadWormImg(Worm,fromCCD->iplimg);
 
+			total_time[tnum++] += ((now = clock()) - last); //1
+			last = now;
+
+			/*** <------------ 31fps ***/
+
 			/*** Find Worm Boundary ***/
 			if (!e) FindWormBoundary(Worm,Params);
+
+			total_time[tnum++] += ((now = clock()) - last); //2
+			last = now;
+
 
 			/*** Find Worm Head and Tail ***/
 			if (!e) e=GivenBoundaryFindWormHeadTail(Worm,Params);
 			/** If we are doing temporal analysis, improve the WormHeadTail estimate based on prev frame **/
 			if (Params->TemporalOn && !e) PrevFrameImproveWormHeadTail(Worm,Params,PrevWorm);
 
+			total_time[tnum++] += ((now = clock()) - last); //3
+			last = now;
+
+
 
 			/*** Segment the Worm ***/
 			if (!e) e=SegmentWorm(Worm,Params);
+			total_time[tnum++] += ((now = clock()) - last); //4
+			last = now;
+
+
+			/*** <------------ 31fps ***/
+
 
 			/** Update PrevWorm Info **/
 			if (!e) LoadWormGeom(PrevWorm,Worm);
+			total_time[tnum++] += ((now = clock()) - last); //5
+			last = now;
 
 
 			/*** Do Some Illumination ***/
 
 			if (!e) SimpleIlluminateWormLR(Worm, IlluminationFrame, Params->IllumSegCenter, Params->IllumSegRadius, Params->IllumLRC);
+			total_time[tnum++] += ((now = clock()) - last); //6
+			last = now;
+
+			/*** <------------ 31fps ***/
 			if (!e) TransformFrameCam2DLP(IlluminationFrame,forDLP,Calib);
+			total_time[tnum++] += ((now = clock()) - last); //7
+			last = now;
+
+
+			/*** <------------ 26fps ***/
+
+
+
 			if (!e && Params->DLPOn) T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
+			total_time[tnum++] += ((now = clock()) - last); //8
+			last = now;
+
+
+
 
 			/*** DIsplay Some Monitoring Output ***/
 			if (!e) CreateWormHUDS(HUDS,Worm,Params,IlluminationFrame);
@@ -268,6 +331,10 @@ int main (int argc, char** argv){
 					}
 					cvWaitKey(1); // Pause one millisecond for things to display onscreen.
 
+
+					total_time[tnum++] += ((now = clock()) - last); //9
+					last = now;
+
 					/** Record VideoFrame to Disk**/
 					if (RECORDVID && Params->Record) {
 						cvResize(Worm->ImgOrig,SubSampled,CV_INTER_LINEAR);
@@ -275,13 +342,16 @@ int main (int argc, char** argv){
 						cvResize(HUDS,SubSampled,CV_INTER_LINEAR);
 						cvWriteFrame(VidHUDS,SubSampled);
 					}
-
+					total_time[tnum++] += ((now = clock()) - last); //10
+					last = now;
 
 					/** Record data frame to diskl **/
 					if (RECORDDATA && Params->Record) AppendWormFrameToDisk(Worm,Params,DataWriter);
-
+					total_time[tnum++] += ((now = clock()) - last); //11
+					last = now;
 
 				}
+
 
 
 				if (!e){
@@ -289,16 +359,24 @@ int main (int argc, char** argv){
 				} else {
 					printf("\n:(\n");
 				}
+				total_time[tnum++] += ((now = clock()) - last); //12
+			    last = now;
 
 		}
 		if (kbhit()) break;
 		if (e) cvWaitKey(1); /**Wait so that we don't end up in a loop lockign up the UI in case of error**/
 
 	}
-
+	int nrecordedtime = tnum;
+	for (int j = 0; j < nrecordedtime; ++j) {
+		printf("time %d: total time %d\ttime per frame:%g\n", j, total_time[j], (1.0*total_time[j])/nframes);
+	}
 	/** Finish Writing Video to File and Release Writer **/
 	cvReleaseImage(&SubSampled);
-	if (RECORDVID) cvReleaseVideoWriter(&Vid); cvReleaseVideoWriter(&VidHUDS);
+	if (RECORDVID) {
+		cvReleaseVideoWriter(&Vid);
+		cvReleaseVideoWriter(&VidHUDS);
+	}
 	if (RECORDDATA) FinishWriteToDisk(&DataWriter);
 
 	/** Free Up Memory **/
