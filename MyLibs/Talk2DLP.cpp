@@ -47,6 +47,7 @@ long T2DLP_on(){
 	}
 	printf( "The allocated ALP has the serial number %f\n", serial );
 	printf("Alpid is %f\n",alpid);
+	T2DLP_clear(alpid);
 	return alpid;
 }
 
