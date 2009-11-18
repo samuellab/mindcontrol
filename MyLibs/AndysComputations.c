@@ -69,11 +69,22 @@ unsigned long msElapsed(clock_t start, clock_t end){
 
 
 
+/*
+ * takes a clock_t type and returns an integer with the number of seconds
+ * For the reamining milliseconds use GetMilliseconds
+ *
+ */
 int GetSeconds(clock_t time){
 	double seconds = (double) time / (double) CLOCKS_PER_SEC;
 	return (int) seconds;
 }
 
+/*
+ * takes a clock_t type and returns the remaining number of ms
+ * since GetSeconds();
+ *
+ *
+ */
 int GetMilliSeconds(clock_t time){
 	/* Get number of seconds very accurately */
 	double seconds = (double) time / (double) CLOCKS_PER_SEC;
