@@ -14,6 +14,7 @@ MyLibs=MyLibs
 3rdPartyLibs=3rdPartyLibs
 targetDir=bin
 CVdir=C:/Progra~1/OpenCV
+GIT=C:/Program\ Files/Git/bin/git
 
 #Matlab Include directory for header files
 MatlabIncDir= C:/Progra~1/MATLAB/R2009a/extern/include
@@ -42,8 +43,11 @@ calib_objects= calibrate.o $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(Matlab
 segment_objects = SegmentFrame.o  AndysComputations.o 	$(WormSpecificLibs) $(myOpenCVlibraries) $(CVlibs) 
 illumworm_objects=  IllumWorm.o $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)	
 
+
+
 #Executables
-all : $(targetDir)/ClosedLoop.exe $(targetDir)/CalibrateApparatus.exe $(targetDir)/SegmentFrame.exe $(targetDir)/IlluminateWorm.exe 
+all : $(targetDir)/ClosedLoop.exe $(targetDir)/CalibrateApparatus.exe $(targetDir)/SegmentFrame.exe $(targetDir)/IlluminateWorm.exe version.o
+
 
 $(targetDir)/CalibrateApparatus.exe : $(calib_objects)
 	g++ -o $(targetDir)/CalibrateApparatus.exe $(calib_objects) $(TailOpts)
@@ -76,6 +80,20 @@ AndysComputations.o : $(MyLibs)/AndysComputations.c $(MyLibs)/AndysComputations.
 
 TransformLib.o: $(MyLibs)/TransformLib.c
 	g++ -c -v -Wall $(MyLibs)/TransformLib.c $(openCVincludes) $(TailOpts)
+
+
+###### version.c & version.h
+# note that version.c is generated at the very top. under "timestamp"
+version.o : $(MyLibs)/version.c $(MyLibs)/version.h 
+	g++ -c -Wall $(MyLibs)/version.c  -I$(MyLibs)  $(TailOpts)
+
+#Trick so that git generates a version.c file
+$(MyLibs)/version.c: FORCE 
+	$(GIT) rev-parse HEAD | awk ' BEGIN {print "#include \"version.h\""} {print "const char * build_git_sha = \"" $$0"\";"} END {}' > $(MyLibs)/version.c
+	date | awk 'BEGIN {} {print "const char * build_git_time = \""$$0"\";"} END {} ' >> $(MyLibs)/version.c	
+		
+FORCE:
+
 
 
 
