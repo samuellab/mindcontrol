@@ -29,7 +29,7 @@ openCVincludes = -I$(CVdir)/cxcore/include -I$(CVdir)/otherlibs/highgui -I$(CVdi
 # objects that I have written, in order of dependency. 
 # e.g. If object B depends on A, then object A should be to the left of B (but apparently only sometimes). 
 myOpenCVlibraries= AndysOpenCVLib.o
-mylibraries=  AndysComputations.o Talk2DLP.o Talk2Camera.o $(myOpenCVlibraries) Talk2Matlab.o TransformLib.o WormAnalysis.o WriteOutWorm.o
+mylibraries=  version.o AndysComputations.o Talk2DLP.o Talk2Camera.o $(myOpenCVlibraries) Talk2Matlab.o TransformLib.o WormAnalysis.o WriteOutWorm.o  
 WormSpecificLibs= WormAnalysis.o WriteOutWorm.o
 
 #3rd party statically linked objects
@@ -40,7 +40,7 @@ MatlabLibs=$(MatlabLibsDir)/libeng.lib $(MatlabLibsDir)/libmx.lib
 #All Objects
 objects= main.o  $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)
 calib_objects= calibrate.o $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)
-segment_objects = SegmentFrame.o  AndysComputations.o 	$(WormSpecificLibs) $(myOpenCVlibraries) $(CVlibs) 
+segment_objects = SegmentFrame.o  AndysComputations.o  version.o	$(WormSpecificLibs) $(myOpenCVlibraries) $(CVlibs) 
 illumworm_objects=  IllumWorm.o $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)	
 
 
@@ -109,6 +109,8 @@ WormAnalysis.o : $(MyLibs)/WormAnalysis.c $(MyLibs)/WormAnalysis.h $(myOpenCVlib
 
 WriteOutWorm.o : $(MyLibs)/WormAnalysis.c $(MyLibs)/WormAnalysis.h $(MyLibs)/WriteOutWorm.c $(MyLibs)/WriteOutWorm.h $(myOpenCVlibraries) 
 	g++ -c -Wall $(MyLibs)/WriteOutWorm.c -I$(MyLibs) $(openCVincludes) $(TailOpts)
+
+$(MyLibs)/WriteOutWorm.c :  $(MyLibs)/version.h 
 
 ###### IlluminateWorm.exe
 $(targetDir)/IlluminateWorm.exe : $(illumworm_objects)
