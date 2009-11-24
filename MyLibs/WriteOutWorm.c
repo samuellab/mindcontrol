@@ -17,7 +17,11 @@
 #include "AndysComputations.h"
 #include "AndysOpenCVLib.h"
 #include "WormAnalysis.h"
+#include "version.h"
+
 #include "WriteOutWorm.h"
+
+
 
 
 
@@ -77,6 +81,11 @@ WriteOut* SetUpWriteToDisk(const char* filename, CvMemStorage* Mem){
 	if (DataWriter->fs==0) printf("DataWriter->fs is zero! Could you have specified the wrong directory?\n");
 	// <--- ANDY ADD in something here so that this fails more gracefully if the folder does not exist!!!!
 	cvWriteComment(DataWriter->fs, "Remote Control Worm Experiment Data Log\nMade by OpticalMindControl software\nleifer@fas.harvard.edu",0);
+	cvWriteComment(DataWriter->fs, "\nSoftware Version Information:",0);
+	cvWriteComment(DataWriter->fs, build_git_sha,0);
+	cvWriteComment(DataWriter->fs, build_git_time,0);
+	cvWriteComment(DataWriter->fs, "\n",0);
+
 	cvStartWriteStruct(DataWriter->fs,"Frames",CV_NODE_SEQ,NULL);
 	return DataWriter;
 }
@@ -134,9 +143,9 @@ int AppendWormFrameToDisk(WormAnalysisData* Worm, WormAnalysisParam* Params, Wri
 
 		/** Illumination Information **/
 		cvWriteInt(fs,"DLPIsOn",Params->DLPOn);
+		cvWriteInt(fs,"FloodLightIsOn",Params->IllumFloodEverything);
 		cvWriteInt(fs,"IllumSegCenter",Params->IllumSegCenter);
 		cvWriteInt(fs,"IllumSegRadius",Params->IllumSegRadius);
-
 		cvWriteInt(fs,"IllumNullLeftRightBoth",Params->IllumLRC);
 	cvEndWriteStruct(fs);
 

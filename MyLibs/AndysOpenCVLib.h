@@ -95,6 +95,14 @@ void RefreshFrame(Frame* myFrame);
  */
 void LoadFrameWithImage(IplImage* imgsrc, Frame* myFrame);
 
+
+/*
+ * This function sets all the pixels to the specified value for both the binary and iplimage
+ * component of a frame
+ *
+ */
+void SetFrame(Frame* myFrame, int value);
+
 /*
  * copies the 8 bit image data in src to the character array arr
  * arr must be preallocated and be src->width*src->height in size

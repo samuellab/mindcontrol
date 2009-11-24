@@ -235,6 +235,7 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 	ParamPtr->IllumLRC=3;
 	ParamPtr->IllumSegRadius=5;
 	ParamPtr->IllumSegCenter=25;
+	ParamPtr->IllumFloodEverything=0;
 
 	/**Record Parameters **/
 	ParamPtr->Record=0;
@@ -805,15 +806,21 @@ int CreateWormHUDS(IplImage* TempImage, WormAnalysisData* Worm, WormAnalysisPara
 	/** Display Recording if we are recording **/
 	if (Params->Record){
 		cvPutText(TempImage,"Recording",cvPoint(20,100),&font,cvScalar(255,255,255));
-	}else{
-		if (Params->DLPOn) {
-			cvPutText(TempImage,"Are you forgetting to record!!?",cvPoint(20,100),&font,cvScalar(255,255,255));
-		}
+
+	} else {
+		if (Params->DLPOn) cvPutText(TempImage,"Did you forget to record?",cvPoint(20,100),&font,cvScalar(255,255,255));
 	}
 
 
+	/*** Let the user know if the illumination flood light is on ***/
+	if (Params->IllumFloodEverything){
+		cvPutText(TempImage,"Floodlight",cvPoint(20,130),&font,cvScalar(255,255,255));
+	}
 
-	//cvPutText(TempImage,itoa(Worm->frameNum),cvPoint(Worm->SizeOfImage->height - 20,Worm->SizeOfImage->width - 70 ),&font,cvScalar(255,255,255) );
+
+	char frame[30];
+	sprintf(frame,"%d",Worm->frameNum);
+	cvPutText(TempImage,frame,cvPoint(Worm->SizeOfImage.width- 200,Worm->SizeOfImage.height - 10),&font,cvScalar(255,255,255) );
 	return 0;
 }
 

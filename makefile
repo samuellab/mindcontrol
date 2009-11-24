@@ -14,6 +14,7 @@ MyLibs=MyLibs
 3rdPartyLibs=3rdPartyLibs
 targetDir=bin
 CVdir=C:/Progra~1/OpenCV
+GIT=C:/Program\ Files/Git/bin/git
 
 #Matlab Include directory for header files
 MatlabIncDir= C:/Progra~1/MATLAB/R2009a/extern/include
@@ -28,7 +29,7 @@ openCVincludes = -I$(CVdir)/cxcore/include -I$(CVdir)/otherlibs/highgui -I$(CVdi
 # objects that I have written, in order of dependency. 
 # e.g. If object B depends on A, then object A should be to the left of B (but apparently only sometimes). 
 myOpenCVlibraries= AndysOpenCVLib.o
-mylibraries=  AndysComputations.o Talk2DLP.o Talk2Camera.o $(myOpenCVlibraries) Talk2Matlab.o TransformLib.o WormAnalysis.o WriteOutWorm.o
+mylibraries=  version.o AndysComputations.o Talk2DLP.o Talk2Camera.o $(myOpenCVlibraries) Talk2Matlab.o TransformLib.o WormAnalysis.o WriteOutWorm.o  
 WormSpecificLibs= WormAnalysis.o WriteOutWorm.o
 
 #3rd party statically linked objects
@@ -39,11 +40,14 @@ MatlabLibs=$(MatlabLibsDir)/libeng.lib $(MatlabLibsDir)/libmx.lib
 #All Objects
 objects= main.o  $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)
 calib_objects= calibrate.o $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)
-segment_objects = SegmentFrame.o  AndysComputations.o 	$(WormSpecificLibs) $(myOpenCVlibraries) $(CVlibs) 
+segment_objects = SegmentFrame.o  AndysComputations.o  version.o	$(WormSpecificLibs) $(myOpenCVlibraries) $(CVlibs) 
 illumworm_objects=  IllumWorm.o $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)	
 
+
+
 #Executables
-all : $(targetDir)/ClosedLoop.exe $(targetDir)/CalibrateApparatus.exe $(targetDir)/SegmentFrame.exe $(targetDir)/IlluminateWorm.exe 
+all : $(targetDir)/ClosedLoop.exe $(targetDir)/CalibrateApparatus.exe $(targetDir)/SegmentFrame.exe $(targetDir)/IlluminateWorm.exe version.o
+
 
 $(targetDir)/CalibrateApparatus.exe : $(calib_objects)
 	g++ -o $(targetDir)/CalibrateApparatus.exe $(calib_objects) $(TailOpts)
@@ -78,6 +82,20 @@ TransformLib.o: $(MyLibs)/TransformLib.c
 	g++ -c -v -Wall $(MyLibs)/TransformLib.c $(openCVincludes) $(TailOpts)
 
 
+###### version.c & version.h
+# note that version.c is generated at the very top. under "timestamp"
+version.o : $(MyLibs)/version.c $(MyLibs)/version.h 
+	g++ -c -Wall $(MyLibs)/version.c  -I$(MyLibs)  $(TailOpts)
+
+#Trick so that git generates a version.c file
+$(MyLibs)/version.c: FORCE 
+	$(GIT) rev-parse HEAD | awk ' BEGIN {print "#include \"version.h\""} {print "const char * build_git_sha = \"" $$0"\";"} END {}' > $(MyLibs)/version.c
+	date | awk 'BEGIN {} {print "const char * build_git_time = \""$$0"\";"} END {} ' >> $(MyLibs)/version.c	
+		
+FORCE:
+
+
+
 
 ###### SegmentFrame.exe
 $(targetDir)/SegmentFrame.exe : $(segment_objects)
@@ -91,6 +109,8 @@ WormAnalysis.o : $(MyLibs)/WormAnalysis.c $(MyLibs)/WormAnalysis.h $(myOpenCVlib
 
 WriteOutWorm.o : $(MyLibs)/WormAnalysis.c $(MyLibs)/WormAnalysis.h $(MyLibs)/WriteOutWorm.c $(MyLibs)/WriteOutWorm.h $(myOpenCVlibraries) 
 	g++ -c -Wall $(MyLibs)/WriteOutWorm.c -I$(MyLibs) $(openCVincludes) $(TailOpts)
+
+$(MyLibs)/WriteOutWorm.c :  $(MyLibs)/version.h 
 
 ###### IlluminateWorm.exe
 $(targetDir)/IlluminateWorm.exe : $(illumworm_objects)

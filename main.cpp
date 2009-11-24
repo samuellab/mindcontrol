@@ -68,6 +68,11 @@ void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 	/** Record Data **/
 	cvCreateTrackbar("RecordOn","Controls",&(Params->Record),1,(int) NULL);
 
+
+	/****** Setup Debug Control Panel ******/
+	cvNamedWindow("Debug");
+	cvResizeWindow("Debug",450,200);
+	cvCreateTrackbar("FloodLight","Debug",&(Params->IllumFloodEverything),1,(int) NULL);
 	return;
 
 }
@@ -279,7 +284,14 @@ int main (int argc, char** argv){
 
 			/*** Do Some Illumination ***/
 
-			if (!e) SimpleIlluminateWormLR(Worm, IlluminationFrame, Params->IllumSegCenter, Params->IllumSegRadius, Params->IllumLRC);
+			if (!e) {
+				if (Params->IllumFloodEverything) {
+					SetFrame(IlluminationFrame,128); // Turn all of the pixels on
+				} else {
+					/** Otherwise Actually illuminate the  region of the worm your interested in **/
+					SimpleIlluminateWormLR(Worm, IlluminationFrame, Params->IllumSegCenter, Params->IllumSegRadius, Params->IllumLRC);
+				}
+			}
 			total_time[tnum++] += ((now = clock()) - last); //6
 			last = now;
 
