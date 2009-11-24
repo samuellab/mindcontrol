@@ -170,6 +170,17 @@ void LoadFrameWithImage(IplImage* imgsrc, Frame* myFrame){
 }
 
 
+/*
+ * This function sets all the pixels to the specified value for both the binary and iplimage
+ * component of a frame
+ *
+ */
+void SetFrame(Frame* myFrame, int value){
+	/** Set all the pixels to value**/
+	cvSet(myFrame->iplimg,cvScalar(value),(CvArr *) NULL);
+	copyIplImageToCharArray(myFrame->iplimg,myFrame->binary);
+}
+
 
 
 
