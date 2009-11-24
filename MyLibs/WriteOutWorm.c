@@ -141,9 +141,9 @@ int AppendWormFrameToDisk(WormAnalysisData* Worm, WormAnalysisParam* Params, Wri
 
 		/** Illumination Information **/
 		cvWriteInt(fs,"DLPIsOn",Params->DLPOn);
+		cvWriteInt(fs,"FloodLightIsOn",Params->IllumFloodEverything);
 		cvWriteInt(fs,"IllumSegCenter",Params->IllumSegCenter);
 		cvWriteInt(fs,"IllumSegRadius",Params->IllumSegRadius);
-
 		cvWriteInt(fs,"IllumNullLeftRightBoth",Params->IllumLRC);
 	cvEndWriteStruct(fs);
 
