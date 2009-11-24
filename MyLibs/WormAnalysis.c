@@ -231,7 +231,7 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 	/**Illumination Parameters **/
 	ParamPtr->SegStart=25;
 	ParamPtr->SegStop=40;
-	ParamPtr->DLPOn=1;
+	ParamPtr->DLPOn=0;
 	ParamPtr->IllumLRC=3;
 	ParamPtr->IllumSegRadius=5;
 	ParamPtr->IllumSegCenter=25;
@@ -805,7 +805,13 @@ int CreateWormHUDS(IplImage* TempImage, WormAnalysisData* Worm, WormAnalysisPara
 	/** Display Recording if we are recording **/
 	if (Params->Record){
 		cvPutText(TempImage,"Recording",cvPoint(20,100),&font,cvScalar(255,255,255));
+	}else{
+		if (Params->DLPOn) {
+			cvPutText(TempImage,"Are you forgetting to record!!?",cvPoint(20,100),&font,cvScalar(255,255,255));
+		}
 	}
+
+
 
 	//cvPutText(TempImage,itoa(Worm->frameNum),cvPoint(Worm->SizeOfImage->height - 20,Worm->SizeOfImage->width - 70 ),&font,cvScalar(255,255,255) );
 	return 0;

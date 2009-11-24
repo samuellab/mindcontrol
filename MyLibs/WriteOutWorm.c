@@ -74,6 +74,8 @@ WriteOut* SetUpWriteToDisk(const char* filename, CvMemStorage* Mem){
 
 	/** Append .yaml to the end of filename **/
 	DataWriter->fs=cvOpenFileStorage(filename,Mem,CV_STORAGE_WRITE);
+	if (DataWriter->fs==0) printf("DataWriter->fs is zero! Could you have specified the wrong directory?\n");
+	// <--- ANDY ADD in something here so that this fails more gracefully if the folder does not exist!!!!
 	cvWriteComment(DataWriter->fs, "Remote Control Worm Experiment Data Log\nMade by OpticalMindControl software\nleifer@fas.harvard.edu",0);
 	cvStartWriteStruct(DataWriter->fs,"Frames",CV_NODE_SEQ,NULL);
 	return DataWriter;
