@@ -68,6 +68,11 @@ void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 	/** Record Data **/
 	cvCreateTrackbar("RecordOn","Controls",&(Params->Record),1,(int) NULL);
 
+
+	/****** Setup Debug Control Panel ******/
+	cvNamedWindow("Debug");
+	cvResizeWindow("Debug",450,200);
+	cvCreateTrackbar("FloodLight","Debug",&(Params->IllumFloodEverything),1,(int) NULL);
 	return;
 
 }

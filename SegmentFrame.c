@@ -182,7 +182,7 @@ int main (int argc, char** argv){
 		on_trackbar(0);
 
 		/** Write Out Data to File **/
-		//Worm->frameNum=i;
+		Worm->frameNum=i;
 		AppendWormFrameToDisk(Worm,Params,DataWriter);
 		cvWriteFrame(Vid,Worm->ImgOrig);
 

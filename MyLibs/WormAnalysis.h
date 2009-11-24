@@ -41,6 +41,7 @@ typedef struct WormAnalysisParamStruct{
 	int IllumLRC;
 	int SegStart;
 	int SegStop;
+	int IllumFloodEverything;
 	int DLPOn;
 
 	/** Record Data Parameters **/
