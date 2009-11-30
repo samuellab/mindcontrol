@@ -76,6 +76,20 @@ void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
 	return;
 
 }
+
+
+CamData* StartCamera(){
+	/** Turn on Camera **/
+	T2Cam_InitializeLib();
+	CamData *MyCamera;
+	T2Cam_AllocateCamData(&MyCamera);
+	T2Cam_ShowDeviceSelectionDialog(&MyCamera);
+	/** Start Grabbing Frames and Update the Internal Frame Number iFrameNumber **/
+	T2Cam_GrabFramesAsFastAsYouCan(&MyCamera);
+	return MyCamera;
+}
+
+
 #define _N_TIME_PTS 100
 static int total_time[_N_TIME_PTS];
 static int _n_frames_run = 0;
@@ -116,18 +130,8 @@ int main (int argc, char** argv){
 
 
 
-
-
-	/** Turn on Camera **/
-	T2Cam_InitializeLib();
-	CamData *MyCamera;
-	T2Cam_AllocateCamData(&MyCamera);
-	T2Cam_ShowDeviceSelectionDialog(&MyCamera);
-
-
-	/** Start Grabbing Frames and Update the Internal Frame Number iFrameNumber **/
-	T2Cam_GrabFramesAsFastAsYouCan(&MyCamera);
-
+	/** Start Camera **/
+	CamData *MyCamera = StartCamera();
 
 
 	/** Prepare DLP ***/
