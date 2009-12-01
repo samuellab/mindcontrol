@@ -33,110 +33,40 @@ using namespace std;
 #include "MyLibs/TransformLib.h"
 #include "MyLibs/WormAnalysis.h"
 #include "MyLibs/WriteOutWorm.h"
+#include "MyLibs/experiment.h"
 
 
-void SetupSegmentationGUI(WormAnalysisParamStruct* Params){
-
-	cvNamedWindow("Display");
-	cvNamedWindow("Controls");
-	cvResizeWindow("Controls",450,700);
 
 
-	/** SelectDispilay **/
-	cvCreateTrackbar("SelDisplay", "Controls", &(Params->Display), 7, (int) NULL);
 
-
-	/** On Off **/
-	cvCreateTrackbar("On","Controls",&(Params->OnOff),1,(int) NULL);
-
-	/** Temporal Coding **/
-	cvCreateTrackbar("TemporalIQ","Controls",&(Params->TemporalOn),1, (int) NULL);
-
-	/** Segmentation Parameters**/
-	cvCreateTrackbar("Threshold", "Controls", &(Params->BinThresh),255, (int) NULL);
-	cvCreateTrackbar("Gauss=x*2+1","Controls", &(Params->GaussSize),15,(int) NULL);
-	cvCreateTrackbar("ScalePx","Controls", &(Params->LengthScale),50, (int) NULL);
-	cvCreateTrackbar("Proximity","Controls",&(Params->MaxLocationChange),100, (int) NULL);
-
-
-	/**Illumination Parameters **/
-	cvCreateTrackbar("Center","Controls",&(Params->IllumSegCenter),100, (int) NULL);
-	cvCreateTrackbar("Radius","Controls",&(Params->IllumSegRadius),100, (int) NULL);
-	cvCreateTrackbar("LRC","Controls",&(Params->IllumLRC),3,(int) NULL);
-	cvCreateTrackbar("DLPOn","Controls",&(Params->DLPOn),1,(int) NULL);
-
-	/** Record Data **/
-	cvCreateTrackbar("RecordOn","Controls",&(Params->Record),1,(int) NULL);
-
-
-	/****** Setup Debug Control Panel ******/
-	cvNamedWindow("Debug");
-	cvResizeWindow("Debug",450,200);
-	cvCreateTrackbar("FloodLight","Debug",&(Params->IllumFloodEverything),1,(int) NULL);
-	return;
-
-}
-
-
-CamData* StartCamera(){
-	/** Turn on Camera **/
-	T2Cam_InitializeLib();
-	CamData *MyCamera;
-	T2Cam_AllocateCamData(&MyCamera);
-	T2Cam_ShowDeviceSelectionDialog(&MyCamera);
-	/** Start Grabbing Frames and Update the Internal Frame Number iFrameNumber **/
-	T2Cam_GrabFramesAsFastAsYouCan(&MyCamera);
-	return MyCamera;
-}
-
-
-#define _N_TIME_PTS 100
-static int total_time[_N_TIME_PTS];
-static int _n_frames_run = 0;
 
 int main (int argc, char** argv){
-	int RECORDVID=0;
-	int RECORDDATA=0;
+	/** Display output about the OpenCV setup currently installed **/
+	DisplayOpenCVInstall();
+
+	/** Create a new experiment object **/
+	Experiment* exp=CreateExperimentStruct();
+
+	/** Deal with CommandLineArguments **/
+	LoadCommandLineArguments(exp,argc,argv);
+	if (HandleCommandLineArguments(exp)==-1) return -1;
+
 
 	for (int j = 0; j < _N_TIME_PTS; ++j) {
 		total_time[j] = 0;
 	}
 
-	/** Handle Variable Arguments **/
-	if( argc !=1 && argc!=3 ){
-		printf("Runs the camera and DLP in closed loop.\n");
-		printf("Run without any arguments, or, to save data in a directory use the following usage:\n");
-		printf("\tClosedLoop.exe D:/Data/MyDirectory/  basefilename\n\n");
-		printf("IMPORTANT: Remember to include the trailing slash on the directory!");
-
-		return -1;
-	}
-
-	if (argc ==3 ){ /** The user implicitly wants to record data **/
-		RECORDVID=1;
-		RECORDDATA=1;
-	}
 
 
-	DisplayOpenCVInstall();
 	/** Read In Calibration Data ***/
-	CalibData* Calib =CreateCalibData(cvSize(NSIZEX,NSIZEY),cvSize(NSIZEX,NSIZEY));
-	int ret=LoadCalibFromFile(Calib,"calib.dat");
-	if (ret!=0){
-		printf("Error reading in calibrationfile!!\nPlease run CalibrateApparatus to generate calibration file calib.dat\nThank you.\nGoodbye.\n");
-		return 0;
-	}
-
-
-
+	if (HandleCalibrationData(exp)<0) return -1;
 
 	/** Start Camera **/
-	CamData *MyCamera = StartCamera();
+	RollCamera(exp);
 
 
 	/** Prepare DLP ***/
 	long myDLP= T2DLP_on();
-	T2DLP_clear(myDLP);
 	unsigned long lastFrameSeenOutside = 0;
 
 
@@ -156,17 +86,17 @@ int main (int argc, char** argv){
 	InitializeWormMemStorage(Worm);
 
 	/** Setup Segmentation Gui **/
-	SetupSegmentationGUI(Params);
+	SetupGUI(exp);
 
 	/** Setup Previous Worm **/
 	WormGeom* PrevWorm=CreateWormGeom();
 
 
-	/** SetUp Dataa Recording **/
+	/** SetUp Data Recording **/
 	printf("About to setup recording\n");
 	WriteOut* DataWriter;
 	char* DataFileName;
-	if (RECORDDATA)	{
+	if (exp->RECORDDATA)	{
 		DataFileName=CreateFileName(argv[1],argv[2],".yaml");
 		DataWriter=SetUpWriteToDisk(DataFileName,Worm->MemStorage);
 		printf("Initialized data recording\n");
@@ -178,7 +108,7 @@ int main (int argc, char** argv){
 	char* HUDSFileName;
 	CvVideoWriter* Vid;  //Video Writer
 	CvVideoWriter* VidHUDS;
-	if (RECORDVID) {
+	if (exp->RECORDVID) {
 		MovieFileName=CreateFileName(argv[1],argv[2],".avi");
 		HUDSFileName=CreateFileName(argv[1],argv[2],"_HUDS.avi");
 		Vid = cvCreateVideoWriter(MovieFileName, CV_FOURCC('M','J','P','G'), 30,
@@ -202,9 +132,9 @@ int main (int argc, char** argv){
 	int tnum = 0;
 	int nframes = 0;
 	while (1) {
-		if (MyCamera->iFrameNumber > lastFrameSeenOutside) {
+		if (exp->MyCamera->iFrameNumber > lastFrameSeenOutside) {
 			e=0;
-			lastFrameSeenOutside = MyCamera->iFrameNumber;
+			lastFrameSeenOutside = exp->MyCamera->iFrameNumber;
 			Worm->frameNum++;
 
 			/*** Print out Frame Rate ***/
@@ -216,7 +146,7 @@ int main (int argc, char** argv){
 
 
 			/*** Create a local copy of the image***/
-			LoadFrameWithBin(MyCamera->iImageData,fromCCD);
+			LoadFrameWithBin(exp->MyCamera->iImageData,fromCCD);
 
 
 			/** Do we even bother doing analysis?**/
@@ -300,7 +230,7 @@ int main (int argc, char** argv){
 			last = now;
 
 			/*** <------------ 31fps ***/
-			if (!e) TransformFrameCam2DLP(IlluminationFrame,forDLP,Calib);
+			if (!e) TransformFrameCam2DLP(IlluminationFrame,forDLP,exp->Calib);
 			total_time[tnum++] += ((now = clock()) - last); //7
 			last = now;
 
@@ -352,7 +282,7 @@ int main (int argc, char** argv){
 					last = now;
 
 					/** Record VideoFrame to Disk**/
-					if (RECORDVID && Params->Record) {
+					if (exp->RECORDVID && Params->Record) {
 						cvResize(Worm->ImgOrig,SubSampled,CV_INTER_LINEAR);
 						cvWriteFrame(Vid,SubSampled);
 						cvResize(HUDS,SubSampled,CV_INTER_LINEAR);
@@ -362,7 +292,7 @@ int main (int argc, char** argv){
 					last = now;
 
 					/** Record data frame to diskl **/
-					if (RECORDDATA && Params->Record) AppendWormFrameToDisk(Worm,Params,DataWriter);
+					if (exp->RECORDDATA && Params->Record) AppendWormFrameToDisk(Worm,Params,DataWriter);
 					total_time[tnum++] += ((now = clock()) - last); //11
 					last = now;
 
@@ -389,11 +319,11 @@ int main (int argc, char** argv){
 	}
 	/** Finish Writing Video to File and Release Writer **/
 	cvReleaseImage(&SubSampled);
-	if (RECORDVID) {
+	if (exp->RECORDVID) {
 		cvReleaseVideoWriter(&Vid);
 		cvReleaseVideoWriter(&VidHUDS);
 	}
-	if (RECORDDATA) FinishWriteToDisk(&DataWriter);
+	if (exp->RECORDDATA) FinishWriteToDisk(&DataWriter);
 
 	/** Free Up Memory **/
 	DestroyFrame(&fromCCD);
@@ -404,9 +334,9 @@ int main (int argc, char** argv){
 	T2DLP_off(myDLP);
 
 	/***** Turn off Camera & DLP ****/
-	T2Cam_TurnOff(&MyCamera);
+	T2Cam_TurnOff(&(exp->MyCamera));
 	T2Cam_CloseLib();
-	DestroyCalibData(Calib);
+	DestroyCalibData(exp->Calib);
 	printf("\nGood bye.\n");
 	return 0;
 }

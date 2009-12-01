@@ -18,10 +18,10 @@ static int _n_frames_run = 0;
 
 typedef struct ExperimentStruct{
 	/** GuiWindowNames **/
-	char* displayWin ;
-	char* controlWin1;
-	char* controlWin2;
-	char* controlWin3;
+	char* WinDisp ;
+	char* WinCon1;
+	char* WinCon2;
+	char* WinCon3;
 
 	/** Error information **/
 	int e;
@@ -36,6 +36,8 @@ typedef struct ExperimentStruct{
 	/** DLP Output **/
 	long myDLP;
 
+	/** Calibration Data  Object**/
+	CalibData* Calib;
 
 	/** User-configurable Worm-related Parameters **/
 	WormAnalysisParam* Params;
@@ -71,9 +73,65 @@ typedef struct ExperimentStruct{
 	int prevFrames;
 	long prevTime;
 
+	/** Macros **/
+	int RECORDVID;
+	int RECORDDATA;
+	/* test */
+
 } Experiment;
 
 
 
+/*
+ * Creates a new experiment object and sets values to zero.
+ */
+Experiment* CreateExperimentStruct();
 
+
+/*
+ * Load the command line arguments into the experiment object
+ */
+void LoadCommandLineArguments(Experiment* exp, int argc, char** argv);
+
+/*
+ * Handle CommandLine Arguments
+ * Parses commandline arguments.
+ * Decides if user wants to record video or recorddata
+ */
+int HandleCommandLineArguments(Experiment* exp);
+
+/* Assigns Default window names to the experiment object
+ *
+ */
+void AssignWindowNames(Experiment* exp);
+
+/*
+ * Release the memopry associated with window names
+ * and set their pointers to Null
+ */
+void ReleaseWindowNames(Experiment* exp);
+
+
+/*
+ * SetupGui
+ *
+ */
+void SetupGUI(Experiment* exp);
+
+
+
+/*
+ * Initialize camera library
+ * Allocate Camera Data
+ * Select Camera and Show Properties dialog box
+ * Start Grabbing Frames as quickly as possible
+ */
+void RollCamera(Experiment* exp);
+
+/*
+ * Create calibration Data structure
+ * Load calibration data from file
+ * return -1 if the calibration from file doesn't exist.
+ */
+int HandleCalibrationData(Experiment* exp);
 #endif /* EXPERIMENT_H_ */

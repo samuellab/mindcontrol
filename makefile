@@ -4,10 +4,11 @@
 #   CalibrateApparatus.exe -> Calibrates the position of the camera relative to the DLP. 
 #   ClosedLoop.exe   ->   Run's the Apparatus in a closed loop, imaging while projecting (formerly RunApparatus)
 #	SegmentFrame.exe -> 	Given a jpg file, this will find a worm, segment it and output lots of information about it.
-#	IlluminateWorm.exe -> Uses the calibration in CalibrateApparatus.exe and the camera and DLP to track and illuminate a worm. 
 
 #
-TailOpts =-pg
+
+#TailOpts =-pg # This generates output for a profiler such as gprof
+TailOpts= -O2 #optimize the code	
 
 #Location of directories
 MyLibs=MyLibs
@@ -22,15 +23,14 @@ MatlabIncDir= C:/Progra~1/MATLAB/R2009a/extern/include
 #Matlab Compiled Libraries Directgory
 MatlabLibsDir= C:/Progra~1/MATLAB/R2009a/extern/lib/win32/microsoft/
 
-
 #OpenCV Include directories (for header files)
 openCVincludes = -I$(CVdir)/cxcore/include -I$(CVdir)/otherlibs/highgui -I$(CVdir)/cv/include
 
 # objects that I have written, in order of dependency. 
-# e.g. If object B depends on A, then object A should be to the left of B (but apparently only sometimes). 
-myOpenCVlibraries= AndysOpenCVLib.o
-mylibraries=  version.o AndysComputations.o Talk2DLP.o Talk2Camera.o $(myOpenCVlibraries) Talk2Matlab.o TransformLib.o WormAnalysis.o WriteOutWorm.o  
-WormSpecificLibs= WormAnalysis.o WriteOutWorm.o
+# e.g. Objects that depend on nothing go left.
+#Objects that depend on other objects go right.
+mylibraries=  version.o AndysComputations.o Talk2DLP.o Talk2Camera.o  AndysOpenCVLib.o Talk2Matlab.o TransformLib.o
+WormSpecificLibs= WormAnalysis.o WriteOutWorm.o experiment.o
 
 #3rd party statically linked objects
 CVlibs=$(CVdir)/lib/cv.lib $(CVdir)/lib/highgui.lib $(CVdir)/lib/cxcore.lib
@@ -38,15 +38,14 @@ MatlabLibs=$(MatlabLibsDir)/libeng.lib $(MatlabLibsDir)/libmx.lib
 3rdpartyobjects= $(3rdPartyLibs)/alp4basic.lib $(3rdPartyLibs)/tisgrabber.lib 
 
 #All Objects
-objects= main.o  $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)
+objects= main.o  $(mylibraries) $(WormSpecificLibs) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)
 calib_objects= calibrate.o $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)
-segment_objects = SegmentFrame.o  AndysComputations.o  version.o	$(WormSpecificLibs) $(myOpenCVlibraries) $(CVlibs) 
-illumworm_objects=  IllumWorm.o $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)	
+
 
 
 
 #Executables
-all : $(targetDir)/ClosedLoop.exe $(targetDir)/CalibrateApparatus.exe $(targetDir)/SegmentFrame.exe $(targetDir)/IlluminateWorm.exe version.o
+all : $(targetDir)/ClosedLoop.exe $(targetDir)/CalibrateApparatus.exe  version.o $(targetDir)/SegmentFrame.exe
 
 
 $(targetDir)/CalibrateApparatus.exe : $(calib_objects)
@@ -80,6 +79,10 @@ AndysComputations.o : $(MyLibs)/AndysComputations.c $(MyLibs)/AndysComputations.
 
 TransformLib.o: $(MyLibs)/TransformLib.c
 	g++ -c -v -Wall $(MyLibs)/TransformLib.c $(openCVincludes) $(TailOpts)
+	
+experiment.o: $(MyLibs)/experiment.c $(MyLibs)/experiment.h 
+	g++ -c -v -Wall $(MyLibs)/experiment.c $ -I$(MyLibs) $(openCVincludes) $(TailOpts)
+	
 
 
 ###### version.c & version.h
@@ -95,13 +98,11 @@ $(MyLibs)/version.c: FORCE
 FORCE:
 
 
-
-
 ###### SegmentFrame.exe
-$(targetDir)/SegmentFrame.exe : $(segment_objects)
-	g++ -o $(targetDir)/SegmentFrame.exe $(segment_objects) $(TailOpts) 
+$(targetDir)/SegmentFrame.exe : $(objects)
+	g++ -o $(targetDir)/SegmentFrame.exe $(objects) $(TailOpts) 
 
-SegmentFrame.o : SegmentFrame.c $(myOpenCVlibraries) $(WormSpecificLibs)
+SegmentFrame.o : SegmentFrame.c $(myOpenCVlibraries) $(WormSpecificLibs) 
 	g++ -c -Wall SegmentFrame.c -I$(MyLibs) $(openCVincludes) $(TailOpts)
 	
 WormAnalysis.o : $(MyLibs)/WormAnalysis.c $(MyLibs)/WormAnalysis.h $(myOpenCVlibraries) 
@@ -112,12 +113,6 @@ WriteOutWorm.o : $(MyLibs)/WormAnalysis.c $(MyLibs)/WormAnalysis.h $(MyLibs)/Wri
 
 $(MyLibs)/WriteOutWorm.c :  $(MyLibs)/version.h 
 
-###### IlluminateWorm.exe
-$(targetDir)/IlluminateWorm.exe : $(illumworm_objects)
-	g++ -o $(targetDir)/IlluminateWorm.exe $(illumworm_objects) $(TailOpts)
-
-IllumWorm.o : IllumWorm.c $(3rdPartyLibs)/tisgrabber.h $(3rdPartyLibs)/TISGrabberGlobalDefs.h $(MyLibs)/Talk2DLP.h $(MyLibs)/Talk2Camera.h $(myOpenCVlibraries)
-	g++ -c -Wall IllumWorm.c  -I"inc" -I$(MyLibs) $(openCVincludes)  $(TailOpts)
 
 .PHONY: clean	
 clean:
