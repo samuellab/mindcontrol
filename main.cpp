@@ -56,71 +56,25 @@ int main (int argc, char** argv){
 		total_time[j] = 0;
 	}
 
-
-
 	/** Read In Calibration Data ***/
 	if (HandleCalibrationData(exp)<0) return -1;
 
 	/** Start Camera **/
 	RollCamera(exp);
 
-
 	/** Prepare DLP ***/
-	long myDLP= T2DLP_on();
+	exp->myDLP= T2DLP_on();
 	unsigned long lastFrameSeenOutside = 0;
 
-
-	/*** Create IplImage **/
-	IplImage* SubSampled=cvCreateImage(cvSize(NSIZEX/2,NSIZEY/2),IPL_DEPTH_8U,1);
-	IplImage* HUDS=cvCreateImage(cvSize(NSIZEX,NSIZEY),IPL_DEPTH_8U,1); ;
-
-	/*** Create Frames **/
-	Frame* fromCCD =CreateFrame(cvSize(NSIZEX,NSIZEY));
-	Frame* forDLP =CreateFrame(cvSize(NSIZEX,NSIZEY));
-	Frame* IlluminationFrame=CreateFrame(cvSize(NSIZEX,NSIZEY));
-
-	/** Create Worm Data Struct and Worm Parameter Struct **/
-	WormAnalysisData* Worm=CreateWormAnalysisDataStruct();
-	WormAnalysisParam* Params=CreateWormAnalysisParam();
-	InitializeEmptyWormImages(Worm,cvSize(NSIZEX,NSIZEY));
-	InitializeWormMemStorage(Worm);
 
 	/** Setup Segmentation Gui **/
 	SetupGUI(exp);
 
-	/** Setup Previous Worm **/
-	WormGeom* PrevWorm=CreateWormGeom();
-
+	/** Create memory and objects **/
+	InitializeExperiment(exp);
 
 	/** SetUp Data Recording **/
-	printf("About to setup recording\n");
-	WriteOut* DataWriter;
-	char* DataFileName;
-	if (exp->RECORDDATA)	{
-		DataFileName=CreateFileName(argv[1],argv[2],".yaml");
-		DataWriter=SetUpWriteToDisk(DataFileName,Worm->MemStorage);
-		printf("Initialized data recording\n");
-		DestroyFilename(&DataFileName);
-	}
-
-	/** Set Up Video Recording **/
-	char* MovieFileName;
-	char* HUDSFileName;
-	CvVideoWriter* Vid;  //Video Writer
-	CvVideoWriter* VidHUDS;
-	if (exp->RECORDVID) {
-		MovieFileName=CreateFileName(argv[1],argv[2],".avi");
-		HUDSFileName=CreateFileName(argv[1],argv[2],"_HUDS.avi");
-		Vid = cvCreateVideoWriter(MovieFileName, CV_FOURCC('M','J','P','G'), 30,
-					cvSize(NSIZEX/2, NSIZEY/2), 0);
-		VidHUDS=cvCreateVideoWriter(HUDSFileName, CV_FOURCC('M','J','P','G'), 30,
-					cvSize(NSIZEX/2, NSIZEY/2), 0);
-		DestroyFilename(&MovieFileName);
-		DestroyFilename(&HUDSFileName);
-		printf("Initialized video recording\n");
-	}
-
-
+	SetupRecording(exp);
 
 	int e;
 
@@ -128,31 +82,31 @@ int main (int argc, char** argv){
 	long prevTime=clock();
 	int prevFrames=0;
 
-	Worm->frameNum=0;
+	exp->Worm->frameNum=0;
 	int tnum = 0;
 	int nframes = 0;
 	while (1) {
 		if (exp->MyCamera->iFrameNumber > lastFrameSeenOutside) {
 			e=0;
 			lastFrameSeenOutside = exp->MyCamera->iFrameNumber;
-			Worm->frameNum++;
+			exp->Worm->frameNum++;
 
 			/*** Print out Frame Rate ***/
-			if ( (Worm->timestamp-prevTime) > CLOCKS_PER_SEC){
-				printf("%d fps\n",Worm->frameNum-prevFrames);
-				prevFrames=Worm->frameNum;
-				prevTime=Worm->timestamp;
+			if ( (exp->Worm->timestamp-prevTime) > CLOCKS_PER_SEC){
+				printf("%d fps\n",exp->Worm->frameNum-prevFrames);
+				prevFrames=exp->Worm->frameNum;
+				prevTime=exp->Worm->timestamp;
 			}
 
 
 			/*** Create a local copy of the image***/
-			LoadFrameWithBin(exp->MyCamera->iImageData,fromCCD);
+			LoadFrameWithBin(exp->MyCamera->iImageData,exp->fromCCD);
 
 
 			/** Do we even bother doing analysis?**/
-			if (Params->OnOff==0){
+			if (exp->Params->OnOff==0){
 				/**Don't perform any analysis**/
-				cvShowImage("Display", fromCCD->iplimg);
+				cvShowImage("Display", exp->fromCCD->iplimg);
 				cvWaitKey(10);
 				continue;
 			}
@@ -162,10 +116,10 @@ int main (int argc, char** argv){
 			tnum = 0;
 			++nframes;
 			/** If the DLP is not displaying **/
-			if (Params->DLPOn==0){
+			if (exp->Params->DLPOn==0){
 				/** Clear the DLP **/
-				RefreshFrame(IlluminationFrame);
-				T2DLP_SendFrame((unsigned char *) IlluminationFrame->binary, myDLP);
+				RefreshFrame(exp->IlluminationFrame);
+				T2DLP_SendFrame((unsigned char *) exp->IlluminationFrame->binary, exp->myDLP);
 			}
 			total_time[tnum++] += ((now = clock()) - last); //0
 			last = now;
@@ -176,8 +130,8 @@ int main (int argc, char** argv){
 			 */
 
 			/*** Load Frame into Worm **/
-			if (!e) e=RefreshWormMemStorage(Worm);
-			if (!e) e=LoadWormImg(Worm,fromCCD->iplimg);
+			if (!e) e=RefreshWormMemStorage(exp->Worm);
+			if (!e) e=LoadWormImg(exp->Worm,exp->fromCCD->iplimg);
 
 			total_time[tnum++] += ((now = clock()) - last); //1
 			last = now;
@@ -185,16 +139,16 @@ int main (int argc, char** argv){
 			/*** <------------ 31fps ***/
 
 			/*** Find Worm Boundary ***/
-			if (!e) FindWormBoundary(Worm,Params);
+			if (!e) FindWormBoundary(exp->Worm,exp->Params);
 
 			total_time[tnum++] += ((now = clock()) - last); //2
 			last = now;
 
 
 			/*** Find Worm Head and Tail ***/
-			if (!e) e=GivenBoundaryFindWormHeadTail(Worm,Params);
+			if (!e) e=GivenBoundaryFindWormHeadTail(exp->Worm,exp->Params);
 			/** If we are doing temporal analysis, improve the WormHeadTail estimate based on prev frame **/
-			if (Params->TemporalOn && !e) PrevFrameImproveWormHeadTail(Worm,Params,PrevWorm);
+			if (exp->Params->TemporalOn && !e) PrevFrameImproveWormHeadTail(exp->Worm,exp->Params,exp->PrevWorm);
 
 			total_time[tnum++] += ((now = clock()) - last); //3
 			last = now;
@@ -202,7 +156,7 @@ int main (int argc, char** argv){
 
 
 			/*** Segment the Worm ***/
-			if (!e) e=SegmentWorm(Worm,Params);
+			if (!e) e=SegmentWorm(exp->Worm,exp->Params);
 			total_time[tnum++] += ((now = clock()) - last); //4
 			last = now;
 
@@ -211,7 +165,7 @@ int main (int argc, char** argv){
 
 
 			/** Update PrevWorm Info **/
-			if (!e) LoadWormGeom(PrevWorm,Worm);
+			if (!e) LoadWormGeom(exp->PrevWorm,exp->Worm);
 			total_time[tnum++] += ((now = clock()) - last); //5
 			last = now;
 
@@ -219,18 +173,18 @@ int main (int argc, char** argv){
 			/*** Do Some Illumination ***/
 
 			if (!e) {
-				if (Params->IllumFloodEverything) {
-					SetFrame(IlluminationFrame,128); // Turn all of the pixels on
+				if (exp->Params->IllumFloodEverything) {
+					SetFrame(exp->IlluminationFrame,128); // Turn all of the pixels on
 				} else {
 					/** Otherwise Actually illuminate the  region of the worm your interested in **/
-					SimpleIlluminateWormLR(Worm, IlluminationFrame, Params->IllumSegCenter, Params->IllumSegRadius, Params->IllumLRC);
+					SimpleIlluminateWormLR(exp->Worm, exp->IlluminationFrame, exp->Params->IllumSegCenter, exp->Params->IllumSegRadius, exp->Params->IllumLRC);
 				}
 			}
 			total_time[tnum++] += ((now = clock()) - last); //6
 			last = now;
 
 			/*** <------------ 31fps ***/
-			if (!e) TransformFrameCam2DLP(IlluminationFrame,forDLP,exp->Calib);
+			if (!e) TransformFrameCam2DLP(exp->IlluminationFrame,exp->forDLP,exp->Calib);
 			total_time[tnum++] += ((now = clock()) - last); //7
 			last = now;
 
@@ -239,7 +193,7 @@ int main (int argc, char** argv){
 
 
 
-			if (!e && Params->DLPOn) T2DLP_SendFrame((unsigned char *) forDLP->binary, myDLP); // Send image to DLP
+			if (!e && exp->Params->DLPOn) T2DLP_SendFrame((unsigned char *) exp->forDLP->binary, exp->myDLP); // Send image to DLP
 			total_time[tnum++] += ((now = clock()) - last); //8
 			last = now;
 
@@ -247,30 +201,30 @@ int main (int argc, char** argv){
 
 
 			/*** DIsplay Some Monitoring Output ***/
-			if (!e) CreateWormHUDS(HUDS,Worm,Params,IlluminationFrame);
-				if (!e &&  EverySoOften(Worm->frameNum,Params->DispRate) ){
+			if (!e) CreateWormHUDS(exp->HUDS,exp->Worm,exp->Params,exp->IlluminationFrame);
+				if (!e &&  EverySoOften(exp->Worm->frameNum,exp->Params->DispRate) ){
 					/** There are no errors and we are displaying a frame **/
-					switch (Params->Display) {
+					switch (exp->Params->Display) {
 						case 0:
-							 cvShowImage("Display", Worm->ImgOrig);
+							 cvShowImage("Display", exp->Worm->ImgOrig);
 							break;
 						case 1:
-							cvShowImage("Display",HUDS);
+							cvShowImage("Display",exp->HUDS);
 							break;
 						case 2:
-							 cvShowImage("Display",Worm->ImgThresh);
+							 cvShowImage("Display",exp->Worm->ImgThresh);
 							 break;
 						case 3:
-							 DisplayWormHeadTail(Worm,"Display");
+							 DisplayWormHeadTail(exp->Worm,"Display");
 							 break;
 						case 4:
-							DisplayWormSegmentation(Worm,"Display");
+							DisplayWormSegmentation(exp->Worm,"Display");
 							break;
 						case 5:
-							cvShowImage("Display",IlluminationFrame->iplimg);
+							cvShowImage("Display",exp->IlluminationFrame->iplimg);
 							break;
 						case 6:
-							cvShowImage("Display", forDLP->iplimg);
+							cvShowImage("Display", exp->forDLP->iplimg);
 							break;
 						default:
 							break;
@@ -282,17 +236,17 @@ int main (int argc, char** argv){
 					last = now;
 
 					/** Record VideoFrame to Disk**/
-					if (exp->RECORDVID && Params->Record) {
-						cvResize(Worm->ImgOrig,SubSampled,CV_INTER_LINEAR);
-						cvWriteFrame(Vid,SubSampled);
-						cvResize(HUDS,SubSampled,CV_INTER_LINEAR);
-						cvWriteFrame(VidHUDS,SubSampled);
+					if (exp->RECORDVID && exp->Params->Record) {
+						cvResize(exp->Worm->ImgOrig,exp->SubSampled,CV_INTER_LINEAR);
+						cvWriteFrame(exp->Vid,exp->SubSampled);
+						cvResize(exp->HUDS,exp->SubSampled,CV_INTER_LINEAR);
+						cvWriteFrame(exp->VidHUDS,exp->SubSampled);
 					}
 					total_time[tnum++] += ((now = clock()) - last); //10
 					last = now;
 
 					/** Record data frame to diskl **/
-					if (exp->RECORDDATA && Params->Record) AppendWormFrameToDisk(Worm,Params,DataWriter);
+					if (exp->RECORDDATA && exp->Params->Record) AppendWormFrameToDisk(exp->Worm,exp->Params,exp->DataWriter);
 					total_time[tnum++] += ((now = clock()) - last); //11
 					last = now;
 
@@ -317,26 +271,21 @@ int main (int argc, char** argv){
 	for (int j = 0; j < nrecordedtime; ++j) {
 		printf("time %d: total time %d\ttime per frame:%g\n", j, total_time[j], (1.0*total_time[j])/nframes);
 	}
-	/** Finish Writing Video to File and Release Writer **/
-	cvReleaseImage(&SubSampled);
-	if (exp->RECORDVID) {
-		cvReleaseVideoWriter(&Vid);
-		cvReleaseVideoWriter(&VidHUDS);
-	}
-	if (exp->RECORDDATA) FinishWriteToDisk(&DataWriter);
 
-	/** Free Up Memory **/
-	DestroyFrame(&fromCCD);
-	DestroyFrame(&forDLP);
-	DestroyWormGeom(&PrevWorm);
+
+	FinishRecording(exp);
+
 
 	//	cvDestroyAllWindows();
-	T2DLP_off(myDLP);
+	T2DLP_off(exp->myDLP);
 
 	/***** Turn off Camera & DLP ****/
 	T2Cam_TurnOff(&(exp->MyCamera));
 	T2Cam_CloseLib();
-	DestroyCalibData(exp->Calib);
+
+	ReleaseExperiment(exp);
+	DestroyExperiment(&exp);
+
 	printf("\nGood bye.\n");
 	return 0;
 }

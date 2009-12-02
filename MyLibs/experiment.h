@@ -134,4 +134,50 @@ void RollCamera(Experiment* exp);
  * return -1 if the calibration from file doesn't exist.
  */
 int HandleCalibrationData(Experiment* exp);
+
+
+
+
+/*
+ * This function allocates images and frames
+ * And a Worm Object
+ *
+ * And a Parameter Object
+ * For internal manipulation
+ *
+ *
+ */
+void InitializeExperiment(Experiment* exp);
+
+
+/*
+ * Free up all of the different allocated memory for the
+ * experiment.
+ *
+ */
+void ReleaseExperiment(Experiment* exp);
+
+
+/* Destroy the experiment object.
+ * To be run after ReleaseExperiment()
+ */
+void DestroyExperiment(Experiment** exp);
+
+
+/*
+ * Setsup data recording and video recording
+ * Will record video if exp->RECORDVID is 1
+ * and record data if exp->RECORDDATA is 1
+ *
+ */
+void SetupRecording(Experiment* exp);
+
+
+/*
+ * Finish writing video and  and data
+ * and release
+ *
+ */
+void FinishRecording(Experiment* exp);
+
 #endif /* EXPERIMENT_H_ */

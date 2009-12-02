@@ -288,3 +288,169 @@ int HandleCalibrationData(Experiment* exp){
 }
 
 
+
+/*
+ * This function allocates images and frames
+ * And a Worm Object
+ *
+ * And a Parameter Object
+ * For internal manipulation
+ *
+ *
+ */
+void InitializeExperiment(Experiment* exp){
+
+
+	/*** Create IplImage **/
+		IplImage* SubSampled=cvCreateImage(cvSize(NSIZEX/2,NSIZEY/2),IPL_DEPTH_8U,1);
+		IplImage* HUDS=cvCreateImage(cvSize(NSIZEX,NSIZEY),IPL_DEPTH_8U,1); ;
+
+		exp->SubSampled=SubSampled;
+		exp->HUDS=HUDS;
+
+		/*** Create Frames **/
+		Frame* fromCCD =CreateFrame(cvSize(NSIZEX,NSIZEY));
+		Frame* forDLP =CreateFrame(cvSize(NSIZEX,NSIZEY));
+		Frame* IlluminationFrame=CreateFrame(cvSize(NSIZEX,NSIZEY));
+
+		exp->fromCCD=fromCCD;
+		exp->forDLP=forDLP;
+		exp->IlluminationFrame=IlluminationFrame;
+
+		/** Create Worm Data Struct and Worm Parameter Struct **/
+		WormAnalysisData* Worm=CreateWormAnalysisDataStruct();
+		WormAnalysisParam* Params=CreateWormAnalysisParam();
+		InitializeEmptyWormImages(Worm,cvSize(NSIZEX,NSIZEY));
+		InitializeWormMemStorage(Worm);
+
+		exp->Worm=Worm;
+		exp->Params=Params;
+
+
+		/** Setup Previous Worm **/
+		WormGeom* PrevWorm=CreateWormGeom();
+		exp->PrevWorm=PrevWorm;
+}
+
+
+/*
+ * Free up all of the different allocated memory for the
+ * experiment.
+ *
+ */
+void ReleaseExperiment(Experiment* exp){
+	/** Free up Frames **/
+	if (exp->fromCCD!=NULL) DestroyFrame(&(exp->fromCCD));
+	if (exp->forDLP!=NULL) DestroyFrame(&(exp->forDLP));
+	if (exp->IlluminationFrame!=NULL) DestroyFrame(&(exp->IlluminationFrame));
+
+
+	/** Free up Worm Objects **/
+	if (exp->Worm!=NULL) {
+		DestroyWormAnalysisDataStruct((exp->Worm));
+		exp->Worm=NULL;
+	}
+
+	if (exp->Params!=NULL){
+		DestroyWormAnalysisParam((exp->Params));
+		exp->Params=NULL;
+	}
+	if (exp->PrevWorm!=NULL) {
+		DestroyWormGeom(&(exp->PrevWorm));
+		exp->PrevWorm=NULL;
+	}
+
+	/** Free up internal iplImages **/
+	if (exp->SubSampled!=NULL) cvReleaseImage(&(exp->SubSampled));
+	if (exp->HUDS!=NULL) cvReleaseImage(&(exp->HUDS));
+
+	/** Free Up Calib Data **/
+	if (exp->Calib!=NULL) DestroyCalibData(exp->Calib);
+
+	/** Release Window Names **/
+	ReleaseWindowNames(exp);
+
+}
+
+/* Destroy the experiment object.
+ * To be run after ReleaseExperiment()
+ */
+void DestroyExperiment(Experiment** exp){
+	free(*exp);
+	*exp=NULL;
+}
+
+
+/*********************** RECORDING *******************/
+
+/*
+ * Setsup data recording and video recording
+ * Will record video if exp->RECORDVID is 1
+ * and record data if exp->RECORDDATA is 1
+ *
+ */
+void SetupRecording(Experiment* exp){
+
+	printf("About to setup recording\n");;
+	char* DataFileName;
+	if (exp->RECORDDATA)	{
+		DataFileName=CreateFileName(exp->argv[1],exp->argv[2],".yaml");
+		exp->DataWriter=SetUpWriteToDisk(DataFileName,exp->Worm->MemStorage);
+		printf("Initialized data recording\n");
+		DestroyFilename(&DataFileName);
+	}
+
+	/** Set Up Video Recording **/
+	char* MovieFileName;
+	char* HUDSFileName;
+
+	if (exp->RECORDVID) {
+		MovieFileName=CreateFileName(exp->argv[1],exp->argv[2],".avi");
+		HUDSFileName=CreateFileName(exp->argv[1],exp->argv[2],"_HUDS.avi");
+		exp->Vid = cvCreateVideoWriter(MovieFileName, CV_FOURCC('M','J','P','G'), 30,
+					cvSize(NSIZEX/2, NSIZEY/2), 0);
+		exp->VidHUDS=cvCreateVideoWriter(HUDSFileName, CV_FOURCC('M','J','P','G'), 30,
+					cvSize(NSIZEX/2, NSIZEY/2), 0);
+		DestroyFilename(&MovieFileName);
+		DestroyFilename(&HUDSFileName);
+		printf("Initialized video recording\n");
+	}
+
+
+
+
+
+}
+
+/*
+ * Finish writing video and  and data
+ * and release
+ *
+ */
+void FinishRecording(Experiment* exp){
+	/** Finish Writing Video to File and Release Writer **/
+	if (exp->Vid!=NULL) cvReleaseVideoWriter(&(exp->Vid));
+	if (exp->VidHUDS!=NULL) cvReleaseVideoWriter(&(exp->VidHUDS));
+
+	/** Finish Writing to Disk **/
+	if (exp->RECORDDATA) FinishWriteToDisk(&(exp->DataWriter));
+
+}
+
+
+
+
+/************************************************/
+/*   Timing Routines
+ *
+ */
+/************************************************/
+
+/*
+ *
+ */
+void StartFrameRateTimer(Experiment* exp){
+
+}
+
+

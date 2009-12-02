@@ -95,10 +95,11 @@ void DestroyWormAnalysisDataStruct(WormAnalysisData* Worm){
 	if (Worm->ImgOrig !=NULL)	cvReleaseImage(&(Worm->ImgOrig));
 	if (Worm->ImgThresh !=NULL) cvReleaseImage(&(Worm->ImgThresh));
 	if (Worm->ImgSmooth !=NULL) cvReleaseImage(&(Worm->ImgSmooth));
-	cvReleaseMemStorage(&(Worm->MemScratchStorage));
-	cvReleaseMemStorage(&(Worm->MemStorage));
+	cvReleaseMemStorage(&((Worm)->MemScratchStorage));
+	cvReleaseMemStorage(&((Worm)->MemStorage));
+	free((Worm)->Segmented);
 	free(Worm);
-	free(Worm->Segmented);
+	Worm=NULL;
 }
 
 /*
