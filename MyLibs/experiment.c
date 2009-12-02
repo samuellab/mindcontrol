@@ -391,6 +391,7 @@ void ReleaseExperiment(Experiment* exp){
 void DestroyExperiment(Experiment** exp){
 	free(*exp);
 	*exp=NULL;
+	printf("Andy is awesome.\n");
 }
 
 
