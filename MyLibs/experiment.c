@@ -465,6 +465,7 @@ void FinishRecording(Experiment* exp){
 void StartFrameRateTimer(Experiment* exp){
 	exp->prevTime=clock();
 	exp->prevFrames=0;
+	printf("Quan is awesome.\n");
 
 }
 
