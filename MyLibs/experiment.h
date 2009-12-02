@@ -180,4 +180,23 @@ void SetupRecording(Experiment* exp);
  */
 void FinishRecording(Experiment* exp);
 
+
+/************************************************/
+/*   Timing Routines
+ *
+ */
+/************************************************/
+
+/*
+ *This is the frame rate timer.
+ */
+void StartFrameRateTimer(Experiment* exp);
+
+/*
+ * If more than a second has elapsed
+ * Calculate the frame rate and print i tout
+ *
+ */
+void CalculateAndPrintFrameRate(Experiment* exp);
+
 #endif /* EXPERIMENT_H_ */

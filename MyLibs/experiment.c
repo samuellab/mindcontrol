@@ -397,7 +397,7 @@ void DestroyExperiment(Experiment** exp){
 /*********************** RECORDING *******************/
 
 /*
- * Setsup data recording and video recording
+ * Sets up data recording and video recording
  * Will record video if exp->RECORDVID is 1
  * and record data if exp->RECORDDATA is 1
  *
@@ -460,10 +460,24 @@ void FinishRecording(Experiment* exp){
 /************************************************/
 
 /*
- *
+ *This is the frame rate timer.
  */
 void StartFrameRateTimer(Experiment* exp){
+	exp->prevTime=clock();
+	exp->prevFrames=0;
 
 }
 
-
+/*
+ * If more than a second has elapsed
+ * Calculate the frame rate and print i tout
+ *
+ */
+void CalculateAndPrintFrameRate(Experiment* exp){
+	/*** Print out Frame Rate ***/
+	if ( (exp->Worm->timestamp-exp->prevTime) > CLOCKS_PER_SEC){
+		printf("%d fps\n",exp->Worm->frameNum-exp->prevFrames);
+		exp->prevFrames=exp->Worm->frameNum;
+		exp->prevTime=exp->Worm->timestamp;
+	}
+}

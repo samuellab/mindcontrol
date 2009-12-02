@@ -81,26 +81,23 @@ int main (int argc, char** argv){
 
 	int e;
 
-	/** initialize start time **/
-	long prevTime=clock();
-	int prevFrames=0;
 
-	exp->Worm->frameNum=0;
+	/*Start the frame rate timer */
+	StartFrameRateTimer(exp);
+
+	/** Marc's Timing Structure **/
 	int tnum = 0;
 	int nframes = 0;
+
+	/** Giant While Loop Where Everything Happens **/
 	while (1) {
 		if (exp->MyCamera->iFrameNumber > lastFrameSeenOutside) {
 			e=0;
 			lastFrameSeenOutside = exp->MyCamera->iFrameNumber;
 			exp->Worm->frameNum++;
 
-			/*** Print out Frame Rate ***/
-			if ( (exp->Worm->timestamp-prevTime) > CLOCKS_PER_SEC){
-				printf("%d fps\n",exp->Worm->frameNum-prevFrames);
-				prevFrames=exp->Worm->frameNum;
-				prevTime=exp->Worm->timestamp;
-			}
-
+			/** Calculate the frame rate and every second print the result **/
+			CalculateAndPrintFrameRate(exp);
 
 			/*** Create a local copy of the image***/
 			LoadFrameWithBin(exp->MyCamera->iImageData,exp->fromCCD);
