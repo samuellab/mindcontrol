@@ -177,6 +177,13 @@ void AssignWindowNames(Experiment* exp){
 	char* control1= (char*) malloc(strlen("Controls"));
 	char* control2= (char*) malloc(strlen("MoreControls"));
 	char* control3= (char*) malloc(strlen("EvenMoreControls"));
+
+	disp1="Display";
+	control1="Controls";
+	control2="MoreControls";
+	control3="EvenMoreControls";
+
+
 	exp->WinDisp=disp1;
 	exp->WinCon1=control1;
 	exp->WinCon2=control2;
@@ -206,44 +213,50 @@ void ReleaseWindowNames(Experiment* exp){
  *
  */
 void SetupGUI(Experiment* exp){
-	WormAnalysisParam* Params=exp->Params;
+
+
+	printf("Begining to setup GUI\n");
 
 	cvNamedWindow(exp->WinDisp);
 	cvNamedWindow(exp->WinCon1);
 	cvResizeWindow(exp->WinCon1,450,700);
 
+	printf("Ping\n");
+
 
 	/** SelectDispilay **/
-	cvCreateTrackbar("SelDisplay", exp->WinCon1, &(Params->Display), 7, (int) NULL);
-
+	cvCreateTrackbar("SelDisplay", "Controls"	, &(exp->Params->Display), 7, (int) NULL);
+	printf("Pong\n");
 
 	/** On Off **/
-	cvCreateTrackbar("On",exp->WinCon1,&(Params->OnOff),1,(int) NULL);
+	cvCreateTrackbar("On",exp->WinCon1,&(exp->Params->OnOff),1,(int) NULL);
 
 	/** Temporal Coding **/
-	cvCreateTrackbar("TemporalIQ",exp->WinCon1,&(Params->TemporalOn),1, (int) NULL);
+	cvCreateTrackbar("TemporalIQ",exp->WinCon1,&(exp->Params->TemporalOn),1, (int) NULL);
+
 
 	/** Segmentation Parameters**/
-	cvCreateTrackbar("Threshold", exp->WinCon1, &(Params->BinThresh),255, (int) NULL);
-	cvCreateTrackbar("Gauss=x*2+1",exp->WinCon1, &(Params->GaussSize),15,(int) NULL);
-	cvCreateTrackbar("ScalePx",exp->WinCon1, &(Params->LengthScale),50, (int) NULL);
-	cvCreateTrackbar("Proximity",exp->WinCon1,&(Params->MaxLocationChange),100, (int) NULL);
+	cvCreateTrackbar("Threshold", exp->WinCon1, &(exp->Params->BinThresh),255, (int) NULL);
+	cvCreateTrackbar("Gauss=x*2+1",exp->WinCon1, &(exp->Params->GaussSize),15,(int) NULL);
+	cvCreateTrackbar("ScalePx",exp->WinCon1, &(exp->Params->LengthScale),50, (int) NULL);
+	cvCreateTrackbar("Proximity",exp->WinCon1,&(exp->Params->MaxLocationChange),100, (int) NULL);
 
 
 	/**Illumination Parameters **/
-	cvCreateTrackbar("Center",exp->WinCon1,&(Params->IllumSegCenter),100, (int) NULL);
-	cvCreateTrackbar("Radius",exp->WinCon1,&(Params->IllumSegRadius),100, (int) NULL);
-	cvCreateTrackbar("LRC",exp->WinCon1,&(Params->IllumLRC),3,(int) NULL);
-	cvCreateTrackbar("DLPOn",exp->WinCon1,&(Params->DLPOn),1,(int) NULL);
+	cvCreateTrackbar("Center",exp->WinCon1,&(exp->Params->IllumSegCenter),100, (int) NULL);
+	cvCreateTrackbar("Radius",exp->WinCon1,&(exp->Params->IllumSegRadius),100, (int) NULL);
+	cvCreateTrackbar("LRC",exp->WinCon1,&(exp->Params->IllumLRC),3,(int) NULL);
+	cvCreateTrackbar("DLPOn",exp->WinCon1,&(exp->Params->DLPOn),1,(int) NULL);
 
 	/** Record Data **/
-	cvCreateTrackbar("RecordOn",exp->WinCon1,&(Params->Record),1,(int) NULL);
+	cvCreateTrackbar("RecordOn",exp->WinCon1,&(exp->Params->Record),1,(int) NULL);
 
 
 	/****** Setup Debug Control Panel ******/
 	cvNamedWindow(exp->WinCon2);
 	cvResizeWindow(exp->WinCon2,450,200);
-	cvCreateTrackbar("FloodLight",exp->WinCon2,&(Params->IllumFloodEverything),1,(int) NULL);
+	cvCreateTrackbar("FloodLight",exp->WinCon2,&(exp->Params->IllumFloodEverything),1,(int) NULL);
+	printf("Created trackbars and windows\n");
 	return;
 
 }

@@ -47,6 +47,10 @@ int main (int argc, char** argv){
 	/** Create a new experiment object **/
 	Experiment* exp=CreateExperimentStruct();
 
+	/** Create memory and objects **/
+	InitializeExperiment(exp);
+
+
 	/** Deal with CommandLineArguments **/
 	LoadCommandLineArguments(exp,argc,argv);
 	if (HandleCommandLineArguments(exp)==-1) return -1;
@@ -68,10 +72,9 @@ int main (int argc, char** argv){
 
 
 	/** Setup Segmentation Gui **/
+	AssignWindowNames(exp);
 	SetupGUI(exp);
 
-	/** Create memory and objects **/
-	InitializeExperiment(exp);
 
 	/** SetUp Data Recording **/
 	SetupRecording(exp);
@@ -106,7 +109,7 @@ int main (int argc, char** argv){
 			/** Do we even bother doing analysis?**/
 			if (exp->Params->OnOff==0){
 				/**Don't perform any analysis**/
-				cvShowImage("Display", exp->fromCCD->iplimg);
+				cvShowImage(exp->WinDisp, exp->fromCCD->iplimg);
 				cvWaitKey(10);
 				continue;
 			}
@@ -206,25 +209,25 @@ int main (int argc, char** argv){
 					/** There are no errors and we are displaying a frame **/
 					switch (exp->Params->Display) {
 						case 0:
-							 cvShowImage("Display", exp->Worm->ImgOrig);
+							 cvShowImage(exp->WinDisp, exp->Worm->ImgOrig);
 							break;
 						case 1:
-							cvShowImage("Display",exp->HUDS);
+							cvShowImage(exp->WinDisp,exp->HUDS);
 							break;
 						case 2:
-							 cvShowImage("Display",exp->Worm->ImgThresh);
+							 cvShowImage(exp->WinDisp,exp->Worm->ImgThresh);
 							 break;
 						case 3:
-							 DisplayWormHeadTail(exp->Worm,"Display");
+							 DisplayWormHeadTail(exp->Worm,exp->WinDisp);
 							 break;
 						case 4:
-							DisplayWormSegmentation(exp->Worm,"Display");
+							DisplayWormSegmentation(exp->Worm,exp->WinDisp);
 							break;
 						case 5:
-							cvShowImage("Display",exp->IlluminationFrame->iplimg);
+							cvShowImage(exp->WinDisp,exp->IlluminationFrame->iplimg);
 							break;
 						case 6:
-							cvShowImage("Display", exp->forDLP->iplimg);
+							cvShowImage(exp->WinDisp, exp->forDLP->iplimg);
 							break;
 						default:
 							break;
