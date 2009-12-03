@@ -64,19 +64,41 @@ void DestroyProtocol(Protocol** MyProto){
 
 
 
+
+
+
+
+
+/*******************************************/
+/*
+ * Illumination Objects
+ */
+/*******************************************/
+
+/*
+ * An illumination montage consists of a sequence of pointers to polygons
+ *
+ */
+CvSeq* CreateIlluminationMontage(CvMemStorage* memory){
+	CvSeq* myIllumMontage=cvCreateSeq(CV_SEQ_ELTYPE_PTR,sizeof(CvSeq),sizeof(CvSeq*),memory);
+}
+
+
+
 /*******************************************/
 /*
  * Polygon Objects
  */
 /*******************************************/
 
-Polygon* CreatePolygon(CvMemStorage* memory){
-	Polygon* myPoly=(Polygon*) cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),memory);
+/*
+ * Given a memory object, this will create a polygon object that is a CvSeq.
+ *
+ */
+CvSeq* CreatePolygon(CvMemStorage* memory){
+	CvSeq* myPoly=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),memory);
 }
 
-/*
- *  Clears the contents of a polygon, but does NOT release the memory allocated
- */
-void ClearPolygon(Polygon* myPoly){
-	cvClearSeq((CvSeq*) myPoly);
-}
+
+
+

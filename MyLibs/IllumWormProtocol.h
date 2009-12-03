@@ -20,7 +20,7 @@ typedef struct ProtocolStruct{
 
 
 
-typedef CvSeq Polygon;
+
 
 
 
