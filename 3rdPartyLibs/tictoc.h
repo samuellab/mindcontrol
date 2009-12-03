@@ -12,8 +12,8 @@
  * just put _TICTOC_TIC_FUNC at the beginning of the function call
  * and put _TICTOC_TOC_FUNC right before any return statement
  */
-#define _TICTOC_TIC_FUNC TICTOC::timer.tic(__func__);
-#define _TICTOC_TOC_FUNC TICTOC::timer.toc(__func__);
+#define _TICTOC_TIC_FUNC TICTOC::timer().tic(__func__);
+#define _TICTOC_TOC_FUNC TICTOC::timer().toc(__func__);
 
 #include <map>
 #include <cstring>
@@ -74,6 +74,7 @@ namespace TICTOC {
 
         std::string generateReport();
         char *generateReportCstr();
+        //static tictoc *timer = new tictoc();
 
     private:
         double clock();
@@ -83,15 +84,16 @@ namespace TICTOC {
         Timer *tim;
     };
 
-    /* static tictoc timer
+    /* tictoc timer
      * 
      * we declare a globally accessible static instance of tictoc
      * TICTOC::timer for convenience.  This way, you can call tic and toc from 
      * multiple libraries and have all the data retained in a single structure
      * without having to pass a pointer to a tictoc object around
      */
-
-    static tictoc timer;
+    tictoc& timer();
+   
+    
 }
 
 #endif	/* _TICTOC_H */

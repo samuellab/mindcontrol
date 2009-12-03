@@ -137,3 +137,8 @@ void tictoc::clear() {
     tt.clear();
 }
 
+tictoc &TICTOC::timer() {
+    static tictoc t;
+    return t;
+}
+
