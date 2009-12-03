@@ -350,8 +350,7 @@ void InitializeExperiment(Experiment* exp){
 		WormGeom* PrevWorm=CreateWormGeom();
 		exp->PrevWorm=PrevWorm;
 
-		/** Setup Timer **/
-		exp->profiler=CreateTimeProfiler();
+
 }
 
 
@@ -391,9 +390,6 @@ void ReleaseExperiment(Experiment* exp){
 
 	/** Release Window Names **/
 	ReleaseWindowNames(exp);
-
-	/** Release Time Profiler **/
-	DestroyTimeProfiler(&(exp->profiler));
 
 }
 
@@ -601,10 +597,8 @@ void DoWriteToDisk(Experiment* exp){
 		cvResize(exp->HUDS,exp->SubSampled,CV_INTER_LINEAR);
 		cvWriteFrame(exp->VidHUDS,exp->SubSampled);
 	}
-	Toc(exp->profiler); //10
 
 	/** Record data frame to diskl **/
 	if (exp->RECORDDATA && exp->Params->Record) AppendWormFrameToDisk(exp->Worm,exp->Params,exp->DataWriter);
-	Toc(exp->profiler); //11
 
 }

@@ -83,6 +83,8 @@ int main (int argc, char** argv){
 	while (1) {
 		_TICTOC_TIC_FUNC
 		if (exp->MyCamera->iFrameNumber > lastFrameSeenOutside) {
+
+
 			exp->e=0;
 			lastFrameSeenOutside = exp->MyCamera->iFrameNumber;
 			exp->Worm->frameNum++;
@@ -140,7 +142,6 @@ int main (int argc, char** argv){
 
 
 			if (!(exp->e) && exp->Params->DLPOn) T2DLP_SendFrame((unsigned char *) exp->forDLP->binary, exp->myDLP); // Send image to DLP
-			Toc(exp->profiler); //8
 
 			/*** DIsplay Some Monitoring Output ***/
 			if (!(exp->e)) CreateWormHUDS(exp->HUDS,exp->Worm,exp->Params,exp->IlluminationFrame);
@@ -150,6 +151,8 @@ int main (int argc, char** argv){
 				DoDisplaySelectedDisplay(exp);
 				TICTOC::timer().toc("DisplayOnScreen");
 			}
+
+
 
 			if (!(exp->e)) DoWriteToDisk(exp);
 
@@ -168,7 +171,6 @@ int main (int argc, char** argv){
 	TICTOC::timer().toc("WholeLoop");
 	printf("%s",TICTOC::timer().generateReportCstr());
 
-	DisplayTimeProfile(exp->profiler);
 	FinishRecording(exp);
 
 	//	cvDestroyAllWindows();
