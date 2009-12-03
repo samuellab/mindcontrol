@@ -75,7 +75,9 @@ typedef struct ExperimentStruct{
 	/** Macros **/
 	int RECORDVID;
 	int RECORDDATA;
-	/* test */
+
+	/* Timing Information **/
+	TimeProfile* profiler;
 
 } Experiment;
 

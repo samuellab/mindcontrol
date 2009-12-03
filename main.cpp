@@ -83,8 +83,6 @@ int main (int argc, char** argv){
 	/*Start the frame rate timer */
 	StartFrameRateTimer(exp);
 
-	/** Marc's Timing Structure **/
-	TimeProfile* profiler=CreateTimeProfiler();
 
 	/** Giant While Loop Where Everything Happens **/
 	while (1) {
@@ -109,12 +107,12 @@ int main (int argc, char** argv){
 			}
 
 
-			Tic(profiler);
+			Tic(exp->profiler);
 
 			/** If the DLP is not displaying right now, than turn off the mirrors */
 			ClearDLPifNotDisplayingNow(exp);
 
-			Toc(profiler); //0
+			Toc(exp->profiler); //0
 
 			/***********************
 			 * Segment Frame
@@ -128,13 +126,13 @@ int main (int argc, char** argv){
 			if (!e) e=RefreshWormMemStorage(exp->Worm);
 			if (!e) e=LoadWormImg(exp->Worm,exp->fromCCD->iplimg);
 
-			Toc(profiler); //1
+			Toc(exp->profiler); //1
 
 
 			/*** Find Worm Boundary ***/
 			if (!e) FindWormBoundary(exp->Worm,exp->Params);
 
-			Toc(profiler); //2
+			Toc(exp->profiler); //2
 
 
 			/*** Find Worm Head and Tail ***/
@@ -142,20 +140,20 @@ int main (int argc, char** argv){
 			/** If we are doing temporal analysis, improve the WormHeadTail estimate based on prev frame **/
 			if (exp->Params->TemporalOn && !e) PrevFrameImproveWormHeadTail(exp->Worm,exp->Params,exp->PrevWorm);
 
-			Toc(profiler); //3
+			Toc(exp->profiler); //3
 
 
 
 			/*** Segment the Worm ***/
 			if (!e) e=SegmentWorm(exp->Worm,exp->Params);
-			Toc(profiler); //4
+			Toc(exp->profiler); //4
 
 
 
 			/** Update PrevWorm Info **/
 			if (!e) LoadWormGeom(exp->PrevWorm,exp->Worm);
 
-			Toc(profiler); //5
+			Toc(exp->profiler); //5
 
 			/*** </segmentworm> ***/
 
@@ -170,19 +168,19 @@ int main (int argc, char** argv){
 					SimpleIlluminateWormLR(exp->Worm, exp->IlluminationFrame, exp->Params->IllumSegCenter, exp->Params->IllumSegRadius, exp->Params->IllumLRC);
 				}
 			}
-			Toc(profiler); //6
+			Toc(exp->profiler); //6
 
 
 			/*** <------------ 31fps ***/
 			if (!e) TransformFrameCam2DLP(exp->IlluminationFrame,exp->forDLP,exp->Calib);
-			Toc(profiler); //7
+			Toc(exp->profiler); //7
 
 			/*** <------------ 26fps ***/
 
 
 
 			if (!e && exp->Params->DLPOn) T2DLP_SendFrame((unsigned char *) exp->forDLP->binary, exp->myDLP); // Send image to DLP
-			Toc(profiler); //8
+			Toc(exp->profiler); //8
 
 
 
@@ -218,7 +216,7 @@ int main (int argc, char** argv){
 					cvWaitKey(1); // Pause one millisecond for things to display onscreen.
 
 
-					Toc(profiler); //9
+					Toc(exp->profiler); //9
 
 					/** Record VideoFrame to Disk**/
 					if (exp->RECORDVID && exp->Params->Record) {
@@ -227,11 +225,11 @@ int main (int argc, char** argv){
 						cvResize(exp->HUDS,exp->SubSampled,CV_INTER_LINEAR);
 						cvWriteFrame(exp->VidHUDS,exp->SubSampled);
 					}
-					Toc(profiler); //10
+					Toc(exp->profiler); //10
 
 					/** Record data frame to diskl **/
 					if (exp->RECORDDATA && exp->Params->Record) AppendWormFrameToDisk(exp->Worm,exp->Params,exp->DataWriter);
-					Toc(profiler); //11
+					Toc(exp->profiler); //11
 				}
 
 
@@ -241,13 +239,13 @@ int main (int argc, char** argv){
 				} else {
 					printf("\n:(\n");
 				}
-				Toc(profiler); //12
+				Toc(exp->profiler); //12
 		}
 		if (kbhit()) break;
 		if (e) cvWaitKey(1); /**Wait so that we don't end up in a loop lockign up the UI in case of error**/
 
 	}
-	DisplayTimeProfile(profiler);
+	DisplayTimeProfile(exp->profiler);
 	FinishRecording(exp);
 
 

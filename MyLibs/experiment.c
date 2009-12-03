@@ -343,6 +343,9 @@ void InitializeExperiment(Experiment* exp){
 		/** Setup Previous Worm **/
 		WormGeom* PrevWorm=CreateWormGeom();
 		exp->PrevWorm=PrevWorm;
+
+		/** Setup Timer **/
+		exp->profiler=CreateTimeProfiler();
 }
 
 
@@ -382,6 +385,9 @@ void ReleaseExperiment(Experiment* exp){
 
 	/** Release Window Names **/
 	ReleaseWindowNames(exp);
+
+	/** Release Time Profiler **/
+	DestroyTimeProfiler(&(exp->profiler));
 
 }
 
