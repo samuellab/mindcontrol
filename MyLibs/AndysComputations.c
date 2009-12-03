@@ -166,8 +166,9 @@ void Toc(TimeProfile* profiler){
  */
 void DisplayTimeProfile(TimeProfile* profiler){
 	int nrecordedtime = profiler->tnum;
+	printf("\nProfileResults\n");
 	for (int j = 0; j < nrecordedtime; ++j) {
-		printf("\nProfile Results\ntime %d: total time %d\ttime per frame:%g\n", j, profiler->total_time[j], (1.0*profiler->total_time[j])/profiler->nframes);
+		printf("time %d: total time %d\ttime per frame:%g\n", j, profiler->total_time[j], (1.0*profiler->total_time[j])/profiler->nframes);
 	}
 
 }
