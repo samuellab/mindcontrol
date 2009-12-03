@@ -22,6 +22,7 @@ class Timer;
 namespace TICTOC {
     class tictoc {
     public:
+
         /* error return values for toc command
          * NOT_FOUND == you called toc on "name" without ever calling tic on "name" first
          * NOT_TICKED == although you called tic on "name", you called toc on "name" twice in a row
@@ -36,6 +37,16 @@ namespace TICTOC {
         tictoc();
         virtual ~tictoc();
 
+        /* enable(true) turns logging on
+         * enable(false) turns logging off
+         *
+         * tic and toc will return immediately without doing anything
+         * if state = false;
+         *
+         */
+        void enable(bool state);
+
+
         /* clear()
          *
          * resets tictoc to original state, clearing all information about previously
@@ -46,6 +57,8 @@ namespace TICTOC {
         /* void tic (const string &name, bool notick = false);
          * void tic (const char *name, bool notick = false);
          *
+         * if notick is true, returns with no effect
+         *
          * calling tic starts a timer running associated with "name" (case sensitive)
          * when toc("name") is called, you get the number of clock cycles (usually ms) since
          * tic("name") was last called
@@ -54,11 +67,13 @@ namespace TICTOC {
          * generateReport will note the number of times this happens in the field "numblowntics"
          * 
          */
-        void tic (const std::string &name, bool notick = false);
-        void tic (const char *name, bool notick = false);
+        void tic (const std::string &name, bool notock = false);
+        void tic (const char *name, bool notock = false);
 
         /* long toc(const string &name, bool notock = false);
          * long toc(const char *name, bool notock = false);         *
+         *
+         * if notock is true, returns 0 immediately with no other effect
          *
          * when toc("name") is called, we stop the timer associated with "name"
          * and return the number of clock cycles (usually ms) since tic("name") was called
@@ -82,6 +97,7 @@ namespace TICTOC {
         tictoc(const tictoc& orig);
         std::map <std::string, struct _tictoc_data> tt;
         Timer *tim;
+        bool enabled;
     };
 
     /* tictoc timer

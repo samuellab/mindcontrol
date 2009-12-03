@@ -17,6 +17,7 @@ using namespace TICTOC;
 tictoc::tictoc() {
     tim = new Timer();
     tim->start();
+    enabled = true;
 }
 tictoc::~tictoc() {
     delete tim;
@@ -50,7 +51,7 @@ _tictoc_data ntt() {
 
 
 void tictoc::tic(const string &name, bool notick) {
-    if (notick)
+    if (!enabled || notick)
         return;
     
     _tictoc_data *td;
@@ -72,7 +73,7 @@ void tictoc::tic(const char* name, bool notick) {
 }
 
 double tictoc::toc(const string &name, bool notock) {
-    if (notock) {
+    if (!enabled || notock) {
         return 0;
     }
     _tictoc_data *td;
