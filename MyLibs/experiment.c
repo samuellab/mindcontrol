@@ -582,6 +582,11 @@ void DoDisplaySelectedDisplay(Experiment* exp){
 
 }
 
+
+/*
+ * Write video and data to Disk
+ *
+ */
 void DoWriteToDisk(Experiment* exp){
 
 	/** Record VideoFrame to Disk**/

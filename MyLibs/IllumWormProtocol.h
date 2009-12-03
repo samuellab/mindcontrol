@@ -12,6 +12,7 @@
 typedef struct ProtocolStruct{
 	CvSize GridSize;
 	Char* ProtocolFilename;
+	Char* ProtoclDescription
 	CvSeq Steps;
 }Protocol;
 

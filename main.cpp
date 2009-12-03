@@ -34,6 +34,8 @@ using namespace std;
 #include "MyLibs/WormAnalysis.h"
 #include "MyLibs/WriteOutWorm.h"
 #include "MyLibs/experiment.h"
+#include "MyLibs/tictoc.h"
+
 
 
 
@@ -50,13 +52,9 @@ int main (int argc, char** argv){
 	/** Create memory and objects **/
 	InitializeExperiment(exp);
 
-
 	/** Deal with CommandLineArguments **/
 	LoadCommandLineArguments(exp,argc,argv);
 	if (HandleCommandLineArguments(exp)==-1) return -1;
-
-
-
 
 	/** Read In Calibration Data ***/
 	if (HandleCalibrationData(exp)<0) return -1;
@@ -68,24 +66,18 @@ int main (int argc, char** argv){
 	exp->myDLP= T2DLP_on();
 	unsigned long lastFrameSeenOutside = 0;
 
-
 	/** Setup Segmentation Gui **/
 	AssignWindowNames(exp);
 	SetupGUI(exp);
 
-
 	/** SetUp Data Recording **/
 	SetupRecording(exp);
-
-
 
 	/*Start the frame rate timer */
 	StartFrameRateTimer(exp);
 
-
-
-
 	/** Giant While Loop Where Everything Happens **/
+	TICTOC::timer.tic("WholeLoop");
 	while (1) {
 		if (exp->MyCamera->iFrameNumber > lastFrameSeenOutside) {
 			exp->e=0;
@@ -98,7 +90,6 @@ int main (int argc, char** argv){
 			/*** Create a local copy of the image***/
 			LoadFrameWithBin(exp->MyCamera->iImageData,exp->fromCCD);
 
-
 			/** Do we even bother doing analysis?**/
 			if (exp->Params->OnOff==0){
 				/**Don't perform any analysis**/
@@ -107,7 +98,6 @@ int main (int argc, char** argv){
 				continue;
 			}
 
-
 			Tic(exp->profiler);
 
 			/** If the DLP is not displaying right now, than turn off the mirrors */
@@ -115,14 +105,8 @@ int main (int argc, char** argv){
 
 			Toc(exp->profiler); //0
 
-			/***********************
-			 * Segment Frame
-			 */
-
-
-
 			/** Load Image into Our Worm Objects **/
-			/*** Load Frame into Worm **/
+
 			if (!(exp->e)) exp->e=RefreshWormMemStorage(exp->Worm);
 			if (!(exp->e)) exp->e=LoadWormImg(exp->Worm,exp->fromCCD->iplimg);
 
@@ -156,8 +140,6 @@ int main (int argc, char** argv){
 			if (!(exp->e) && exp->Params->DLPOn) T2DLP_SendFrame((unsigned char *) exp->forDLP->binary, exp->myDLP); // Send image to DLP
 			Toc(exp->profiler); //8
 
-
-
 			/*** DIsplay Some Monitoring Output ***/
 			if (!(exp->e)) CreateWormHUDS(exp->HUDS,exp->Worm,exp->Params,exp->IlluminationFrame);
 
@@ -180,9 +162,11 @@ int main (int argc, char** argv){
 		if (exp->e) cvWaitKey(1); /**Wait so that we don't end up in a loop lockign up the UI in case of error**/
 
 	}
+	TICTOC::timer.toc("WholeLoop");
+	printf("%s",TICTOC::timer.generateReportCstr());
+
 	DisplayTimeProfile(exp->profiler);
 	FinishRecording(exp);
-
 
 	//	cvDestroyAllWindows();
 	T2DLP_off(exp->myDLP);

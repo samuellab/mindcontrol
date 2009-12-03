@@ -29,7 +29,7 @@ openCVincludes = -I$(CVdir)/cxcore/include -I$(CVdir)/otherlibs/highgui -I$(CVdi
 # objects that I have written, in order of dependency. 
 # e.g. Objects that depend on nothing go left.
 #Objects that depend on other objects go right.
-mylibraries=  version.o AndysComputations.o Talk2DLP.o Talk2Camera.o  AndysOpenCVLib.o Talk2Matlab.o TransformLib.o
+mylibraries=  tictoc.o version.o AndysComputations.o Talk2DLP.o Talk2Camera.o  AndysOpenCVLib.o Talk2Matlab.o TransformLib.o
 WormSpecificLibs= WormAnalysis.o WriteOutWorm.o experiment.o
 
 #3rd party statically linked objects
@@ -82,7 +82,9 @@ TransformLib.o: $(MyLibs)/TransformLib.c
 	
 experiment.o: $(MyLibs)/experiment.c $(MyLibs)/experiment.h 
 	g++ -c -v -Wall $(MyLibs)/experiment.c $ -I$(MyLibs) $(openCVincludes) $(TailOpts)
-	
+
+tictoc.o: $(MyLibs)/tictoc.cpp $(MyLibs)/tictoc.h 
+	g++ -c -v -Wall $(MyLibs)/tictoc.cpp $ -I$(MyLibs)  $(TailOpts)
 
 
 ###### version.c & version.h

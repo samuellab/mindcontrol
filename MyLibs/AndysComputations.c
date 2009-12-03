@@ -50,7 +50,7 @@ int DistBetPtsOnCircBound(int PtsOnBound, int IndexA, int IndexB){
  *
  */
 int EverySoOften(int frameNum, int HowOften){
-	if (frameNum==NULL || HowOften==NULL || frameNum<0 || HowOften<0) return -1;
+	if ( frameNum<0 || HowOften<0) return -1;
 	if (HowOften==0) return 0;
 	if ((frameNum % HowOften)==0){
 		return 1;
