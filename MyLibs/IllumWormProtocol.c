@@ -47,6 +47,7 @@ Protocol* CreateProtocol(){
 	MyProto->GridSize.height=0;
 	MyProto->GridSize.width=0;
 	MyProto->ProtocolFilename=NULL;
+	MyProto->ProtocolDescription;
 	MyProto->data=NULL;
 	MyProto->memory=cvCreateMemStorage();
 }

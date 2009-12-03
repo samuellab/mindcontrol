@@ -16,6 +16,8 @@
 #include "WormAnalysis.h"
 
 
+
+
 /*
  *
  * Every function here should have the word Worm in it
@@ -988,11 +990,11 @@ void ClearWormGeom(WormGeom* SimpleWorm){
 	if (SimpleWorm==NULL){
 			return;
 		}
-	SimpleWorm->Head.x=NULL;
-	SimpleWorm->Head.y=NULL;
-	SimpleWorm->Perimeter=NULL;
-	SimpleWorm->Tail.x=NULL;
-	SimpleWorm->Tail.y=NULL;
+	SimpleWorm->Head.x=0;
+	SimpleWorm->Head.y=0;
+	SimpleWorm->Perimeter=0;
+	SimpleWorm->Tail.x=0;
+	SimpleWorm->Tail.y=0;
 }
 
 /*

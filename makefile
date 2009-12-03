@@ -35,7 +35,9 @@ WormSpecificLibs= WormAnalysis.o WriteOutWorm.o experiment.o
 #3rd party statically linked objects
 CVlibs=$(CVdir)/lib/cv.lib $(CVdir)/lib/highgui.lib $(CVdir)/lib/cxcore.lib
 MatlabLibs=$(MatlabLibsDir)/libeng.lib $(MatlabLibsDir)/libmx.lib
-3rdpartyobjects= $(3rdPartyLibs)/alp4basic.lib $(3rdPartyLibs)/tisgrabber.lib 
+TimerLibrary=tictoc.o timer.o
+HardwareLibrary=$(3rdPartyLibs)/alp4basic.lib $(3rdPartyLibs)/tisgrabber.lib 
+3rdpartyobjects= $(TimerLibrary) $(HardwareLibrary)
 
 #All Objects
 objects= main.o  $(mylibraries) $(WormSpecificLibs) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)
@@ -82,8 +84,12 @@ TransformLib.o: $(MyLibs)/TransformLib.c
 	
 experiment.o: $(MyLibs)/experiment.c $(MyLibs)/experiment.h 
 	g++ -c -v -Wall $(MyLibs)/experiment.c $ -I$(MyLibs) $(openCVincludes) $(TailOpts)
-	
 
+tictoc.o: $(3rdPartyLibs)/tictoc.cpp $(3rdPartyLibs)/tictoc.h 
+	g++ -c -v -Wall $(3rdPartyLibs)/tictoc.cpp $ -I$(3rdPartyLibs)  $(TailOpts)
+
+timer.o: $(3rdPartyLibs)/Timer.cpp $(3rdPartyLibs)/Timer.h 
+	g++ -c -v -Wall $(3rdPartyLibs)/Timer.cpp $ -I$(3rdPartyLibs)  $(TailOpts)
 
 ###### version.c & version.h
 # note that version.c is generated at the very top. under "timestamp"
@@ -105,7 +111,7 @@ $(targetDir)/SegmentFrame.exe : $(objects)
 SegmentFrame.o : SegmentFrame.c $(myOpenCVlibraries) $(WormSpecificLibs) 
 	g++ -c -Wall SegmentFrame.c -I$(MyLibs) $(openCVincludes) $(TailOpts)
 	
-WormAnalysis.o : $(MyLibs)/WormAnalysis.c $(MyLibs)/WormAnalysis.h $(myOpenCVlibraries) 
+WormAnalysis.o : $(MyLibs)/WormAnalysis.c $(MyLibs)/WormAnalysis.h $(myOpenCVlibraries)  
 	g++ -c -Wall $(MyLibs)/WormAnalysis.c -I$(MyLibs) $(openCVincludes) $(TailOpts)
 
 WriteOutWorm.o : $(MyLibs)/WormAnalysis.c $(MyLibs)/WormAnalysis.h $(MyLibs)/WriteOutWorm.c $(MyLibs)/WriteOutWorm.h $(myOpenCVlibraries) 
