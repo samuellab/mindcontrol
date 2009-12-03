@@ -8,17 +8,26 @@
 #include "tictoc.h"
 #include <limits>
 #include <map>
-#include <ctime>
 #include <sstream>
+#include "Timer.h"
+
 using namespace std;
 using namespace TICTOC;
 
+tictoc::tictoc() {
+    tim = new Timer();
+    tim->start();
+}
+tictoc::~tictoc() {
+    delete tim;
+}
+
 struct TICTOC::_tictoc_data {
     int ncalls;
-    time_t starttime;
-    time_t totaltime;
-    time_t maxtime;
-    time_t mintime;
+    double starttime;
+    double totaltime;
+    double maxtime;
+    double mintime;
     bool ticked;
     int numblowntics;
 };
@@ -31,15 +40,14 @@ _tictoc_data ntt() {
     tt.starttime = 0;
     tt.totaltime = 0;
     tt.maxtime = 0;
-    tt.mintime = UINT_MAX;
+    tt.mintime = INT_MAX;
     tt.ticked = false;
     tt.numblowntics = 0;
-}
-tictoc::tictoc() {
+    return tt;
 }
 
-tictoc::~tictoc() {
-}
+
+
 
 void tictoc::tic(const string &name, bool notick) {
     if (notick)
@@ -63,7 +71,7 @@ void tictoc::tic(const char* name, bool notick) {
     tic (string(name), notick);
 }
 
-long tictoc::toc(const string &name, bool notock) {
+double tictoc::toc(const string &name, bool notock) {
     if (notock) {
         return 0;
     }
@@ -79,23 +87,24 @@ long tictoc::toc(const string &name, bool notock) {
     }
     ++(td->ncalls);
     td->ticked = false;
-    time_t et = clock() - td->starttime;
+    double et = clock() - td->starttime;
     td->maxtime = et > td->maxtime ? et : td->maxtime;
     td->mintime = et < td->mintime ? et : td->mintime;
     td->totaltime += et;
     return et;
 }
 
-long tictoc::toc(const char* name, bool notock) {
+double tictoc::toc(const char* name, bool notock) {
     return toc(string(name), notock);
 }
 
 void tdpToSS (stringstream &s, const pair<string, _tictoc_data> &p) {
     s << "  name: " << p.first << "\n";
     s << "  ncalls: " << p.second.ncalls << "\n";
-    s << "  totaltime: " << (1.0 * p.second.totaltime) / CLOCKS_PER_SEC << "\n";
-    s << "  maxtime: " << (1.0 * p.second.maxtime) / CLOCKS_PER_SEC << "\n";
-    s << "  mintime: " << (1.0 * p.second.mintime) / CLOCKS_PER_SEC << "\n";
+    s << "  totaltime: " << (1.0 * p.second.totaltime) / tictoc::TICKS_PER_SEC << "\n";
+    s << "  maxtime: " << (1.0 * p.second.maxtime) / tictoc::TICKS_PER_SEC << "\n";
+    s << "  mintime: " << (1.0 * p.second.mintime) / tictoc::TICKS_PER_SEC << "\n";
+    s << "  avg time: " << (1.0 * p.second.totaltime) / (p.second.ncalls *tictoc::TICKS_PER_SEC) << "\n";
     s << "  numblowntics: " << p.second.numblowntics << "\n";
 }
 void tdpToSS (stringstream &s, const pair<string, _tictoc_data> *p) {
@@ -118,6 +127,10 @@ char *tictoc::generateReportCstr() {
     assert (c != NULL);
     strcpy(c, s.c_str());
     return c;
+}
+
+double tictoc::clock() {
+    return tim->getElapsedTimeInMicroSec();
 }
 
 void tictoc::clear() {

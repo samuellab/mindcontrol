@@ -8,8 +8,16 @@
 #ifndef _TICTOC_H
 #define	_TICTOC_H
 
+/* macros to make it easy to track a function execution time
+ * just put _TICTOC_TIC_FUNC at the beginning of the function call
+ * and put _TICTOC_TOC_FUNC right before any return statement
+ */
+#define _TICTOC_TIC_FUNC TICTOC::timer.tic(__func__);
+#define _TICTOC_TOC_FUNC TICTOC::timer.toc(__func__);
+
 #include <map>
 #include <cstring>
+class Timer;
 
 namespace TICTOC {
     class tictoc {
@@ -20,7 +28,7 @@ namespace TICTOC {
          */
         static const int NOT_FOUND = -1;
         static const int NOT_TICKED = -2;
-
+        static const double TICKS_PER_SEC = 1E6;
         /* tictoc()
          * ~tictoc()
          * constructor takes no arguments
@@ -61,15 +69,18 @@ namespace TICTOC {
          * return value will be NOT_TICKED
          */
 
-        long toc(const std::string &name, bool notock = false);
-        long toc(const char *name, bool notock = false);
+        double toc(const std::string &name, bool notock = false);
+        double toc(const char *name, bool notock = false);
 
         std::string generateReport();
         char *generateReportCstr();
 
     private:
+        double clock();
+
         tictoc(const tictoc& orig);
         std::map <std::string, struct _tictoc_data> tt;
+        Timer *tim;
     };
 
     /* static tictoc timer
