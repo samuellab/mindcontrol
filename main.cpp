@@ -34,7 +34,9 @@ using namespace std;
 #include "MyLibs/WormAnalysis.h"
 #include "MyLibs/WriteOutWorm.h"
 #include "MyLibs/experiment.h"
-#include "MyLibs/tictoc.h"
+
+//3rd Party Libraries
+#include "3rdPartyLibs/tictoc.h"
 
 
 

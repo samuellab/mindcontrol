@@ -29,13 +29,15 @@ openCVincludes = -I$(CVdir)/cxcore/include -I$(CVdir)/otherlibs/highgui -I$(CVdi
 # objects that I have written, in order of dependency. 
 # e.g. Objects that depend on nothing go left.
 #Objects that depend on other objects go right.
-mylibraries=  tictoc.o version.o AndysComputations.o Talk2DLP.o Talk2Camera.o  AndysOpenCVLib.o Talk2Matlab.o TransformLib.o
+mylibraries=  version.o AndysComputations.o Talk2DLP.o Talk2Camera.o  AndysOpenCVLib.o Talk2Matlab.o TransformLib.o
 WormSpecificLibs= WormAnalysis.o WriteOutWorm.o experiment.o
 
 #3rd party statically linked objects
 CVlibs=$(CVdir)/lib/cv.lib $(CVdir)/lib/highgui.lib $(CVdir)/lib/cxcore.lib
 MatlabLibs=$(MatlabLibsDir)/libeng.lib $(MatlabLibsDir)/libmx.lib
-3rdpartyobjects= $(3rdPartyLibs)/alp4basic.lib $(3rdPartyLibs)/tisgrabber.lib 
+TimerLibrary=tictoc.o timer.o
+HardwareLibrary=$(3rdPartyLibs)/alp4basic.lib $(3rdPartyLibs)/tisgrabber.lib 
+3rdpartyobjects= $(TimerLibrary) $(HardwareLibrary)
 
 #All Objects
 objects= main.o  $(mylibraries) $(WormSpecificLibs) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)
@@ -83,9 +85,11 @@ TransformLib.o: $(MyLibs)/TransformLib.c
 experiment.o: $(MyLibs)/experiment.c $(MyLibs)/experiment.h 
 	g++ -c -v -Wall $(MyLibs)/experiment.c $ -I$(MyLibs) $(openCVincludes) $(TailOpts)
 
-tictoc.o: $(MyLibs)/tictoc.cpp $(MyLibs)/tictoc.h 
-	g++ -c -v -Wall $(MyLibs)/tictoc.cpp $ -I$(MyLibs)  $(TailOpts)
+tictoc.o: $(3rdPartyLibs)/tictoc.cpp $(3rdPartyLibs)/tictoc.h 
+	g++ -c -v -Wall $(3rdPartyLibs)/tictoc.cpp $ -I$(3rdPartyLibs)  $(TailOpts)
 
+timer.o: $(3rdPartyLibs)/Timer.cpp $(3rdPartyLibs)/Timer.h 
+	g++ -c -v -Wall $(3rdPartyLibs)/Timer.cpp $ -I$(3rdPartyLibs)  $(TailOpts)
 
 ###### version.c & version.h
 # note that version.c is generated at the very top. under "timestamp"
