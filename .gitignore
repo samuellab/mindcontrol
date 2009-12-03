@@ -1,2 +1,4 @@
 *.o
 version.c
+*.exe
+
