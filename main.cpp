@@ -81,6 +81,7 @@ int main (int argc, char** argv){
 	/** Giant While Loop Where Everything Happens **/
 	TICTOC::timer.tic("WholeLoop");
 	while (1) {
+		_TICTOC_TIC_FUNC
 		if (exp->MyCamera->iFrameNumber > lastFrameSeenOutside) {
 			exp->e=0;
 			lastFrameSeenOutside = exp->MyCamera->iFrameNumber;
@@ -162,7 +163,7 @@ int main (int argc, char** argv){
 		}
 		if (kbhit()) break;
 		if (exp->e) cvWaitKey(1); /**Wait so that we don't end up in a loop lockign up the UI in case of error**/
-
+		_TICTOC_TOC_FUNC
 	}
 	TICTOC::timer.toc("WholeLoop");
 	printf("%s",TICTOC::timer.generateReportCstr());
