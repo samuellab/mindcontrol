@@ -429,10 +429,6 @@ void SetupRecording(Experiment* exp){
 		printf("Initialized video recording\n");
 	}
 
-
-
-
-
 }
 
 /*
@@ -454,7 +450,7 @@ void FinishRecording(Experiment* exp){
 
 
 /************************************************/
-/*   Timing Routines
+/*   Frame Rate Routines
  *
  */
 /************************************************/
@@ -479,5 +475,30 @@ void CalculateAndPrintFrameRate(Experiment* exp){
 		printf("%d fps\n",exp->Worm->frameNum-exp->prevFrames);
 		exp->prevFrames=exp->Worm->frameNum;
 		exp->prevTime=exp->Worm->timestamp;
+	}
+}
+
+
+
+
+/************************************************/
+/*   Action Chunks
+ *
+ */
+/************************************************/
+
+
+/*
+ * If the DLP is on, don't do anything.
+ * If the DLP is off, clear the IlluminationFrame
+ * and send that to the DLP so that none of hte DLP mirrors
+ * are exposed
+ */
+void ClearDLPifNotDisplayingNow(Experiment* exp){
+	/** If the DLP is not displaying **/
+	if (exp->Params->DLPOn==0){
+		/** Clear the DLP **/
+		RefreshFrame(exp->IlluminationFrame);
+		T2DLP_SendFrame((unsigned char *) exp->IlluminationFrame->binary, exp->myDLP);
 	}
 }

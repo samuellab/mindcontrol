@@ -12,9 +12,8 @@
 #ifndef EXPERIMENT_H_
 #define EXPERIMENT_H_
 
-#define _N_TIME_PTS 100
-static int total_time[_N_TIME_PTS];
-static int _n_frames_run = 0;
+
+
 
 typedef struct ExperimentStruct{
 	/** GuiWindowNames **/
@@ -182,7 +181,7 @@ void FinishRecording(Experiment* exp);
 
 
 /************************************************/
-/*   Timing Routines
+/*   Frame Rate Routines
  *
  */
 /************************************************/
@@ -198,5 +197,24 @@ void StartFrameRateTimer(Experiment* exp);
  *
  */
 void CalculateAndPrintFrameRate(Experiment* exp);
+
+
+
+/************************************************/
+/*   Action Chunks
+ *
+ */
+/************************************************/
+
+
+
+/*
+ * If the DLP is on, don't do anything.
+ * If the DLP is off, clear the IlluminationFrame
+ * and send that to the DLP so that none of hte DLP mirrors
+ * are exposed
+ */
+void ClearDLPifNotDisplayingNow(Experiment* exp);
+
 
 #endif /* EXPERIMENT_H_ */

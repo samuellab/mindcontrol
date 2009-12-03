@@ -20,6 +20,8 @@
 
 #include "AndysComputations.h"
 
+
+
 /*
  * Calculates the distance between two points on a ciruclar boundar
  * with total points PtsOnBound for two points with zero-indexed indices
@@ -96,6 +98,80 @@ int GetMilliSeconds(clock_t time){
 	double ms= ( (double) seconds-rounded) *1000;
 	return (int) ms;
 }
+
+
+/************************************************/
+/*   Marc's Timing Profiler
+ *
+ */
+/************************************************/
+
+/*
+ * Creates Marc's time profiler object and sets all
+ * values to zero.
+ *
+ * This object is used to create profiles of what
+ * takes how long to execute in the code.
+ *
+ */
+TimeProfile* CreateTimeProfiler(){
+	TimeProfile* profiler;
+	profiler->nframes=0;
+	profiler->nframes=0;
+	profiler->now=0;
+	profiler->last=0;
+
+	for (int j = 0; j < _N_TIME_PTS; ++j) {
+		profiler->total_time[j] = 0;
+	}
+	return profiler;
+}
+
+
+/*
+ *  Destroy's the time profiler object.
+ */
+void DestroyTimeProfiler(TimeProfile** profiler){
+	free(profiler);
+	*profiler=NULL;
+}
+
+/*
+ * Resets the timer. And prepares it for subsequent tocs.
+ * Usage: one Tic() followed by many Toc()'s
+ *
+ */
+void Tic(TimeProfile* profiler){
+	profiler->last = clock();
+	profiler->tnum = 0;
+	++(profiler->nframes);
+}
+
+/*
+ * Defines the end of the current time period for profiling. And prepares for subsequent timings.
+ * Usage: one Tic() followed by many Toc()'s
+ *
+ */
+
+void Toc(TimeProfile* profiler){
+	profiler->total_time[profiler->tnum++] += ((profiler->now = clock()) - profiler->last);
+	profiler->last = profiler->now;
+}
+
+/*
+ *
+ * Print out the time profiler
+ * generated from the Tic() followed by Tocs()
+ */
+void DisplayTimeProfile(TimeProfile* profiler){
+	int nrecordedtime = profiler->tnum;
+	for (int j = 0; j < nrecordedtime; ++j) {
+		printf("time %d: total time %d\ttime per frame:%g\n", j, profiler->total_time[j], (1.0*profiler->total_time[j])/profiler->nframes);
+	}
+
+}
+
+
 
 
 
