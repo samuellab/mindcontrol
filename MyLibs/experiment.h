@@ -22,8 +22,6 @@ typedef struct ExperimentStruct{
 	char* WinCon2;
 	char* WinCon3;
 
-	/** Error information **/
-	int e;
 
 	/** CommandLine Input **/
 	char** argv;
@@ -76,8 +74,11 @@ typedef struct ExperimentStruct{
 	int RECORDVID;
 	int RECORDDATA;
 
-	/* Timing Information **/
+	/** Timing Information **/
 	TimeProfile* profiler;
+
+	/** Error Handling **/
+	int e;
 
 } Experiment;
 
@@ -217,6 +218,26 @@ void CalculateAndPrintFrameRate(Experiment* exp);
  * are exposed
  */
 void ClearDLPifNotDisplayingNow(Experiment* exp);
+
+
+/*
+ * Given an image in teh worm object, segment the worm
+ *
+ */
+void DoSegmentation(Experiment* exp);
+
+
+/*
+ * Display the Selected Display
+ *
+ */
+void DoDisplaySelectedDisplay(Experiment* exp);
+
+/*
+ * Write video and data to Disk
+ *
+ */
+void DoWriteToDisk(Experiment* exp);
 
 
 #endif /* EXPERIMENT_H_ */

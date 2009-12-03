@@ -118,6 +118,8 @@ Experiment* CreateExperimentStruct(){
 	exp->RECORDVID=0;
 	exp->RECORDDATA=0;
 
+	/** Error Handling **/
+	exp->e=0;
 
 	return exp;
 
@@ -507,4 +509,92 @@ void ClearDLPifNotDisplayingNow(Experiment* exp){
 		RefreshFrame(exp->IlluminationFrame);
 		T2DLP_SendFrame((unsigned char *) exp->IlluminationFrame->binary, exp->myDLP);
 	}
+}
+
+/*
+ * Given an image in teh worm object, segment the worm
+ *
+ */
+void DoSegmentation(Experiment* exp) {
+	/*** <segmentworm> ***/
+
+	/*** Find Worm Boundary ***/
+	if (!(exp->e)) FindWormBoundary(exp->Worm,exp->Params);
+
+	Toc(exp->profiler); //2
+
+
+	/*** Find Worm Head and Tail ***/
+	if (!(exp->e)) exp->e=GivenBoundaryFindWormHeadTail(exp->Worm,exp->Params);
+	/** If we are doing temporal analysis, improve the WormHeadTail estimate based on prev frame **/
+	if (exp->Params->TemporalOn && !(exp->e)) PrevFrameImproveWormHeadTail(exp->Worm,exp->Params,exp->PrevWorm);
+
+	Toc(exp->profiler); //3
+
+
+
+	/*** Segment the Worm ***/
+	if (!(exp->e)) exp->e=SegmentWorm(exp->Worm,exp->Params);
+	Toc(exp->profiler); //4
+
+
+
+	/** Update PrevWorm Info **/
+	if (!(exp->e)) LoadWormGeom(exp->PrevWorm,exp->Worm);
+
+	Toc(exp->profiler); //5
+	/*** </segmentworm> ***/
+
+}
+
+/*
+ * Display the Selected Display
+ *
+ */
+void DoDisplaySelectedDisplay(Experiment* exp){
+	/** There are no errors and we are displaying a frame **/
+	switch (exp->Params->Display) {
+		case 0:
+			 cvShowImage(exp->WinDisp, exp->Worm->ImgOrig);
+			break;
+		case 1:
+			cvShowImage(exp->WinDisp,exp->HUDS);
+			break;
+		case 2:
+			 cvShowImage(exp->WinDisp,exp->Worm->ImgThresh);
+			 break;
+		case 3:
+			 DisplayWormHeadTail(exp->Worm,exp->WinDisp);
+			 break;
+		case 4:
+			DisplayWormSegmentation(exp->Worm,exp->WinDisp);
+			break;
+		case 5:
+			cvShowImage(exp->WinDisp,exp->IlluminationFrame->iplimg);
+			break;
+		case 6:
+			cvShowImage(exp->WinDisp, exp->forDLP->iplimg);
+			break;
+		default:
+			break;
+	}
+	cvWaitKey(1); // Pause one millisecond for things to display onscreen.
+
+}
+
+void DoWriteToDisk(Experiment* exp){
+
+	/** Record VideoFrame to Disk**/
+	if (exp->RECORDVID && exp->Params->Record) {
+		cvResize(exp->Worm->ImgOrig,exp->SubSampled,CV_INTER_LINEAR);
+		cvWriteFrame(exp->Vid,exp->SubSampled);
+		cvResize(exp->HUDS,exp->SubSampled,CV_INTER_LINEAR);
+		cvWriteFrame(exp->VidHUDS,exp->SubSampled);
+	}
+	Toc(exp->profiler); //10
+
+	/** Record data frame to diskl **/
+	if (exp->RECORDDATA && exp->Params->Record) AppendWormFrameToDisk(exp->Worm,exp->Params,exp->DataWriter);
+	Toc(exp->profiler); //11
+
 }
