@@ -15,8 +15,7 @@
 // Andy's Libraries
 #include "WormAnalysis.h"
 
-//Marc's Library
-#include "../3rdPartyLibs/tictoc.h"
+
 
 
 /*
@@ -328,7 +327,6 @@ void FindWormBoundary(WormAnalysisData* Worm, WormAnalysisParam* Params){
  *
  */
 int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Params) {
-	_TICTOC_TIC_FUNC;
 	if (Worm->Boundary->total < 2*Params->NumSegments) {
 		printf("Error in GivenBoundaryFindWormHeadTail(). The Boundary has too few points.");
 		return -1;
@@ -464,7 +462,6 @@ int GivenBoundaryFindWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Par
 
 	Worm->HeadIndex = SecondMostCurvyIndex;
 	cvClearMemStorage(Worm->MemScratchStorage);
-	_TICTOC_TOC_FUNC;
 	return 0;
 }
 
@@ -688,7 +685,6 @@ void ClearSegmentedInfo(SegmentedWorm* SegWorm){
  *
  */
 int SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
-	TICTOC::timer().tic("segmentworm");
 	if (cvSeqExists(Worm->Boundary) == 0){
 		printf("Error! No boundary found in SegmentWorm()\n");
 		return -1;
@@ -774,7 +770,6 @@ int SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
 	 *   To Segment the Left and Right Boundaries and store them
 	 */
 	SegmentSides(OrigBoundA,OrigBoundB,Worm->Segmented->Centerline,Worm->Segmented->LeftBound,Worm->Segmented->RightBound);
-	printf("%g\t", TICTOC::timer().toc("segmentworm"));
 	return 0;
 
 }

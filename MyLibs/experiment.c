@@ -26,6 +26,9 @@
 #include <cv.h>
 #include <cxcore.h>
 
+//Timer Lib
+#include "../3rdPartyLibs/tictoc.h"
+
 //Andy's Personal Headers
 #include "AndysOpenCVLib.h"
 #include "Talk2Camera.h"
@@ -35,6 +38,7 @@
 #include "TransformLib.h"
 #include "WormAnalysis.h"
 #include "WriteOutWorm.h"
+
 
 
 #include "experiment.h"
@@ -516,12 +520,15 @@ void ClearDLPifNotDisplayingNow(Experiment* exp){
  *
  */
 void DoSegmentation(Experiment* exp) {
+	_TICTOC_TIC_FUNC
 	/*** <segmentworm> ***/
 
 	/*** Find Worm Boundary ***/
-	if (!(exp->e)) FindWormBoundary(exp->Worm,exp->Params);
 
-	Toc(exp->profiler); //2
+	TICTOC::timer().tic("_FindWormBoundary",exp->e);
+	if (!(exp->e)) FindWormBoundary(exp->Worm,exp->Params);
+	TICTOC::timer().toc("_FindWormBoundary",exp->e);
+
 
 
 	/*** Find Worm Head and Tail ***/
@@ -529,21 +536,19 @@ void DoSegmentation(Experiment* exp) {
 	/** If we are doing temporal analysis, improve the WormHeadTail estimate based on prev frame **/
 	if (exp->Params->TemporalOn && !(exp->e)) PrevFrameImproveWormHeadTail(exp->Worm,exp->Params,exp->PrevWorm);
 
-	Toc(exp->profiler); //3
 
 
 
 	/*** Segment the Worm ***/
 	if (!(exp->e)) exp->e=SegmentWorm(exp->Worm,exp->Params);
-	Toc(exp->profiler); //4
 
 
 
 	/** Update PrevWorm Info **/
 	if (!(exp->e)) LoadWormGeom(exp->PrevWorm,exp->Worm);
 
-	Toc(exp->profiler); //5
 	/*** </segmentworm> ***/
+	_TICTOC_TOC_FUNC
 
 }
 

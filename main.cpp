@@ -101,22 +101,22 @@ int main (int argc, char** argv){
 				continue;
 			}
 
-			Tic(exp->profiler);
+
 
 			/** If the DLP is not displaying right now, than turn off the mirrors */
 			ClearDLPifNotDisplayingNow(exp);
 
-			Toc(exp->profiler); //0
+
 
 			/** Load Image into Our Worm Objects **/
 
 			if (!(exp->e)) exp->e=RefreshWormMemStorage(exp->Worm);
 			if (!(exp->e)) exp->e=LoadWormImg(exp->Worm,exp->fromCCD->iplimg);
 
-			Toc(exp->profiler); //1
-
+			TICTOC::timer().tic("EntireSegmentation");
 			/** Do Segmentation **/
 			DoSegmentation(exp);
+			TICTOC::timer().toc("EntireSegmentation");
 
 
 			/*** Do Some Illumination ***/
@@ -129,13 +129,12 @@ int main (int argc, char** argv){
 					SimpleIlluminateWormLR(exp->Worm, exp->IlluminationFrame, exp->Params->IllumSegCenter, exp->Params->IllumSegRadius, exp->Params->IllumLRC);
 				}
 			}
-			Toc(exp->profiler); //6
 
 
 			/*** <------------ 31fps ***/
+			TICTOC::timer().tic("TransformFrameCam2DLP");
 			if (!(exp->e)) TransformFrameCam2DLP(exp->IlluminationFrame,exp->forDLP,exp->Calib);
-			Toc(exp->profiler); //7
-
+			TICTOC::timer().toc("TransformFrameCam2DLP");
 			/*** <------------ 26fps ***/
 
 
@@ -147,9 +146,10 @@ int main (int argc, char** argv){
 			if (!(exp->e)) CreateWormHUDS(exp->HUDS,exp->Worm,exp->Params,exp->IlluminationFrame);
 
 			if (!(exp->e) &&  EverySoOften(exp->Worm->frameNum,exp->Params->DispRate) ){
+				TICTOC::timer().tic("DisplayOnScreen");
 				DoDisplaySelectedDisplay(exp);
+				TICTOC::timer().toc("DisplayOnScreen");
 			}
-			Toc(exp->profiler); //9
 
 			if (!(exp->e)) DoWriteToDisk(exp);
 
@@ -159,11 +159,11 @@ int main (int argc, char** argv){
 			} else {
 				printf("\n:(\n");
 			}
-				Toc(exp->profiler); //12
+
 		}
 		if (kbhit()) break;
 		if (exp->e) cvWaitKey(1); /**Wait so that we don't end up in a loop lockign up the UI in case of error**/
-		_TICTOC_TOC_FUNC
+
 	}
 	TICTOC::timer().toc("WholeLoop");
 	printf("%s",TICTOC::timer().generateReportCstr());
