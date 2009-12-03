@@ -115,16 +115,17 @@ int GetMilliSeconds(clock_t time){
  *
  */
 TimeProfile* CreateTimeProfiler(){
-	TimeProfile* profiler;
-	profiler->nframes=0;
-	profiler->nframes=0;
-	profiler->now=0;
-	profiler->last=0;
+	TimeProfile* p=(TimeProfile*) malloc(sizeof(TimeProfile));
+	p->nframes=0;
+	p->nframes=0;
+	p->now=0;
+	p->last=0;
 
 	for (int j = 0; j < _N_TIME_PTS; ++j) {
-		profiler->total_time[j] = 0;
+		p->total_time[j] = 0;
 	}
-	return profiler;
+	/** Create memory and objects **/
+	return p;
 }
 
 
@@ -166,7 +167,7 @@ void Toc(TimeProfile* profiler){
 void DisplayTimeProfile(TimeProfile* profiler){
 	int nrecordedtime = profiler->tnum;
 	for (int j = 0; j < nrecordedtime; ++j) {
-		printf("time %d: total time %d\ttime per frame:%g\n", j, profiler->total_time[j], (1.0*profiler->total_time[j])/profiler->nframes);
+		printf("\nProfile Results\ntime %d: total time %d\ttime per frame:%g\n", j, profiler->total_time[j], (1.0*profiler->total_time[j])/profiler->nframes);
 	}
 
 }

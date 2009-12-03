@@ -77,11 +77,13 @@ int main (int argc, char** argv){
 	/** SetUp Data Recording **/
 	SetupRecording(exp);
 
-	int e;
+	int e=0;
 
 
 	/*Start the frame rate timer */
 	StartFrameRateTimer(exp);
+
+
 
 
 	/** Giant While Loop Where Everything Happens **/
@@ -121,7 +123,7 @@ int main (int argc, char** argv){
 
 			/*** <segmentworm> ***/
 
-			/** Load Image into Our Worm Objects
+			/** Load Image into Our Worm Objects **/
 			/*** Load Frame into Worm **/
 			if (!e) e=RefreshWormMemStorage(exp->Worm);
 			if (!e) e=LoadWormImg(exp->Worm,exp->fromCCD->iplimg);
