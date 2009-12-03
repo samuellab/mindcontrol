@@ -688,7 +688,7 @@ void ClearSegmentedInfo(SegmentedWorm* SegWorm){
  *
  */
 int SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
-	TICTOC::timer.tic("segmentworm");
+	TICTOC::timer().tic("segmentworm");
 	if (cvSeqExists(Worm->Boundary) == 0){
 		printf("Error! No boundary found in SegmentWorm()\n");
 		return -1;
@@ -774,7 +774,7 @@ int SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
 	 *   To Segment the Left and Right Boundaries and store them
 	 */
 	SegmentSides(OrigBoundA,OrigBoundB,Worm->Segmented->Centerline,Worm->Segmented->LeftBound,Worm->Segmented->RightBound);
-	printf("%g\t", TICTOC::timer.toc("segmentworm"));
+	printf("%g\t", TICTOC::timer().toc("segmentworm"));
 	return 0;
 
 }
