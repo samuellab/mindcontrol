@@ -227,12 +227,11 @@ void SetupGUI(Experiment* exp){
 	cvNamedWindow(exp->WinCon1);
 	cvResizeWindow(exp->WinCon1,450,700);
 
-	printf("Ping\n");
 
 
 	/** SelectDispilay **/
 	cvCreateTrackbar("SelDisplay", "Controls"	, &(exp->Params->Display), 7, (int) NULL);
-	printf("Pong\n");
+
 
 	/** On Off **/
 	cvCreateTrackbar("On",exp->WinCon1,&(exp->Params->OnOff),1,(int) NULL);
@@ -350,8 +349,6 @@ void InitializeExperiment(Experiment* exp){
 		WormGeom* PrevWorm=CreateWormGeom();
 		exp->PrevWorm=PrevWorm;
 
-		/** Setup Timer **/
-		exp->profiler=CreateTimeProfiler();
 }
 
 
@@ -391,9 +388,6 @@ void ReleaseExperiment(Experiment* exp){
 
 	/** Release Window Names **/
 	ReleaseWindowNames(exp);
-
-	/** Release Time Profiler **/
-	DestroyTimeProfiler(&(exp->profiler));
 
 }
 
@@ -530,17 +524,21 @@ void DoSegmentation(Experiment* exp) {
 	TICTOC::timer().toc("_FindWormBoundary",exp->e);
 
 
-
+	TICTOC::timer().tic("_FindHeadTail",exp->e);
 	/*** Find Worm Head and Tail ***/
 	if (!(exp->e)) exp->e=GivenBoundaryFindWormHeadTail(exp->Worm,exp->Params);
 	/** If we are doing temporal analysis, improve the WormHeadTail estimate based on prev frame **/
 	if (exp->Params->TemporalOn && !(exp->e)) PrevFrameImproveWormHeadTail(exp->Worm,exp->Params,exp->PrevWorm);
+	TICTOC::timer().toc("_FindHeadTail",exp->e);
 
 
 
 
 	/*** Segment the Worm ***/
+	TICTOC::timer().tic("_SegmentWorm",exp->e);
 	if (!(exp->e)) exp->e=SegmentWorm(exp->Worm,exp->Params);
+	TICTOC::timer().toc("_SegmentWorm",exp->e);
+
 
 
 
@@ -601,10 +599,10 @@ void DoWriteToDisk(Experiment* exp){
 		cvResize(exp->HUDS,exp->SubSampled,CV_INTER_LINEAR);
 		cvWriteFrame(exp->VidHUDS,exp->SubSampled);
 	}
-	Toc(exp->profiler); //10
+
 
 	/** Record data frame to diskl **/
 	if (exp->RECORDDATA && exp->Params->Record) AppendWormFrameToDisk(exp->Worm,exp->Params,exp->DataWriter);
-	Toc(exp->profiler); //11
+
 
 }

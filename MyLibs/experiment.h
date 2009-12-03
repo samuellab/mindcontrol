@@ -74,8 +74,7 @@ typedef struct ExperimentStruct{
 	int RECORDVID;
 	int RECORDDATA;
 
-	/** Timing Information **/
-	TimeProfile* profiler;
+
 
 	/** Error Handling **/
 	int e;

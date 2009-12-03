@@ -77,9 +77,9 @@ int main (int argc, char** argv){
 
 	/*Start the frame rate timer */
 	StartFrameRateTimer(exp);
-
 	/** Giant While Loop Where Everything Happens **/
 	TICTOC::timer().tic("WholeLoop");
+
 	while (1) {
 		_TICTOC_TIC_FUNC
 		if (exp->MyCamera->iFrameNumber > lastFrameSeenOutside) {
@@ -114,6 +114,7 @@ int main (int argc, char** argv){
 			if (!(exp->e)) exp->e=LoadWormImg(exp->Worm,exp->fromCCD->iplimg);
 
 			TICTOC::timer().tic("EntireSegmentation");
+
 			/** Do Segmentation **/
 			DoSegmentation(exp);
 			TICTOC::timer().toc("EntireSegmentation");
@@ -140,13 +141,13 @@ int main (int argc, char** argv){
 
 
 			if (!(exp->e) && exp->Params->DLPOn) T2DLP_SendFrame((unsigned char *) exp->forDLP->binary, exp->myDLP); // Send image to DLP
-			Toc(exp->profiler); //8
 
 			/*** DIsplay Some Monitoring Output ***/
 			if (!(exp->e)) CreateWormHUDS(exp->HUDS,exp->Worm,exp->Params,exp->IlluminationFrame);
 
 			if (!(exp->e) &&  EverySoOften(exp->Worm->frameNum,exp->Params->DispRate) ){
 				TICTOC::timer().tic("DisplayOnScreen");
+
 				DoDisplaySelectedDisplay(exp);
 				TICTOC::timer().toc("DisplayOnScreen");
 			}
@@ -168,7 +169,6 @@ int main (int argc, char** argv){
 	TICTOC::timer().toc("WholeLoop");
 	printf("%s",TICTOC::timer().generateReportCstr());
 
-	DisplayTimeProfile(exp->profiler);
 	FinishRecording(exp);
 
 	//	cvDestroyAllWindows();

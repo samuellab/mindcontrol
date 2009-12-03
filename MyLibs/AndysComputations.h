@@ -9,15 +9,7 @@
 #define ANDYSCOMPUTATIONS_H_
 
 
-#define _N_TIME_PTS 100
 
-typedef struct TimeProfileStruct{
-	int tnum;
-	int nframes;
-	int total_time[_N_TIME_PTS];
-	clock_t now;
-	clock_t last;
-}TimeProfile;
 
 
 /*
@@ -71,50 +63,6 @@ int GetMilliSeconds(clock_t time);
 
 
 
-
-/************************************************/
-/*   Marc's Timing Profiler
- *
- */
-/************************************************/
-
-/*
- * Creates Marc's time profiler object and sets all
- * values to zero.
- *
- * This object is used to create profiles of what
- * takes how long to execute in the code.
- *
- */
-TimeProfile* CreateTimeProfiler();
-
-
-/*
- *  Destroy's the time profiler object.
- */
-void DestroyTimeProfiler(TimeProfile** profiler);
-
-/*
- * Resets the timer. And prepares it for subsequent tocs.
- * Usage: one Tic() followed by many Toc()'s
- *
- */
-void Tic(TimeProfile* profile);
-
-/*
- * Defines the end of the current time period for profiling. And prepares for subsequent timings.
- * Usage: one Tic() followed by many Toc()'s
- *
- */
-void Toc(TimeProfile* profiler);
-
-
-/*
- *
- * Print out the time profiler
- * generated from the Tic() followed by Tocs()
- */
-void DisplayTimeProfile(TimeProfile* profiler);
 
 
 
