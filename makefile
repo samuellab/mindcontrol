@@ -29,7 +29,8 @@ openCVincludes = -I$(CVdir)/cxcore/include -I$(CVdir)/otherlibs/highgui -I$(CVdi
 # objects that I have written, in order of dependency. 
 # e.g. Objects that depend on nothing go left.
 #Objects that depend on other objects go right.
-mylibraries=  version.o AndysComputations.o Talk2DLP.o Talk2Camera.o  AndysOpenCVLib.o Talk2Matlab.o TransformLib.o
+
+mylibraries=  version.o AndysComputations.o Talk2DLP.o Talk2Camera.o  AndysOpenCVLib.o Talk2Matlab.o TransformLib.o IllumWormProtocol.o
 WormSpecificLibs= WormAnalysis.o WriteOutWorm.o experiment.o
 
 #3rd party statically linked objects
@@ -39,15 +40,15 @@ TimerLibrary=tictoc.o timer.o
 HardwareLibrary=$(3rdPartyLibs)/alp4basic.lib $(3rdPartyLibs)/tisgrabber.lib 
 3rdpartyobjects= $(TimerLibrary) $(HardwareLibrary)
 
-#All Objects
-objects= main.o  $(mylibraries) $(WormSpecificLibs) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)
+#All Library Objects
+objects= $(mylibraries) $(WormSpecificLibs) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)
 calib_objects= calibrate.o $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)
 
 
 
 
 #Executables
-all : $(targetDir)/ClosedLoop.exe $(targetDir)/CalibrateApparatus.exe  version.o $(targetDir)/SegmentFrame.exe
+all : $(targetDir)/ClosedLoop.exe $(targetDir)/CalibrateApparatus.exe  $(targetDir)/SegmentFrame.exe version.o $(targetDir)/Test.exe
 
 
 $(targetDir)/CalibrateApparatus.exe : $(calib_objects)
@@ -56,18 +57,20 @@ $(targetDir)/CalibrateApparatus.exe : $(calib_objects)
 calibrate.o : calibrate.c $(3rdPartyLibs)/tisgrabber.h $(3rdPartyLibs)/TISGrabberGlobalDefs.h $(MyLibs)/Talk2DLP.h $(MyLibs)/Talk2Camera.h $(MatlabIncDir)/engine.h
 	g++ -c -Wall calibrate.c -I"inc" -I$(MyLibs) $(openCVincludes) $(TailOpts) 
 
-$(targetDir)/ClosedLoop.exe : $(objects)
-	g++ -o $(targetDir)/ClosedLoop.exe $(objects) $(TailOpts)
+$(targetDir)/ClosedLoop.exe : main.o $(objects)
+	g++ -o $(targetDir)/ClosedLoop.exe main.o $(objects) $(TailOpts)
 	
 	
 main.o : main.cpp $(3rdPartyLibs)/tisgrabber.h $(3rdPartyLibs)/TISGrabberGlobalDefs.h $(MyLibs)/Talk2DLP.h $(MyLibs)/Talk2Camera.h  $(MyLibs)/TransformLib.h $(MatlabIncDir)/engine.h
 	g++ -c -Wall main.cpp -I"inc" -I$(MyLibs) $(openCVincludes) $(TailOpts) 
 	
-Talk2DLP.o : $(MyLibs)/Talk2DLP.h $(MyLibs)/Talk2DLP.cpp 
+Talk2DLP.o : $(MyLibs)/Talk2DLP.h $(MyLibs)/Talk2DLP.cpp $(3rdPartyLibs)/alp4basic.lib
 	g++ -c  -Wall $(MyLibs)/Talk2DLP.cpp -I$(MyLibs) -I$(3rdPartyLibs) $(TailOpts)
 
 Talk2Camera.o : $(MyLibs)/Talk2Camera.cpp $(MyLibs)/Talk2Camera.h \
-$(3rdPartyLibs)/tisgrabber.h $(3rdPartyLibs)/TISGrabberGlobalDefs.h
+$(3rdPartyLibs)/tisgrabber.h $(3rdPartyLibs)/TISGrabberGlobalDefs.h \
+$(3rdPartyLibs)/tisgrabber.lib 
+
 	g++ -c -Wall $(MyLibs)/Talk2Camera.cpp -I$(3rdPartyLibs) -ITalk2Camera $(TailOpts)
 
 AndysOpenCVLib.o : $(MyLibs)/AndysOpenCVLib.c $(MyLibs)/AndysOpenCVLib.h 
@@ -91,6 +94,10 @@ tictoc.o: $(3rdPartyLibs)/tictoc.cpp $(3rdPartyLibs)/tictoc.h
 timer.o: $(3rdPartyLibs)/Timer.cpp $(3rdPartyLibs)/Timer.h 
 	g++ -c -v -Wall $(3rdPartyLibs)/Timer.cpp $ -I$(3rdPartyLibs)  $(TailOpts)
 
+IllumWormProtocol.o : $(MyLibs)/IllumWormProtocol.h $(MyLibs)/IllumWormProtocol.c
+	g++ -c -Wall $(MyLibs)/IllumWormProtocol.c -I$(MyLibs) $(openCVincludes) $(TailOpts)
+
+
 ###### version.c & version.h
 # note that version.c is generated at the very top. under "timestamp"
 version.o : $(MyLibs)/version.c $(MyLibs)/version.h 
@@ -98,15 +105,24 @@ version.o : $(MyLibs)/version.c $(MyLibs)/version.h
 
 #Trick so that git generates a version.c file
 $(MyLibs)/version.c: FORCE 
-	$(GIT) rev-parse HEAD | awk ' BEGIN {print "#include \"version.h\""} {print "const char * build_git_sha = \"" $$0"\";"} END {}' > $(MyLibs)/version.c
-	date | awk 'BEGIN {} {print "const char * build_git_time = \""$$0"\";"} END {} ' >> $(MyLibs)/version.c	
+	$(GIT) rev-parse HEAD | awk ' BEGIN {print "#include \"version.h\""} {print "extern const char * build_git_sha = \"" $$0"\";"} END {}' > $(MyLibs)/version.c
+	date | awk 'BEGIN {} {print "extern const char * build_git_time = \""$$0"\";"} END {} ' >> $(MyLibs)/version.c	
 		
 FORCE:
 
 
+###### Test.exe
+$(targetDir)/Test.exe : Test.o $(CVlibs) IllumWormProtocol.o version.o
+	g++ -o $(targetDir)/Test.exe Test.o IllumWormProtocol.o version.o $(CVlibs) $(TailOpts)
+
+Test.o : test.c
+	g++ -c -Wall test.c -I$(MyLibs) $(openCVincludes) $(TailOpts) 
+	echo "Compiling test.c"
+	
+
 ###### SegmentFrame.exe
-$(targetDir)/SegmentFrame.exe : $(objects)
-	g++ -o $(targetDir)/SegmentFrame.exe $(objects) $(TailOpts) 
+$(targetDir)/SegmentFrame.exe : SegmentFrame.o $(objects)
+	g++ -o $(targetDir)/SegmentFrame.exe  SegmentFrame.o $(objects) $(TailOpts) 
 
 SegmentFrame.o : SegmentFrame.c $(myOpenCVlibraries) $(WormSpecificLibs) 
 	g++ -c -Wall SegmentFrame.c -I$(MyLibs) $(openCVincludes) $(TailOpts)
