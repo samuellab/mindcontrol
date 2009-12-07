@@ -70,7 +70,7 @@ int main(){
 
 
 	/** Let's load up the illumination montages with polygons**/
-//	cvSeqPush(FirstIllum,&Head);
+	cvSeqPush(FirstIllum,&Head);
 	cvSeqPush(FirstIllum,&Tail);
 	cvSeqPush(FirstIllum,&Left);
 	cvSeqPush(FirstIllum,&Right);
