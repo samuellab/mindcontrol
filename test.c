@@ -22,23 +22,16 @@ using namespace std;
 #include "MyLibs/IllumWormProtocol.h"
 #include "MyLibs/version.h"
 
-int main(){
 
-	printf("Hello World\n");
+
+void WriteTestProtocol(char* name){
 
 	Protocol* myP=CreateProtocolObject();
-
 	myP->Description="A test protocol.";
-	myP->Filename="protocol.yaml";
+	myP->Filename=name;
 	myP->GridSize=cvSize(2,99);
 	/** Create the Steps Object and Load it into the Protocol **/
 	myP->Steps=CreateStepsObject(myP->memory);
-
-
-	/** Create an Illumination Montage**/
-	CvSeq* FirstIllum=CreateIlluminationMontage(myP->memory);
-	CvSeq* SecondIllum=CreateIlluminationMontage(myP->memory);
-	CvSeq* ThirdIllum=CreateIlluminationMontage(myP->memory);
 
 
 	/** Create Some Polygons **/
@@ -69,6 +62,12 @@ int main(){
 	cvSeqPush(Tail->Points,&cvPoint(0,99));
 
 
+	/** Create an Illumination Montage**/
+	CvSeq* FirstIllum=CreateIlluminationMontage(myP->memory);
+	CvSeq* SecondIllum=CreateIlluminationMontage(myP->memory);
+	CvSeq* ThirdIllum=CreateIlluminationMontage(myP->memory);
+
+
 	/** Let's load up the illumination montages with polygons**/
 	cvSeqPush(FirstIllum,&Head);
 	cvSeqPush(FirstIllum,&Tail);
@@ -84,12 +83,48 @@ int main(){
 	cvSeqPush(ThirdIllum,&Tail);
 	cvSeqPush(ThirdIllum,&Left);
 
+
+
+
+
+
 	/** Let's Load the montages into a series of steps **/
 	cvSeqPush(myP->Steps,&FirstIllum);
 	cvSeqPush(myP->Steps,&SecondIllum);
 	cvSeqPush(myP->Steps,&ThirdIllum);
 
 	WriteProtocolToYAML(myP);
+
+	DestroyWormPolygon(&Head);
+	DestroyWormPolygon(&Tail);
+	DestroyWormPolygon(&Left);
+	DestroyWormPolygon(&Right);
+	DestroyProtocolObject(&myP);
+
+}
+
+
+
+
+
+
+
+
+int main(){
+
+	printf("Hello World\n");
+
+	WriteTestProtocol("protocol.yaml");
+
+	printf("Done writing...\n\n");
+
+	//Protocol* myP = ReadTestProtocol("protocol.yaml");
+
+	printf("Clear memory..");
+
+
+
+
 
 
 	return 0;

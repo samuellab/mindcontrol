@@ -103,21 +103,6 @@ void WriteProtocolToYAML(Protocol* myP){
 				cvSeqPopFront(CurrentMontage, &CurrentPolygon);
 				printf("CurrentPolygon->total=%d\n",CurrentPolygon->Points->total);
 				cvWrite(fs,NULL,CurrentPolygon->Points);
-//				cvStartWriteStruct(fs,NULL,CV_NODE_SEQ,NULL);
-//				int l;
-//				int ltot=CurrentPolygon->Points->total;
-//				for (l = 0; l < ltot; ++l) {
-//
-//					CvPoint CurrentPt;
-//					cvSeqPopFront(CurrentPolygon->Points,&CurrentPt);
-//					cvStartWriteStruct(fs,NULL,CV_NODE_MAP,NULL);
-//						cvWriteInt(fs,"x",CurrentPt.x);
-//						cvWriteInt(fs,"y",CurrentPt.y);
-//					cvEndWriteStruct(fs);
-//
-//				}
-//				cvEndWriteStruct(fs);
-
 			}
 			cvEndWriteStruct(fs);
 
