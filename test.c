@@ -4,6 +4,8 @@
 #include <time.h>
 #include <conio.h>
 #include <math.h>
+#include <string.h>
+
 
 //C++ header
 #include <iostream>
@@ -29,6 +31,7 @@ void WriteTestProtocol(char* name){
 	Protocol* myP=CreateProtocolObject();
 	myP->Description="A test protocol.";
 	myP->Filename=name;
+
 	myP->GridSize=cvSize(2,99);
 	/** Create the Steps Object and Load it into the Protocol **/
 	myP->Steps=CreateStepsObject(myP->memory);
@@ -85,14 +88,13 @@ void WriteTestProtocol(char* name){
 
 
 
-
-
-
 	/** Let's Load the montages into a series of steps **/
 	cvSeqPush(myP->Steps,&FirstIllum);
 	cvSeqPush(myP->Steps,&SecondIllum);
 	cvSeqPush(myP->Steps,&ThirdIllum);
 
+
+	printf("Writing test protocol in file: %s\n",myP->Filename);
 	WriteProtocolToYAML(myP);
 
 	DestroyWormPolygon(&Head);
@@ -107,24 +109,45 @@ void WriteTestProtocol(char* name){
 
 
 
+Protocol* ReadTestProtocol(const char* name){
+	printf("In ReadTestProtocol()");
+	Protocol* myP=CreateProtocolObject();
+	LoadProtocolWithFilename(name,myP);
+	CvFileStorage* fs=cvOpenFileStorage("protocol.yml",0,CV_STORAGE_READ);
+	printf("Opened File Storage\n");
+	CvFileNode* node=cvGetFileNodeByName(fs,NULL,"Protocol");
+	printf("node=cvGetFileNodeByName(fs,NULL,\"Protocol\")\nCV_NODE_TYPE(node->tag)=%d\n",CV_NODE_TYPE(node->tag));
 
+	node=cvGetFileNodeByName(fs,node,"Description");
+	printf("CV_NODE_TYPE(node->tag)=%d\n",CV_NODE_TYPE(node->tag));
+
+
+
+
+
+	myP->Description="A test protocol.";
+
+	myP->GridSize=cvSize(2,99);
+	/** Create the Steps Object and Load it into the Protocol **/
+	myP->Steps=CreateStepsObject(myP->memory);
+	return myP;
+
+
+}
 
 
 int main(){
 
-	printf("Hello World\n");
+	//char* name = (char*) malloc(sizeof(char)*50);
 
-	WriteTestProtocol("protocol.yaml");
+
+
+	printf(copyString("Hello you World\n"));
+
+	WriteTestProtocol("protocol.yml");
 
 	printf("Done writing...\n\n");
-
-	//Protocol* myP = ReadTestProtocol("protocol.yaml");
-
-	printf("Clear memory..");
-
-
-
-
+	Protocol* myP = ReadTestProtocol("protocol.yml");
 
 
 	return 0;

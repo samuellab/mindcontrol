@@ -48,6 +48,13 @@ Protocol* CreateProtocolObject();
 
 void DestroyProtocolObject(Protocol** MyProto);
 
+void LoadProtocolWithFilename(const char* str, Protocol* myP);
+
+void LoadProtocolWithDescription(const char* str, Protocol* myP);
+
+
+
+
 
 
 /*
@@ -108,7 +115,17 @@ WormPolygon* CreateWormPolygon(CvMemStorage* memory,CvSize mySize);
 void DestroyWormPolygon(WormPolygon** myPoly);
 
 
+/*******************************************/
+/*
+ * Misc
+ */
+/*******************************************/
 
+
+/*
+ * Simple function to copy a string
+ */
+char *copyString (const char *src);
 
 
 
