@@ -115,21 +115,30 @@ Protocol* ReadTestProtocol(const char* name){
 	LoadProtocolWithFilename(name,myP);
 	CvFileStorage* fs=cvOpenFileStorage("protocol.yml",0,CV_STORAGE_READ);
 	printf("Opened File Storage\n");
-	CvFileNode* node=cvGetFileNodeByName(fs,NULL,"Protocol");
-	printf("node=cvGetFileNodeByName(fs,NULL,\"Protocol\")\nCV_NODE_TYPE(node->tag)=%d\n",CV_NODE_TYPE(node->tag));
 
-	node=cvGetFileNodeByName(fs,node,"Description");
-	printf("CV_NODE_TYPE(node->tag)=%d\n",CV_NODE_TYPE(node->tag));
+	/** Point to Protocol Object **/
+	CvFileNode* protonode=cvGetFileNodeByName(fs,NULL,"Protocol");
 
 
+	/** Load in Description **/
+	CvFileNode* node=cvGetFileNodeByName(fs,protonode,"Description");
+	myP->Description=copyString(cvReadString(node,NULL));
+	printf("myP->Description=%s",myP->Description);
 
+	/** Load in Grid Size **/
+	node=cvGetFileNodeByName(fs,protonode,"GridSize");
+	int height=cvReadIntByName(fs,node,"height",-1);
+	int width=cvReadIntByName(fs,node,"width",-1);
+	if (height>0 && width>0){
+		myP->GridSize=cvSize(width,height);
+	}
 
-
-	myP->Description="A test protocol.";
-
-	myP->GridSize=cvSize(2,99);
 	/** Create the Steps Object and Load it into the Protocol **/
 	myP->Steps=CreateStepsObject(myP->memory);
+
+	/** Point to the Steps node  in the YAML file **/
+	node=cvGetFileNodeByName(fs,protonode,"Steps");
+
 	return myP;
 
 
