@@ -140,8 +140,7 @@ Protocol* ReadTestProtocol(const char* name){
 	/** Point to the Steps node  in the YAML file **/
 	node=cvGetFileNodeByName(fs,protonode,"Steps");
 
-	/**Create Illumination Montage Object **/
-	CvSeq* montage=CreateIlluminationMontage(myP->memory);
+
 
 	/** Create a local object that contains the information of the steps **/
 	CvSeq* stepSeq=node->data.seq;
@@ -154,19 +153,54 @@ Protocol* ReadTestProtocol(const char* name){
 	/** Let's loop through all of the steps **/
 	for (int i= 0; i< numsteps; ++i) {
 
+		/**Create Illumination Montage Object **/
+		CvSeq* montage=CreateIlluminationMontage(myP->memory);
+
 		/** Find the node of the current image montage (step) **/
 		CvFileNode* montageNode = (CvFileNode*)StepReader.ptr;
-		printf("montageNode->data.seq.total=%d\n",montageNode->data.seq->total);
+
+		CvSeq* montageSeq=montageNode->data.seq;
+		int numPolygonsInMontage=montageSeq->total;
+		printf("Step %d: %d polygon(s) found\n",i,numPolygonsInMontage);
+
+		CvSeqReader MontageReader;
+		cvStartReadSeq( montageSeq, &MontageReader, 0 );
+
+		/** Loop through all of the polygons **/
+		for (int k = 0; k < numPolygonsInMontage; ++k) {
+			/** Load the CvSeq Polygon Objects and push them onto the montage **/
+			CvFileNode* polygonNode = (CvFileNode*)MontageReader.ptr;
+			CvSeq* polygonPts =(CvSeq*) cvRead(fs,polygonNode); // <---- Andy come back here.
+			printf("\tPolygon %d: found %d points.\n",k,polygonPts->total);
+
+			/**
+			 * Now we have the points for our polygon so we need to load
+			 * those points into a polygon object
+			 */
+			WormPolygon* polygon= CreateWormPolygonFromSeq(myP->memory,myP->GridSize,polygonPts);
+			printf("\t\t %d points copied\n",polygon->Points->total);
+
+			/** Add the polygon to the montage **/
+			cvSeqPush(montage,polygon);
+			printf("\t\t Current montage now has %d polygons\n",montage->total);
+
+			/** Move to the next polygon **/
+			CV_NEXT_SEQ_ELEM( montageSeq->elem_size, MontageReader );
+		}
+		cvClearSeq(montageSeq);
+		numPolygonsInMontage=0;
+
+
+		/** Load the montage onto the step object**/
+		cvSeqPush(myP->Steps,montage);
+
 
 		/** Progress to the next step **/
 		CV_NEXT_SEQ_ELEM( stepSeq->elem_size, StepReader );
 
-
 	}
 
 
-		/** Load the CvSeq Polygon Objects and push them onto the montage **/
-		/** Push the Montage onto the steps object **/
 
 
 

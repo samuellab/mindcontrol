@@ -108,6 +108,15 @@ CvSeq* CreateIlluminationMontage(CvMemStorage* memory);
  *
  */
 WormPolygon* CreateWormPolygon(CvMemStorage* memory,CvSize mySize);
+
+/*
+ *
+ * Creates a worm polygon object from a CvSeq of Points.
+ * This will clone the CvSeq and copy it into the memory storage
+ * specified
+ */
+WormPolygon* CreateWormPolygonFromSeq(CvMemStorage* memory,CvSize GridSize,CvSeq* points);
+
 /*
  * Destroys a polygon but doesn't free up the CvMemStorage that that polygon used
  *
