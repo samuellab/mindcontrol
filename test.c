@@ -26,7 +26,7 @@ using namespace std;
 
 
 
-void WriteTestProtocol(char* name){
+Protocol* CreateTestProtocol(char* name){
 
 	Protocol* myP=CreateProtocolObject();
 	myP->Description="A test protocol.";
@@ -97,11 +97,12 @@ void WriteTestProtocol(char* name){
 	printf("Writing test protocol in file: %s\n",myP->Filename);
 	WriteProtocolToYAML(myP);
 
+	printf("Head->points->total=%d\n",Head->Points->total);
 	DestroyWormPolygon(&Head);
 	DestroyWormPolygon(&Tail);
 	DestroyWormPolygon(&Left);
 	DestroyWormPolygon(&Right);
-	DestroyProtocolObject(&myP);
+	return myP;
 
 }
 
@@ -181,7 +182,7 @@ Protocol* ReadTestProtocol(const char* name){
 			printf("\t\t %d points copied\n",polygon->Points->total);
 
 			/** Add the polygon to the montage **/
-			cvSeqPush(montage,polygon);
+			cvSeqPush(montage,&polygon);
 			printf("\t\t Current montage now has %d polygons\n",montage->total);
 
 			/** Move to the next polygon **/
@@ -190,20 +191,15 @@ Protocol* ReadTestProtocol(const char* name){
 		cvClearSeq(montageSeq);
 		numPolygonsInMontage=0;
 
-
+		printf("Loading a montage with %d polygons on the protocol\n.",montage->total);
 		/** Load the montage onto the step object**/
-		cvSeqPush(myP->Steps,montage);
+		cvSeqPush(myP->Steps,&montage);
 
 
 		/** Progress to the next step **/
 		CV_NEXT_SEQ_ELEM( stepSeq->elem_size, StepReader );
 
 	}
-
-
-
-
-
 
 	return myP;
 
@@ -218,12 +214,19 @@ int main(){
 
 
 	printf(copyString("Hello you World\n"));
+	Protocol* myP=CreateTestProtocol("protocol.yml");
+	VerifyProtocol(myP);
 
-	WriteTestProtocol("protocol.yml");
+	WriteProtocolToYAML(myP);
+	DestroyProtocolObject(&myP);
 
 	printf("Done writing...\n\n");
-	Protocol* myP = ReadTestProtocol("protocol.yml");
+	Protocol* protocol2 = ReadTestProtocol("protocol.yml");
+	VerifyProtocol(protocol2);
+	protocol2->Filename="protoco2.yml";
 
+	printf("protocol2->Steps->total=%d\n",protocol2->Steps->total);
+	WriteProtocolToYAML(protocol2);
 
 	return 0;
 }

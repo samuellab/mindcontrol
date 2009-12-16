@@ -46,6 +46,8 @@ Protocol* CreateProtocolObject();
 
 
 
+int VerifyProtocol(Protocol* p);
+
 void DestroyProtocolObject(Protocol** MyProto);
 
 void LoadProtocolWithFilename(const char* str, Protocol* myP);

@@ -65,6 +65,10 @@ Protocol* CreateProtocolObject(){
  */
 void WriteProtocolToYAML(Protocol* myP){
 	/** Open file for writing **/
+	printf("We are about to write out a protocol. Here is some info about the protocol.:\n");
+	printf("The protocol has %d steps.\n",myP->Steps->total);
+
+
 	CvFileStorage* fs=cvOpenFileStorage(myP->Filename,myP->memory,CV_STORAGE_WRITE);
 	if (fs==0){
 		printf("fs is zero! Could you have specified the wrong directory?\n");
@@ -78,6 +82,7 @@ void WriteProtocolToYAML(Protocol* myP){
 	cvWriteComment(fs, build_git_sha,0);
 	cvWriteComment(fs, build_git_time,0);
 	cvWriteComment(fs, "\n",0);
+	printf("wrote comments\n");
 
 	/** Write out Protocol **/
 	cvStartWriteStruct(fs,"Protocol",CV_NODE_MAP,NULL);
@@ -92,21 +97,39 @@ void WriteProtocolToYAML(Protocol* myP){
 		cvStartWriteStruct(fs,"Steps",CV_NODE_SEQ,NULL);
 		int j;
 		int jtot=myP->Steps->total;
-		for (j = 0; j < jtot; ++j) {
-			CvSeq* CurrentMontage=NULL;
-			cvSeqPopFront(myP->Steps,&CurrentMontage);
-			cvStartWriteStruct(fs,NULL,CV_NODE_SEQ,NULL);
 
+
+		CvSeqReader StepReader;
+		cvStartReadSeq(myP->Steps,&StepReader,0);
+		for (j = 0; j < jtot; ++j) {
+			printf("About to write step number %d\n",j);
+			CvSeq** CurrentMontagePtr = (CvSeq**) StepReader.ptr;
+			CvSeq* CurrentMontage=*CurrentMontagePtr;
+			assert(CurrentMontage!=NULL);
+			printf("ping\n");
+			printf("CurrentMontage->total=%d",CurrentMontage->total);
+			cvStartWriteStruct(fs,NULL,CV_NODE_SEQ,NULL);
 			int k;
-			printf("CurrentMontage->total=%d\n",CurrentMontage->total);
 			int ktot=CurrentMontage->total;
+			printf("ktot=%d\n",ktot);
+
+			CvSeqReader MontageReader;
+			cvStartReadSeq(CurrentMontage,&MontageReader);
 			for (k = 0; k < ktot; ++k) {
-				WormPolygon* CurrentPolygon=NULL;
-				cvSeqPopFront(CurrentMontage, &CurrentPolygon);
-				printf("CurrentPolygon->total=%d\n",CurrentPolygon->Points->total);
+				printf("About to write polygon number %d\n",k);
+				WormPolygon** CurrentPolygonPtr= (WormPolygon**) MontageReader.ptr;
+				WormPolygon* CurrentPolygon=*CurrentPolygonPtr;
+
 				cvWrite(fs,NULL,CurrentPolygon->Points);
+
+				CV_NEXT_SEQ_ELEM(CurrentMontage->elem_size,MontageReader);
 			}
+			CurrentMontagePtr=NULL;
+			CurrentMontage=NULL;
 			cvEndWriteStruct(fs);
+
+			/** Loop to Next Step **/
+			CV_NEXT_SEQ_ELEM(myP->Steps->elem_size,StepReader);
 
 		}
 		cvEndWriteStruct(fs);
@@ -129,8 +152,10 @@ void LoadProtocolWithDescription(const char* str, Protocol* myP){
 
 
 
+
 void DestroyProtocolObject(Protocol** MyProto){
 	/** **/
+	printf("in DestroyProtocolObject()\n");
 	assert(MyProto!=NULL);
 	if (*MyProto==NULL) return;
 	if  ((*MyProto)->Filename!=NULL ) {
@@ -138,11 +163,37 @@ void DestroyProtocolObject(Protocol** MyProto){
 		(*MyProto)->Filename=NULL;
 	}
 
+	printf("about to cycle through...\n");
+
+	if ((*MyProto)->Steps!=NULL){
+	//	printf("(*MyProto)->Steps!=NULL\n");
+		int numsteps=(*MyProto)->Steps->total;
+	//	printf("numsteps=%d\n",numsteps);
+		for (int step= 0; step < numsteps ; ++step) {
+			CvSeq** montagePtr=(CvSeq**) cvGetSeqElem((*MyProto)->Steps,step);
+			CvSeq* montage=*montagePtr;
+			if (montage!=NULL){
+		//		printf("montage!=NULL\n");
+				int numpolygons=montage->total;
+			//	printf("numpolygons=%d\n",numpolygons);
+				for (int k= 0; k< numpolygons; ++k) {
+					WormPolygon** polygonPtr=(WormPolygon**) cvGetSeqElem(montage,k);
+					WormPolygon* polygon=*polygonPtr;
+		//			printf( "\tFound polygon with %d nubmer of points.\n",polygon->Points->total );
+					DestroyWormPolygon(&polygon);
+		//			printf("Destroying polygon...\n");
+
+				}
+			}
+
+		}
+	}
+
+
 	if  ((*MyProto)->Description!=NULL ) {
 		free( &((*MyProto)->Description) );
 		(*MyProto)->Description=NULL;
 	}
-
 
 	cvReleaseMemStorage(&(*MyProto)->memory);
 	free(MyProto);
@@ -213,7 +264,7 @@ WormPolygon* CreateWormPolygon(CvMemStorage* memory,CvSize mySize){
 
 /*
  *
- * Creates a worom polygon object from a CvSeq of Points.
+ * Creates a worm polygon object from a CvSeq of Points.
  * This will clone the CvSeq and copy it into the memory storage
  * specified
  */
@@ -244,3 +295,85 @@ char *copyString (const char *src) {
 	strcpy(   dst, src);
 	return dst;
 }
+
+
+
+
+void PrintPointsOfSeq(CvSeq* seq){
+	int numpts=seq->total;
+	CvSeqReader PtReader;
+	cvStartReadSeq(seq,&PtReader,0);
+	int i;
+	for (i = 0; i < numpts; ++i) {
+		CvPoint* pt= (CvPoint*) PtReader.ptr;
+
+		printf("[%d,",pt->x);
+		printf("%d] ",pt->y);
+		CV_NEXT_SEQ_ELEM(seq->elem_size,PtReader);
+	}
+	printf("\n");
+
+}
+
+
+int VerifyProtocol(Protocol* p){
+	printf("\n\n========== VERIFYING PROTOCOL============\n");
+	if (p==NULL){
+		printf("Protocol is NULL\n");
+		return -1;
+	}
+
+	printf("Protocol description: %s\n", p->Description);
+	printf("Filename= %s\n",p->Filename);
+	printf("Total number of steps: p->Steps->total=%d\n",p->Steps->total);
+
+	CvSeqReader StepReader;
+	cvStartReadSeq(p->Steps, &StepReader,0);
+	int numsteps=p->Steps->total;
+	/** Let's loop through all of the steps **/
+		for (int i= 0; i< numsteps; ++i) {
+			printf("Step i=%d\n",i);
+
+			CvSeq* CurrMontage= *( (CvSeq**) StepReader.ptr);
+			printf("\tCurrMontage has %d polygons\n",CurrMontage->total);
+			int numPolygons=CurrMontage->total;
+			int j;
+
+
+			/** Let's loop through the polygons **/
+
+			CvSeqReader MontageReader;
+			cvStartReadSeq(CurrMontage, &MontageReader);
+			for (j = 0; j < numPolygons; ++j) {
+				WormPolygon*  poly= *( (WormPolygon**) MontageReader.ptr );
+				int numpts=poly->Points->total;
+				printf(" numpts=%d\n",numpts);
+
+
+
+
+				PrintPointsOfSeq(poly->Points);
+
+
+
+
+				CV_NEXT_SEQ_ELEM( CurrMontage->elem_size,MontageReader);
+			}
+
+
+
+
+			/** Progress to the next step **/
+			CV_NEXT_SEQ_ELEM( p->Steps->elem_size, StepReader );
+		}
+
+
+	printf("========================================\n");
+	return 0;
+}
+
+
+
+
+
+
