@@ -110,6 +110,7 @@ void WriteTestProtocol(char* name){
 
 
 Protocol* ReadTestProtocol(const char* name){
+
 	printf("In ReadTestProtocol()");
 	Protocol* myP=CreateProtocolObject();
 	LoadProtocolWithFilename(name,myP);
@@ -123,7 +124,7 @@ Protocol* ReadTestProtocol(const char* name){
 	/** Load in Description **/
 	CvFileNode* node=cvGetFileNodeByName(fs,protonode,"Description");
 	myP->Description=copyString(cvReadString(node,NULL));
-	printf("myP->Description=%s",myP->Description);
+	printf("myP->Description=%s\n",myP->Description);
 
 	/** Load in Grid Size **/
 	node=cvGetFileNodeByName(fs,protonode,"GridSize");
@@ -138,6 +139,37 @@ Protocol* ReadTestProtocol(const char* name){
 
 	/** Point to the Steps node  in the YAML file **/
 	node=cvGetFileNodeByName(fs,protonode,"Steps");
+
+	/**Create Illumination Montage Object **/
+	CvSeq* montage=CreateIlluminationMontage(myP->memory);
+
+	/** Create a local object that contains the information of the steps **/
+	CvSeq* stepSeq=node->data.seq;
+	int numsteps=stepSeq->total;
+	printf("numsteps=%d\n",numsteps);
+
+	CvSeqReader StepReader;
+	cvStartReadSeq( stepSeq, &StepReader, 0 );
+
+	/** Let's loop through all of the steps **/
+	for (int i= 0; i< numsteps; ++i) {
+
+		/** Find the node of the current image montage (step) **/
+		CvFileNode* montageNode = (CvFileNode*)StepReader.ptr;
+		printf("montageNode->data.seq.total=%d\n",montageNode->data.seq->total);
+
+		/** Progress to the next step **/
+		CV_NEXT_SEQ_ELEM( stepSeq->elem_size, StepReader );
+
+
+	}
+
+
+		/** Load the CvSeq Polygon Objects and push them onto the montage **/
+		/** Push the Montage onto the steps object **/
+
+
+
 
 	return myP;
 
