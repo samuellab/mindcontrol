@@ -16,6 +16,9 @@
 
 
 typedef struct ExperimentStruct{
+	/** Simulation? True/false **/
+	int Sim;
+
 	/** GuiWindowNames **/
 	char* WinDisp ;
 	char* WinCon1;
@@ -29,6 +32,12 @@ typedef struct ExperimentStruct{
 
 	/** Camera Input**/
 	CamData* MyCamera;
+
+	/** Video Capture (for simulation mode) **/
+	CvCapture* capture;
+
+	/** MostRecently Observed CameraFrameNumber **/
+	unsigned long lastFrameSeenOutside;
 
 	/** DLP Output **/
 	long myDLP;
@@ -99,6 +108,11 @@ void LoadCommandLineArguments(Experiment* exp, int argc, char** argv);
  */
 int HandleCommandLineArguments(Experiment* exp);
 
+/*
+ * Flips the simulation variable to on.
+ */
+void SetExpToSimulation(Experiment* exp);
+
 /* Assigns Default window names to the experiment object
  *
  */
@@ -126,6 +140,11 @@ void SetupGUI(Experiment* exp);
  * Start Grabbing Frames as quickly as possible
  */
 void RollCamera(Experiment* exp);
+
+/** Grab a Frame from either camera or video source
+ *
+ */
+int GrabFrame(Experiment* exp);
 
 /*
  * Create calibration Data structure
@@ -156,6 +175,23 @@ void InitializeExperiment(Experiment* exp);
  */
 void ReleaseExperiment(Experiment* exp);
 
+
+
+
+/*********************************************
+ *
+ * Image Acquisition
+ *
+ */
+
+/*
+ * Is a frame ready from the camera?
+ */
+int isFrameReady(Experiment* exp);
+
+/******************
+ * Recording
+ */
 
 /* Destroy the experiment object.
  * To be run after ReleaseExperiment()

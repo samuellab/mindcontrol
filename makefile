@@ -44,11 +44,15 @@ HardwareLibrary=$(3rdPartyLibs)/alp4basic.lib $(3rdPartyLibs)/tisgrabber.lib
 objects= $(mylibraries) $(WormSpecificLibs) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)
 calib_objects= calibrate.o $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)
 
+#Hardware Independent objects
+hw_ind= version.o AndysComputations.o AndysOpenCVLib.o TransformLib.o IllumWormProtocol.o $(WormSpecificLibs) DontTalk2DLP.o DontTalk2Camera.o $(TimerLibrary) $(CVlibs)
 
 
 
 #Executables
 all : $(targetDir)/ClosedLoop.exe $(targetDir)/CalibrateApparatus.exe  $(targetDir)/SegmentFrame.exe version.o $(targetDir)/Test.exe
+
+simulation :  $(targetDir)/SegmentFrame.exe version.o $(targetDir)/Test.exe
 
 
 $(targetDir)/CalibrateApparatus.exe : $(calib_objects)
@@ -120,13 +124,7 @@ Test.o : test.c
 	echo "Compiling test.c"
 	
 
-###### SegmentFrame.exe
-$(targetDir)/SegmentFrame.exe : SegmentFrame.o $(objects)
-	g++ -o $(targetDir)/SegmentFrame.exe  SegmentFrame.o $(objects) $(TailOpts) 
-
-SegmentFrame.o : SegmentFrame.c $(myOpenCVlibraries) $(WormSpecificLibs) 
-	g++ -c -Wall SegmentFrame.c -I$(MyLibs) $(openCVincludes) $(TailOpts)
-	
+####### Worm Specific Libraries
 WormAnalysis.o : $(MyLibs)/WormAnalysis.c $(MyLibs)/WormAnalysis.h $(myOpenCVlibraries)  
 	g++ -c -Wall $(MyLibs)/WormAnalysis.c -I$(MyLibs) $(openCVincludes) $(TailOpts)
 
@@ -134,6 +132,25 @@ WriteOutWorm.o : $(MyLibs)/WormAnalysis.c $(MyLibs)/WormAnalysis.h $(MyLibs)/Wri
 	g++ -c -Wall $(MyLibs)/WriteOutWorm.c -I$(MyLibs) $(openCVincludes) $(TailOpts)
 
 $(MyLibs)/WriteOutWorm.c :  $(MyLibs)/version.h 
+
+
+
+
+###### SegmentFrame.exe
+$(targetDir)/SegmentFrame.exe : SegmentFrame.o $(hw_ind)
+	g++ -o $(targetDir)/SegmentFrame.exe  SegmentFrame.o $(hw_ind) $(TailOpts) 
+
+SegmentFrame.o : main.cpp $(myOpenCVlibraries) $(WormSpecificLibs) 
+	g++ -c -Wall main.cpp -Dsimulate -I$(MyLibs) $(openCVincludes) $(TailOpts)
+	
+## Hardware independent hack
+DontTalk2Camera.o : $(MyLibs)/DontTalk2Camera.c $(MyLibs)/Talk2Camera.h
+	g++ -c -Wall $(MyLibs)/DontTalk2Camera.c -I$(MyLibs)  $(TailOpts)
+
+DontTalk2DLP.o : $(MyLibs)/DontTalk2DLP.c $(MyLibs)/Talk2DLP.h
+	g++ -c -Wall $(MyLibs)/DontTalk2DLP.c -I$(MyLibs)  $(TailOpts)
+
+
 
 
 .PHONY: clean	

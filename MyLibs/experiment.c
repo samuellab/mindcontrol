@@ -15,6 +15,7 @@
 #include <time.h>
 #include <conio.h>
 #include <math.h>
+#include <assert.h>
 
 //C++ header
 #include <iostream>
@@ -61,6 +62,9 @@ Experiment* CreateExperimentStruct(){
 	/**  Set Everything to zero or NULL **/
 	/*************************************/
 
+	/** Simulation? True/False **/
+	exp->Sim=0;
+
 	/** GuiWindowNames **/
 	exp->WinDisp=NULL;
 	exp->WinCon1=NULL;
@@ -76,6 +80,12 @@ Experiment* CreateExperimentStruct(){
 
 	/** Camera Input**/
 	exp->MyCamera=NULL;
+
+	/** Video input **/
+	exp->capture=NULL;
+
+	/** Last Observerd CamFrameNumber **/
+	exp->lastFrameSeenOutside=0;
 
 	/** DLP Output **/
 	exp->myDLP=0;
@@ -153,25 +163,71 @@ int HandleCommandLineArguments(Experiment* exp){
 		return -1;
 	}
 
-	/** Handle Variable Arguments **/
-	if( exp->argc !=1 && exp->argc!=3 ){
-		printf("Runs the camera and DLP in closed loop.\n");
-		printf("Run without any arguments, or, to save data in a directory use the following usage:\n");
-		printf("\tClosedLoop.exe D:/Data/MyDirectory/  basefilename\n\n");
-		printf("IMPORTANT: Remember to include the trailing slash on the directory!");
+	if (!(exp->Sim)){ /** If not a simulation **/
+		/** Handle Variable Arguments **/
+		if( exp->argc !=1 && exp->argc!=3 ){
+			printf("Runs the camera and DLP in closed loop.\n");
+			printf("Run without any arguments, or, to save data in a directory use the following usage:\n");
+			printf("\tClosedLoop.exe D:/Data/MyDirectory/  basefilename\n\n");
+			printf("IMPORTANT: Remember to include the trailing slash on the directory!");
 
-		return -1;
+			return -1;
+		}
+
+		if (exp->argc ==3 ){ /** The user implicitly wants to record data **/
+			exp->RECORDVID=1;
+			exp->RECORDDATA=1;
+		}
+	}else{
+
+		switch (exp->argc) {
+			case 0:
+				printf("Really bizarre coding error. This should never happen.\n");
+				return -1;
+				break;
+			case 2:
+				printf("Welcome to MindControl simulation mode.\n");
+				printf("No data writing.\n");
+				break;
+			case 4:
+				printf("Welcome to MindControl simulation mode.\n");
+				printf("Writing data.\n");
+				exp->RECORDVID=1;
+				exp->RECORDDATA=1;
+				break;
+			default:
+				printf("This program reads in an avi, finds a worm, and segments it for each frame.");
+				printf("The first argument specifies the avi file to read.\n");
+				printf("Optionally add a third and foruth argument to write out data.\n");
+				printf("\tSimulate.exe sourcemovie.avi D:/Data/MyDirectory/  basefilename\n\n");
+				printf("IMPORTANT: Remember to include the trailing slash on the directory!");
+				return -1;
+				break;
+		}
+
 	}
 
-	if (exp->argc ==3 ){ /** The user implicitly wants to record data **/
-		exp->RECORDVID=1;
-		exp->RECORDDATA=1;
-	}
-
-	return 0;
 
 
+	return 1;
 }
+
+/*
+ * Flips the simulation variable to on.
+ */
+void SetExpToSimulation(Experiment* exp){
+	assert(exp!=NULL);
+	exp->Sim=1;
+}
+
+
+//
+///*** Simulation Specific  ***/
+//printf("This program reads in an avi, finds a worm, and segments it.");
+//if( argc != 2  ) return -1;
+//capture = cvCreateFileCapture(argv[1]);
+
+
 /** GUI **/
 
 /* Assigns Default window names to the experiment object
@@ -279,12 +335,19 @@ void SetupGUI(Experiment* exp){
  * Start Grabbing Frames as quickly as possible
  */
 void RollCamera(Experiment* exp){
+	if (exp->Sim){
+		/** Define the File catpure **/
+		exp->capture=cvCreateFileCapture(exp->argv[1]);
+	}else{
+
 	/** Turn on Camera **/
 	T2Cam_InitializeLib();
 	T2Cam_AllocateCamData(&(exp->MyCamera));
 	T2Cam_ShowDeviceSelectionDialog(&(exp->MyCamera));
 	/** Start Grabbing Frames and Update the Internal Frame Number iFrameNumber **/
 	T2Cam_GrabFramesAsFastAsYouCan(&(exp->MyCamera));
+
+	}
 }
 
 
@@ -402,6 +465,69 @@ void DestroyExperiment(Experiment** exp){
 }
 
 
+
+
+/*********************************************
+ *
+ * Image Acquisition
+ *
+ */
+
+
+
+/** Grab a Frame from either camera or video source
+ *
+ */
+int GrabFrame(Experiment* exp){
+
+	if (!(exp->Sim)){ /** If This isn't a simulation.. **/
+		exp->lastFrameSeenOutside = exp->MyCamera->iFrameNumber;
+
+
+		/*** Create a local copy of the image***/
+		LoadFrameWithBin(exp->MyCamera->iImageData,exp->fromCCD);
+	} else {
+
+		IplImage* tempImg;
+
+		/** Grab the frame from the video **/
+		tempImg=cvQueryFrame(exp->capture);
+
+		if (tempImg==NULL){
+			printf("There was an error querying the frame from video!\n");
+			return -1;
+		}
+
+		/** Load the frame into the fromCCD frame object **/
+		/*** ANDY! THIS WILL FAIL BECAUSE THE SIZING ISN'T RIGHT **/
+		LoadFrameWithImage(tempImg,exp->fromCCD);
+	}
+
+	exp->Worm->frameNum++;
+	return 0;
+}
+
+
+/*
+ * Is a frame ready from the camera?
+ *
+ */
+int isFrameReady(Experiment* exp){
+	if (!(exp->Sim)){ /** If This isn't a simulation.. **/
+		/** check if we have a new frame read **/
+		return (exp->MyCamera->iFrameNumber > exp->lastFrameSeenOutside);
+	} else{
+		/** Otherwise this is a simulation **/
+
+		/** fake like we're waiting for something **/
+		cvWaitKey(10);
+		return 1;
+	}
+}
+
+
+
+
 /*********************** RECORDING *******************/
 
 /*
@@ -507,7 +633,7 @@ void ClearDLPifNotDisplayingNow(Experiment* exp){
 	if (exp->Params->DLPOn==0){
 		/** Clear the DLP **/
 		RefreshFrame(exp->IlluminationFrame);
-		T2DLP_SendFrame((unsigned char *) exp->IlluminationFrame->binary, exp->myDLP);
+		if (!(exp->Sim)) T2DLP_SendFrame((unsigned char *) exp->IlluminationFrame->binary, exp->myDLP);
 	}
 }
 
@@ -602,3 +728,5 @@ void DoWriteToDisk(Experiment* exp){
 	if (exp->RECORDDATA && exp->Params->Record) AppendWormFrameToDisk(exp->Worm,exp->Params,exp->DataWriter);
 
 }
+
+

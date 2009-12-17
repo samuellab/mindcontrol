@@ -41,7 +41,13 @@ using namespace std;
 
 
 
-
+#ifndef simulate
+	/** We are running on Hardware **/
+	#define SIM 0
+#else
+	/** We are running in simulation mode **/
+	#define SIM 1
+#endif
 
 
 int main (int argc, char** argv){
@@ -50,6 +56,9 @@ int main (int argc, char** argv){
 
 	/** Create a new experiment object **/
 	Experiment* exp=CreateExperimentStruct();
+
+	/** Is this a simulation or not? **/
+	if (SIM) SetExpToSimulation(exp);
 
 	/** Create memory and objects **/
 	InitializeExperiment(exp);
@@ -65,8 +74,9 @@ int main (int argc, char** argv){
 	RollCamera(exp);
 
 	/** Prepare DLP ***/
-	exp->myDLP= T2DLP_on();
-	unsigned long lastFrameSeenOutside = 0;
+	if (!(exp->Sim)){
+		exp->myDLP= T2DLP_on();
+	}
 
 	/** Setup Segmentation Gui **/
 	AssignWindowNames(exp);
@@ -80,20 +90,25 @@ int main (int argc, char** argv){
 
 	/** Giant While Loop Where Everything Happens **/
 	TICTOC::timer().tic("WholeLoop");
+	int VideoRanOut=0;
 	while (1) {
 		_TICTOC_TIC_FUNC
-		if (exp->MyCamera->iFrameNumber > lastFrameSeenOutside) {
+		if (isFrameReady(exp)) {
 
-
+			/** Set error to zero **/
 			exp->e=0;
-			lastFrameSeenOutside = exp->MyCamera->iFrameNumber;
-			exp->Worm->frameNum++;
+
+			/** Grab a frame **/
+			if (GrabFrame(exp)<0){
+				VideoRanOut=1;
+				printf("Video ran out!\n");
+				break;
+			}
+
 
 			/** Calculate the frame rate and every second print the result **/
 			CalculateAndPrintFrameRate(exp);
 
-			/*** Create a local copy of the image***/
-			LoadFrameWithBin(exp->MyCamera->iImageData,exp->fromCCD);
 
 			/** Do we even bother doing analysis?**/
 			if (exp->Params->OnOff==0){
@@ -141,7 +156,7 @@ int main (int argc, char** argv){
 
 
 
-			if (!(exp->e) && exp->Params->DLPOn) T2DLP_SendFrame((unsigned char *) exp->forDLP->binary, exp->myDLP); // Send image to DLP
+			if (!(exp->e) && exp->Params->DLPOn && !(exp->Sim)) T2DLP_SendFrame((unsigned char *) exp->forDLP->binary, exp->myDLP); // Send image to DLP
 
 			/*** DIsplay Some Monitoring Output ***/
 			if (!(exp->e)) CreateWormHUDS(exp->HUDS,exp->Worm,exp->Params,exp->IlluminationFrame);
@@ -173,15 +188,18 @@ int main (int argc, char** argv){
 
 	FinishRecording(exp);
 
+	if (!(exp->Sim)){
 	//	cvDestroyAllWindows();
 	T2DLP_off(exp->myDLP);
 
 	/***** Turn off Camera & DLP ****/
 	T2Cam_TurnOff(&(exp->MyCamera));
 	T2Cam_CloseLib();
+	}
 
 	ReleaseExperiment(exp);
 	DestroyExperiment(&exp);
+
 
 	printf("\nGood bye.\n");
 	return 0;
