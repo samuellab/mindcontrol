@@ -161,7 +161,7 @@ int CalibrateAPoint(CvPoint PointOnDLP, CvSeq* CalibSeq, int numframes,
 				if (c == 27)
 					break;
 			}
-		}
+		} cvWaitKey(1); //Wait while looping.
 
 	}
 
@@ -233,6 +233,7 @@ void CalibrationTest(int *CCD2DLPLookUp, CamData* MyCamera) {
 			if (c == 27)
 				break;
 		}
+		cvWaitKey(1);
 
 	}
 	free((void *) tempframestorage);
