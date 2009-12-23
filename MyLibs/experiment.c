@@ -523,16 +523,14 @@ int GrabFrame(Experiment* exp){
 		/** Create a new temp image that is grayscale and of the same size **/
 		IplImage* tempImgGray=cvCreateImage(cvGetSize(tempImg),IPL_DEPTH_8U,1);
 
-		printf("About to convert color.\n");
+
 		/** Convert Color to GrayScale **/
 		cvCvtColor(tempImg,tempImgGray,CV_RGB2GRAY);
 
 
 		/** Load the frame into the fromCCD frame object **/
 		/*** ANDY! THIS WILL FAIL BECAUSE THE SIZING ISN'T RIGHT **/
-		printf("About to LoadFrameWithImage()\n");
 		LoadFrameWithImage(tempImgGray,exp->fromCCD);
-		printf("About to release image\n");
 		cvReleaseImage(&tempImgGray);
 		/*
 		 * Note: for some reason thinks crash when you go cvReleaseImage(&tempImg)

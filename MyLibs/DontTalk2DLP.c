@@ -28,33 +28,35 @@
 
 
 void T2DLP_errormsg(){
+	printf("\n\nERROR.\n");
 	printf("It appears as though a DLP-specific function was called.\n");
-	printf("This software was compiled without DLP-speficic libraries.\n");
-	printf("Try running the software in DLP simulation mode with the -s switch.\n");
+	printf("This software was compiled without DLP-specific libraries.\n");
+	printf("Try running the software in DLP simulation mode with the -s switch.\n\n");
 }
 
 
 long T2DLP_on(){
-	assert(0);
 	T2DLP_errormsg();
+	assert(0);
+
 	return 0;
 }
 int T2DLP_off(long alpid)
 {
-	assert(0);
 	T2DLP_errormsg();
+	assert(0);
 	return 0;
 }//takes an ID of the DMD
 
 int T2DLP_SendFrame(unsigned char *image, long alpid){
-	assert(0);
 	T2DLP_errormsg();
+	assert(0);
 	return 0;
 }
 
 unsigned char *SampleImages( unsigned long nSizeX, unsigned long nSizeY ){
-	assert(0);
 	T2DLP_errormsg();
+	assert(0);
 	return NULL;
 }
 
@@ -63,7 +65,7 @@ unsigned char *SampleImages( unsigned long nSizeX, unsigned long nSizeY ){
  * Clear the DLP mirrors
  */
 int T2DLP_clear(long myDLP){
-	assert(0);
 	T2DLP_errormsg();
+	assert(0);
 	return 0;
 }
