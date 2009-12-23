@@ -86,7 +86,7 @@ int main (int argc, char** argv){
 
 			/** Set error to zero **/
 			exp->e=0;
-
+			printf("about to grab frame\n");
 			/** Grab a frame **/
 			if (GrabFrame(exp)<0){
 				VideoRanOut=1;

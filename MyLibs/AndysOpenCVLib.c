@@ -165,11 +165,17 @@ void LoadFrameWithBin(unsigned char* binsrc, Frame* myFrame){
  *
  */
 void LoadFrameWithImage(IplImage* imgsrc, Frame* myFrame){
-	if (imgsrc->height!=myFrame->iplimg->height || imgsrc->width!=myFrame->iplimg->width ){
-		printf("ERROR!!! Trying to load images of one size into a frame of another size.\n");
-		return;
-	}
+//	if (imgsrc->height!=myFrame->iplimg->height || imgsrc->width!=myFrame->iplimg->width ){
+		printf(" imgsrc->height=%d\n",imgsrc->height);
+		printf(" myFrame->iplimg->height=%d\n",myFrame->iplimg->height);
+		printf(" imgsrc->width=%d\n",imgsrc->width);
+		printf(" myFrame->iplimg->width=%d\n",myFrame->iplimg->width);
+//		printf("ERROR!!! Trying to load images of one size into a frame of another size.\n");
+//		return;
+//	}
+	printf("ping\n");
 	cvCopy(imgsrc,myFrame->iplimg,0);
+	printf("pong\n");
 	copyIplImageToCharArray(myFrame->iplimg,myFrame->binary);
 }
 

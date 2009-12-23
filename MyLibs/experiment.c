@@ -162,7 +162,7 @@ void displayHelp(){
 	printf("If run with no arguments, the software uses video from an attached camera, illuminates a worm with an attached DLP and records no data.\n");
 	printf("Optional arguments:\n");
 	printf("\t-o\tbaseFileName\n\t\tWrite video and data output to file using the specified base file name.\n");
-	printf("\t-d\tD:/Path/To/My/Directory/\n\t\Write the video and data output to the specified directory. NOTE: it is important to have the trailing slash.\n");
+	printf("\t-d\tD:/Path/To/My/Directory/\n\t\tWrite the video and data output to the specified directory. NOTE: it is important to have the trailing slash.\n");
 	printf("\t-i\tInputVideo.avi\n\t\tNo camera. Use video file source instead.\n");
 	printf("\t-s\n\t\tSimulate the existence of DLP. (No physical DLP required.)\n"); // <----- ANDY ADD SIMULATE FUNCTIONALITYkkk
 }
@@ -511,18 +511,34 @@ int GrabFrame(Experiment* exp){
 	} else {
 
 		IplImage* tempImg;
-
 		/** Grab the frame from the video **/
 		tempImg=cvQueryFrame(exp->capture);
+
 
 		if (tempImg==NULL){
 			printf("There was an error querying the frame from video!\n");
 			return -1;
 		}
 
+		/** Create a new temp image that is grayscale and of the same size **/
+		IplImage* tempImgGray=cvCreateImage(cvGetSize(tempImg),IPL_DEPTH_8U,1);
+
+		printf("About to convert color.\n");
+		/** Convert Color to GrayScale **/
+		cvCvtColor(tempImg,tempImgGray,CV_RGB2GRAY);
+
+
 		/** Load the frame into the fromCCD frame object **/
 		/*** ANDY! THIS WILL FAIL BECAUSE THE SIZING ISN'T RIGHT **/
-		LoadFrameWithImage(tempImg,exp->fromCCD);
+		printf("About to LoadFrameWithImage()\n");
+		LoadFrameWithImage(tempImgGray,exp->fromCCD);
+		printf("About to release image\n");
+		cvReleaseImage(&tempImgGray);
+		/*
+		 * Note: for some reason thinks crash when you go cvReleaseImage(&tempImg)
+		 * And there don't seem to be memory leaks if you leave it. So I'm going to leave it in place.
+		 *
+		 */
 	}
 
 	exp->Worm->frameNum++;
