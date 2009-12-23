@@ -17,7 +17,8 @@
 
 typedef struct ExperimentStruct{
 	/** Simulation? True/false **/
-	int Sim;
+	int SimDLP; //1= simulate the DLP, 0= real DLP
+	int VidFromFile; // 1 =Video from File, 0=Video From Camera
 
 	/** GuiWindowNames **/
 	char* WinDisp ;
@@ -29,6 +30,9 @@ typedef struct ExperimentStruct{
 	/** CommandLine Input **/
 	char** argv;
 	int argc;
+	char* dirname;
+	char* outfname;
+	char* infname;
 
 	/** Camera Input**/
 	CamData* MyCamera;
@@ -138,8 +142,10 @@ void SetupGUI(Experiment* exp);
  * Allocate Camera Data
  * Select Camera and Show Properties dialog box
  * Start Grabbing Frames as quickly as possible
+ *
+ * OR open up the video file for reading.
  */
-void RollCamera(Experiment* exp);
+void RollVideoInput(Experiment* exp);
 
 /** Grab a Frame from either camera or video source
  *

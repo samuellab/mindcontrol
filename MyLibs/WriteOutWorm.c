@@ -31,6 +31,7 @@
  *
  */
 char* CreateFileName(const char* dir, const char* core, const char* suffix){
+
 	/* Prepare String with Time Stamp */
 	char timestamp[30];
 	time_t curtime;

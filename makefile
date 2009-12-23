@@ -3,7 +3,8 @@
 # At the moment this includes: 
 #   CalibrateApparatus.exe -> Calibrates the position of the camera relative to the DLP. 
 #   ClosedLoop.exe   ->   Run's the Apparatus in a closed loop, imaging while projecting (formerly RunApparatus)
-#	SegmentFrame.exe -> 	Given a jpg file, this will find a worm, segment it and output lots of information about it.
+#	Simulate.exe -> 	Same as ClosedLoop.exe except compiled without camera or DLP dependent libraries. 
+#						Thus it must be run in simulation mode.
 
 #
 
@@ -50,9 +51,9 @@ hw_ind= version.o AndysComputations.o AndysOpenCVLib.o TransformLib.o IllumWormP
 
 
 #Executables
-all : $(targetDir)/ClosedLoop.exe $(targetDir)/CalibrateApparatus.exe  $(targetDir)/SegmentFrame.exe version.o $(targetDir)/Test.exe
+all : $(targetDir)/ClosedLoop.exe $(targetDir)/CalibrateApparatus.exe  $(targetDir)/Simulate.exe version.o $(targetDir)/Test.exe
 
-simulation :  $(targetDir)/SegmentFrame.exe version.o $(targetDir)/Test.exe
+simulation :  $(targetDir)/Simulate.exe version.o $(targetDir)/Test.exe
 
 
 $(targetDir)/CalibrateApparatus.exe : $(calib_objects)
@@ -74,7 +75,6 @@ Talk2DLP.o : $(MyLibs)/Talk2DLP.h $(MyLibs)/Talk2DLP.cpp $(3rdPartyLibs)/alp4bas
 Talk2Camera.o : $(MyLibs)/Talk2Camera.cpp $(MyLibs)/Talk2Camera.h \
 $(3rdPartyLibs)/tisgrabber.h $(3rdPartyLibs)/TISGrabberGlobalDefs.h \
 $(3rdPartyLibs)/tisgrabber.lib 
-
 	g++ -c -Wall $(MyLibs)/Talk2Camera.cpp -I$(3rdPartyLibs) -ITalk2Camera $(TailOpts)
 
 AndysOpenCVLib.o : $(MyLibs)/AndysOpenCVLib.c $(MyLibs)/AndysOpenCVLib.h 
@@ -116,10 +116,10 @@ FORCE:
 
 
 ###### Test.exe
-$(targetDir)/Test.exe : Test.o $(CVlibs) IllumWormProtocol.o version.o
+$(targetDir)/Test.exe : test.o $(CVlibs) IllumWormProtocol.o version.o
 	g++ -o $(targetDir)/Test.exe Test.o IllumWormProtocol.o version.o $(CVlibs) $(TailOpts)
 
-Test.o : test.c
+test.o : test.c
 	g++ -c -Wall test.c -I$(MyLibs) $(openCVincludes) $(TailOpts) 
 	echo "Compiling test.c"
 	
@@ -136,12 +136,12 @@ $(MyLibs)/WriteOutWorm.c :  $(MyLibs)/version.h
 
 
 
-###### SegmentFrame.exe
-$(targetDir)/SegmentFrame.exe : SegmentFrame.o $(hw_ind)
-	g++ -o $(targetDir)/SegmentFrame.exe  SegmentFrame.o $(hw_ind) $(TailOpts) 
+###### Simulate.exe
+$(targetDir)/Simulate.exe : Simulate.o $(hw_ind)
+	g++ -o $(targetDir)/Simulate.exe Simulate.o $(hw_ind) $(TailOpts) 
 
-SegmentFrame.o : main.cpp $(myOpenCVlibraries) $(WormSpecificLibs) 
-	g++ -c -Wall main.cpp -Dsimulate -I$(MyLibs) $(openCVincludes) $(TailOpts)
+Simulate.o : main.cpp $(myOpenCVlibraries) $(WormSpecificLibs) 
+	g++ -c -Wall main.cpp -oSimulate.o -I$(MyLibs) $(openCVincludes) $(TailOpts)
 	
 ## Hardware independent hack
 DontTalk2Camera.o : $(MyLibs)/DontTalk2Camera.c $(MyLibs)/Talk2Camera.h

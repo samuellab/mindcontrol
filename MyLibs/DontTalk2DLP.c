@@ -24,23 +24,37 @@
  * which basically redefines all of the hardware specific functions.
  */
 
+
+
+
+void T2DLP_errormsg(){
+	printf("It appears as though a DLP-specific function was called.\n");
+	printf("This software was compiled without DLP-speficic libraries.\n");
+	printf("Try running the software in DLP simulation mode with the -s switch.\n");
+}
+
+
 long T2DLP_on(){
 	assert(0);
+	T2DLP_errormsg();
 	return 0;
 }
 int T2DLP_off(long alpid)
 {
 	assert(0);
+	T2DLP_errormsg();
 	return 0;
 }//takes an ID of the DMD
 
 int T2DLP_SendFrame(unsigned char *image, long alpid){
 	assert(0);
+	T2DLP_errormsg();
 	return 0;
 }
 
 unsigned char *SampleImages( unsigned long nSizeX, unsigned long nSizeY ){
 	assert(0);
+	T2DLP_errormsg();
 	return NULL;
 }
 
@@ -50,5 +64,6 @@ unsigned char *SampleImages( unsigned long nSizeX, unsigned long nSizeY ){
  */
 int T2DLP_clear(long myDLP){
 	assert(0);
+	T2DLP_errormsg();
 	return 0;
 }

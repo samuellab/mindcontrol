@@ -23,6 +23,11 @@
  * which basically redefines all of the camera specific functions.
  */
 
+void T2Cam_errormsg(){
+	printf("It appears as though a camera-specific function was called.\n");
+	printf("This software was compiled without camera-spefici libraries.\n");
+	printf("Try running the software using a video input by invoking the -i switch.\n");
+}
 
 /*
  * Initalizes the library and provides the  license key for
@@ -31,6 +36,7 @@
  */
 int T2Cam_InitializeLib(){
 	assert(0);
+	T2Cam_errormsg();
 	return 0;
 }
 
@@ -40,6 +46,7 @@ int T2Cam_InitializeLib(){
  */
 void T2Cam_CloseLib(){
 	assert(0);
+	T2Cam_errormsg();
 }
 
 
@@ -52,6 +59,7 @@ void T2Cam_CloseLib(){
 void _cdecl callback(HGRABBER hGrabber, unsigned char* pData,
 		unsigned long frameNumber, void*){
 	assert(0);
+	T2Cam_errormsg();
 }
 
 /*
@@ -60,6 +68,7 @@ void _cdecl callback(HGRABBER hGrabber, unsigned char* pData,
  */
 void T2Cam_AllocateCamData(CamData** CameraDataStruct){
 	assert(0);
+	T2Cam_errormsg();
 }
 
 /*
@@ -70,6 +79,7 @@ void T2Cam_AllocateCamData(CamData** CameraDataStruct){
  */
 void T2Cam_ShowDeviceSelectionDialog(CamData** CameraInfo){
 	assert(0);
+	T2Cam_errormsg();
 }
 
 /*
@@ -83,6 +93,7 @@ void T2Cam_ShowDeviceSelectionDialog(CamData** CameraInfo){
  */
 void T2Cam_GrabFramesAsFastAsYouCan(CamData** CameraDataStruct){
 	assert(0);
+	T2Cam_errormsg();
 }
 
 /*
@@ -93,8 +104,10 @@ void T2Cam_GrabFramesAsFastAsYouCan(CamData** CameraDataStruct){
  */
 void T2Cam_TurnOff(CamData** CameraDataStruct){
 	assert(0);
+	T2Cam_errormsg();
 }
 
 void T2Matlab_ArrayTest(){
 	assert(0);
+	T2Cam_errormsg();
 }

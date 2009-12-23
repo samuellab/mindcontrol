@@ -7,6 +7,7 @@
  */
 
 //Standard C headers
+#include <unistd.h>
 #include <stdio.h>
 #include <ctime>
 #include <time.h>
@@ -40,16 +41,6 @@ using namespace std;
 
 
 
-
-#ifndef simulate
-	/** We are running on Hardware **/
-	#define SIM 0
-#else
-	/** We are running in simulation mode **/
-	#define SIM 1
-#endif
-
-
 int main (int argc, char** argv){
 	/** Display output about the OpenCV setup currently installed **/
 	DisplayOpenCVInstall();
@@ -57,8 +48,6 @@ int main (int argc, char** argv){
 	/** Create a new experiment object **/
 	Experiment* exp=CreateExperimentStruct();
 
-	/** Is this a simulation or not? **/
-	if (SIM) SetExpToSimulation(exp);
 
 	/** Create memory and objects **/
 	InitializeExperiment(exp);
@@ -70,11 +59,11 @@ int main (int argc, char** argv){
 	/** Read In Calibration Data ***/
 	if (HandleCalibrationData(exp)<0) return -1;
 
-	/** Start Camera **/
-	RollCamera(exp);
+	/** Start Camera or Vid Input **/
+	RollVideoInput(exp);
 
 	/** Prepare DLP ***/
-	if (!(exp->Sim)){
+	if (!(exp->SimDLP)){
 		exp->myDLP= T2DLP_on();
 	}
 
@@ -156,7 +145,7 @@ int main (int argc, char** argv){
 
 
 
-			if (!(exp->e) && exp->Params->DLPOn && !(exp->Sim)) T2DLP_SendFrame((unsigned char *) exp->forDLP->binary, exp->myDLP); // Send image to DLP
+			if (!(exp->e) && exp->Params->DLPOn && !(exp->SimDLP)) T2DLP_SendFrame((unsigned char *) exp->forDLP->binary, exp->myDLP); // Send image to DLP
 
 			/*** DIsplay Some Monitoring Output ***/
 			if (!(exp->e)) CreateWormHUDS(exp->HUDS,exp->Worm,exp->Params,exp->IlluminationFrame);
@@ -188,7 +177,7 @@ int main (int argc, char** argv){
 
 	FinishRecording(exp);
 
-	if (!(exp->Sim)){
+	if (!(exp->SimDLP)){
 	//	cvDestroyAllWindows();
 	T2DLP_off(exp->myDLP);
 

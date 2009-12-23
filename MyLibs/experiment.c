@@ -10,6 +10,7 @@
  */
 
 //Standard C headers
+#include <unistd.h>
 #include <stdio.h>
 #include <ctime>
 #include <time.h>
@@ -63,7 +64,8 @@ Experiment* CreateExperimentStruct(){
 	/*************************************/
 
 	/** Simulation? True/False **/
-	exp->Sim=0;
+	exp->SimDLP=0;
+	exp->VidFromFile=0;
 
 	/** GuiWindowNames **/
 	exp->WinDisp=NULL;
@@ -77,6 +79,9 @@ Experiment* CreateExperimentStruct(){
 	/** CommandLine Input **/
 	exp->argv=NULL;
 	exp->argc=0;
+	exp->outfname=NULL;
+	exp->infname=NULL;
+	exp->dirname=NULL;
 
 	/** Camera Input**/
 	exp->MyCamera=NULL;
@@ -150,82 +155,92 @@ void LoadCommandLineArguments(Experiment* exp, int argc, char** argv){
 }
 
 
+
+void displayHelp(){
+	printf("Given a video stream, this software analyzes each frame, finds a worm and generates an illumination pattern.\n");
+	printf("\nUsage:\n");
+	printf("If run with no arguments, the software uses video from an attached camera, illuminates a worm with an attached DLP and records no data.\n");
+	printf("Optional arguments:\n");
+	printf("\t-o\tbaseFileName\n\t\tWrite video and data output to file using the specified base file name.\n");
+	printf("\t-d\tD:/Path/To/My/Directory/\n\t\Write the video and data output to the specified directory. NOTE: it is important to have the trailing slash.\n");
+	printf("\t-i\tInputVideo.avi\n\t\tNo camera. Use video file source instead.\n");
+	printf("\t-s\n\t\tSimulate the existence of DLP. (No physical DLP required.)\n"); // <----- ANDY ADD SIMULATE FUNCTIONALITYkkk
+}
+
+
 /*
  * Handle CommandLine Arguments
  * Parses commandline arguments.
  * Decides if user wants to record video or recorddata
  */
 
-int HandleCommandLineArguments(Experiment* exp){
+int HandleCommandLineArguments(Experiment* exp) {
+	int dflag = 0;
+	opterr = 0;
 
-	if (exp->argc==0) {
-		printf("Programming error. Run LoadCommandLineArguments() before HandleCommandLineArguments()");
-		return -1;
-	}
+	int c;
+	while ((c = getopt(exp->argc, exp->argv, "si:d:o:")) != -1) {
+		switch (c) {
+		case 'i': /** specify input video file **/
+			exp->VidFromFile = 1;
+			exp->infname = optarg;
+			if (optarg == NULL) {
+				printf(
+						"Error. Given -i switch but no input video file was specified.\n");
+				return -1;
+			}
+			break;
 
-	if (!(exp->Sim)){ /** If not a simulation **/
-		/** Handle Variable Arguments **/
-		if( exp->argc !=1 && exp->argc!=3 ){
-			printf("Runs the camera and DLP in closed loop.\n");
-			printf("Run without any arguments, or, to save data in a directory use the following usage:\n");
-			printf("\tClosedLoop.exe D:/Data/MyDirectory/  basefilename\n\n");
-			printf("IMPORTANT: Remember to include the trailing slash on the directory!");
+		case 'd': /** specifiy directory **/
+			dflag = 1;
+			if (optarg != NULL) {
+				exp->dirname = optarg;
+			} else {
+				exp->dirname = "./"; // set to default, local directory;
+			}
+			break;
 
+		case 'o': /** specify base filename of output **/
+			if (optarg != NULL) {
+				exp->outfname = optarg;
+			} else {
+				exp->outfname = "worm"; // set the base filename to the devault of worm;
+			}
+			exp->RECORDVID = 1;
+			exp->RECORDDATA = 1;
+			break;
+
+		case 's': /** Run in DLP simulation Mode **/
+			exp->SimDLP = 1;
+			break;
+
+		case '?':
+			if (optopt == 'i' || optopt == 'c' || optopt == 'd' || optopt
+					== 's') {
+				fprintf(stderr, "Option -%c requires an argument.\n", optopt);
+				displayHelp();
+				return -1;
+			} else if (isprint(optopt)) {
+				fprintf(stderr, "Unknown option `-%c'.\n", optopt);
+				displayHelp();
+				return -1;
+			} else {
+				fprintf(stderr, "Unknown option character `\\x%x'.\n", optopt);
+				displayHelp();
+				return -11;
+			}
+		default:
+			displayHelp();
 			return -1;
-		}
+		} // end of switch
 
-		if (exp->argc ==3 ){ /** The user implicitly wants to record data **/
-			exp->RECORDVID=1;
-			exp->RECORDDATA=1;
-		}
-	}else{
-
-		switch (exp->argc) {
-			case 0:
-				printf("Really bizarre coding error. This should never happen.\n");
-				return -1;
-				break;
-			case 2:
-				printf("Welcome to MindControl simulation mode.\n");
-				printf("No data writing.\n");
-				break;
-			case 4:
-				printf("Welcome to MindControl simulation mode.\n");
-				printf("Writing data.\n");
-				exp->RECORDVID=1;
-				exp->RECORDDATA=1;
-				break;
-			default:
-				printf("This program reads in an avi, finds a worm, and segments it for each frame.");
-				printf("The first argument specifies the avi file to read.\n");
-				printf("Optionally add a third and foruth argument to write out data.\n");
-				printf("\tSimulate.exe sourcemovie.avi D:/Data/MyDirectory/  basefilename\n\n");
-				printf("IMPORTANT: Remember to include the trailing slash on the directory!");
-				return -1;
-				break;
-		}
-
-	}
-
-
-
+	} // end of while loop
 	return 1;
 }
 
-/*
- * Flips the simulation variable to on.
- */
-void SetExpToSimulation(Experiment* exp){
-	assert(exp!=NULL);
-	exp->Sim=1;
-}
 
 
-//
-///*** Simulation Specific  ***/
-//printf("This program reads in an avi, finds a worm, and segments it.");
-//if( argc != 2  ) return -1;
-//capture = cvCreateFileCapture(argv[1]);
+
 
 
 /** GUI **/
@@ -333,11 +348,13 @@ void SetupGUI(Experiment* exp){
  * Allocate Camera Data
  * Select Camera and Show Properties dialog box
  * Start Grabbing Frames as quickly as possible
+ * *
+ * OR open up the video file for reading.
  */
-void RollCamera(Experiment* exp){
-	if (exp->Sim){
+void RollVideoInput(Experiment* exp){
+	if (exp->VidFromFile){
 		/** Define the File catpure **/
-		exp->capture=cvCreateFileCapture(exp->argv[1]);
+		exp->capture=cvCreateFileCapture(exp->infname);
 	}else{
 
 	/** Turn on Camera **/
@@ -429,6 +446,11 @@ void ReleaseExperiment(Experiment* exp){
 	if (exp->IlluminationFrame!=NULL) DestroyFrame(&(exp->IlluminationFrame));
 
 
+	/** Free up Strings **/
+	exp->dirname=NULL;
+	exp->infname=NULL;
+	exp->outfname=NULL;
+
 	/** Free up Worm Objects **/
 	if (exp->Worm!=NULL) {
 		DestroyWormAnalysisDataStruct((exp->Worm));
@@ -480,7 +502,7 @@ void DestroyExperiment(Experiment** exp){
  */
 int GrabFrame(Experiment* exp){
 
-	if (!(exp->Sim)){ /** If This isn't a simulation.. **/
+	if (!(exp->VidFromFile)){ /** If This isn't a simulation.. **/
 		exp->lastFrameSeenOutside = exp->MyCamera->iFrameNumber;
 
 
@@ -513,7 +535,7 @@ int GrabFrame(Experiment* exp){
  *
  */
 int isFrameReady(Experiment* exp){
-	if (!(exp->Sim)){ /** If This isn't a simulation.. **/
+	if (!(exp->VidFromFile)){ /** If This isn't a simulation.. **/
 		/** check if we have a new frame read **/
 		return (exp->MyCamera->iFrameNumber > exp->lastFrameSeenOutside);
 	} else{
@@ -541,7 +563,8 @@ void SetupRecording(Experiment* exp){
 	printf("About to setup recording\n");;
 	char* DataFileName;
 	if (exp->RECORDDATA)	{
-		DataFileName=CreateFileName(exp->argv[1],exp->argv[2],".yaml");
+		if (exp->dirname==NULL || exp->outfname==NULL  ) printf("exp->dirname or exp->outfname is NULL!\n");
+		DataFileName=CreateFileName(exp->dirname,exp->outfname,".yaml");
 		exp->DataWriter=SetUpWriteToDisk(DataFileName,exp->Worm->MemStorage);
 		printf("Initialized data recording\n");
 		DestroyFilename(&DataFileName);
@@ -552,8 +575,12 @@ void SetupRecording(Experiment* exp){
 	char* HUDSFileName;
 
 	if (exp->RECORDVID) {
-		MovieFileName=CreateFileName(exp->argv[1],exp->argv[2],".avi");
-		HUDSFileName=CreateFileName(exp->argv[1],exp->argv[2],"_HUDS.avi");
+		if (exp->dirname==NULL || exp->outfname==NULL  ) printf("exp->dirname or exp->outfname is NULL!\n");
+
+		MovieFileName=CreateFileName(exp->dirname,exp->outfname,".avi");
+		HUDSFileName=CreateFileName(exp->dirname,exp->outfname,"_HUDS.avi");
+
+
 		exp->Vid = cvCreateVideoWriter(MovieFileName, CV_FOURCC('M','J','P','G'), 30,
 					cvSize(NSIZEX/2, NSIZEY/2), 0);
 		exp->VidHUDS=cvCreateVideoWriter(HUDSFileName, CV_FOURCC('M','J','P','G'), 30,
@@ -633,7 +660,7 @@ void ClearDLPifNotDisplayingNow(Experiment* exp){
 	if (exp->Params->DLPOn==0){
 		/** Clear the DLP **/
 		RefreshFrame(exp->IlluminationFrame);
-		if (!(exp->Sim)) T2DLP_SendFrame((unsigned char *) exp->IlluminationFrame->binary, exp->myDLP);
+		if (!(exp->SimDLP)) T2DLP_SendFrame((unsigned char *) exp->IlluminationFrame->binary, exp->myDLP);
 	}
 }
 
