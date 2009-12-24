@@ -89,7 +89,7 @@ int TransformFrameCam2DLP(Frame* Cam, Frame* DLP, CalibData* Calib) {
 	ret = ConvertCharArrayImageFromCam2DLP(Calib->CCD2DLPLookUp, Cam->binary,
 			DLP->binary, Cam->size.width, Cam->size.height, DLP->size.width,
 			DLP->size.height, 0);
-	return 0;
+//	return 0;
 	if (ret == 0)
 		ret = CopyCharArrayToIplImage(DLP->binary, DLP->iplimg,DLP->size.width,DLP->size.height);
 	return ret;
