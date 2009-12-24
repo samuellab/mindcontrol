@@ -139,6 +139,23 @@ void DestroyWormPolygon(WormPolygon** myPoly);
 char *copyString (const char *src);
 
 
+/************************************
+ *
+ * Illumination Routines
+ *
+ */
+
+
+/*
+ * This function makes a black image.
+ *
+ */
+IplImage* GenerateRectangleWorm(CvSize size);
+
+/*
+ * Illuminate a rectangle worm
+ */
+void IllumRectWorm(IplImage* rectWorm,Protocol* p,int step);
 
 
 #endif /* ILLUMWORMPROTOCOL_H_ */

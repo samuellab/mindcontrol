@@ -32,7 +32,7 @@ Protocol* CreateTestProtocol(char* name){
 	myP->Description="A test protocol.";
 	myP->Filename=name;
 
-	myP->GridSize=cvSize(2,99);
+	myP->GridSize=cvSize(201,99);
 	/** Create the Steps Object and Load it into the Protocol **/
 	myP->Steps=CreateStepsObject(myP->memory);
 
@@ -44,25 +44,25 @@ Protocol* CreateTestProtocol(char* name){
 	WormPolygon* Tail = CreateWormPolygon(myP->memory,myP->GridSize);
 
 	//(length along centerline,radius from centerline)
-	cvSeqPush(Head->Points,&cvPoint(0,0));
-	cvSeqPush(Head->Points,&cvPoint(2,0));
-	cvSeqPush(Head->Points,&cvPoint(2,20));
-	cvSeqPush(Head->Points,&cvPoint(0,20));
+	cvSeqPush(Head->Points,&cvPoint(-100,0));
+	cvSeqPush(Head->Points,&cvPoint(100,0));
+	cvSeqPush(Head->Points,&cvPoint(100,20));
+	cvSeqPush(Head->Points,&cvPoint(-100,20));
 
+	cvSeqPush(Left->Points,&cvPoint(-100,30));
 	cvSeqPush(Left->Points,&cvPoint(0,30));
-	cvSeqPush(Left->Points,&cvPoint(1,30));
-	cvSeqPush(Left->Points,&cvPoint(1,70));
 	cvSeqPush(Left->Points,&cvPoint(0,70));
+	cvSeqPush(Left->Points,&cvPoint(100,70));
 
-	cvSeqPush(Right->Points,&cvPoint(1,30));
-	cvSeqPush(Right->Points,&cvPoint(2,30));
-	cvSeqPush(Right->Points,&cvPoint(2,70));
-	cvSeqPush(Right->Points,&cvPoint(1,70));
+	cvSeqPush(Right->Points,&cvPoint(0,30));
+	cvSeqPush(Right->Points,&cvPoint(100,30));
+	cvSeqPush(Right->Points,&cvPoint(100,70));
+	cvSeqPush(Right->Points,&cvPoint(0,70));
 
+	cvSeqPush(Tail->Points,&cvPoint(-100,80));
 	cvSeqPush(Tail->Points,&cvPoint(0,80));
-	cvSeqPush(Tail->Points,&cvPoint(1,80));
-	cvSeqPush(Tail->Points,&cvPoint(1,99));
 	cvSeqPush(Tail->Points,&cvPoint(0,99));
+	cvSeqPush(Tail->Points,&cvPoint(-100,99));
 
 
 	/** Create an Illumination Montage**/
@@ -227,6 +227,17 @@ int main(){
 
 	printf("protocol2->Steps->total=%d\n",protocol2->Steps->total);
 	WriteProtocolToYAML(protocol2);
+
+	printf("GenerateRectangleWorm\n");
+
+	IplImage* rectWorm= GenerateRectangleWorm(protocol2->GridSize);
+	printf("ShowImage\n");
+	cvNamedWindow("RectWorm");
+	cvShowImage("RectWorm",rectWorm);
+	cvWaitKey(0);
+	IllumRectWorm(rectWorm,protocol2,1);
+	cvShowImage("RectWorm",rectWorm);
+	cvWaitKey(0);
 
 	return 0;
 }

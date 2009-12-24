@@ -374,6 +374,85 @@ int VerifyProtocol(Protocol* p){
 
 
 
+/************************************
+ *
+ * Illumination Routines
+ *
+ */
 
 
+/*
+ * This function makes a black image.
+ *
+ */
+IplImage* GenerateRectangleWorm(CvSize size){
+	/** Create a rectangular worm with the correct dimensions **/
+	IplImage* rectWorm=cvCreateImage(size,IPL_DEPTH_8U,1);
+	cvZero(rectWorm);
+	return rectWorm;
+}
+
+
+
+
+/*
+ * Returns the pointer to a montage of polygons corresponding
+ * to a specific step of a protocol
+ */
+CvSeq* GetMontageFromProtocol(Protocol* p, int step){
+	CvSeq** montagePtr=(CvSeq**) cvGetSeqElem(p->Steps,step);
+	return *montagePtr;
+}
+
+/*
+ * Given a Montage CvSeq of WormPolygon objects,
+ * This function allocates memory for an array of
+ * CvPoints and returns that.
+ *
+ * When using this function, don't forget to release the allocated
+ * memory.
+ */
+int CreatePointArrFromMontage(CvPoint** polyArr,CvSeq* montage,int polygonNum){
+	if (polygonNum >= montage->total){
+		printf("ERROR! GetPointArrFromMontage() was asked to fetch the %dth polygon, but this montage only has %d polygons\n",polygonNum,montage->total);
+		return -1;
+	}
+	WormPolygon** polygonPtr=(WormPolygon**) cvGetSeqElem(montage,polygonNum);
+	WormPolygon* polygon=*polygonPtr;
+
+	/** Allocate memory for a CvPoint array of points **/
+	*polyArr= (CvPoint*) malloc( sizeof(CvPoint)*polygon->Points->total);
+	cvCvtSeqToArray(polygon->Points,*polyArr,CV_WHOLE_SEQ);
+
+	return polygon->Points->total;
+}
+
+void DisplayPtArr(CvPoint* PtArr,int numPts){
+	int k=0;
+	for (k = 0; k < numPts; ++k) {
+				printf(" PtArr[k].x;=%d\n",PtArr[k].x);
+				printf(" PtArr[k].y;=%d\n",PtArr[k].y);
+				printf("\n");
+
+	}
+}
+
+/*
+ * Illuminate a rectangle worm
+ */
+void IllumRectWorm(IplImage* rectWorm,Protocol* p,int step){
+	CvSeq* montage= GetMontageFromProtocol(p,step);
+	int numOfPolys=montage->total;
+	int numPtsInCurrPoly;
+	CvPoint* currPolyPts=NULL;
+	int poly;
+	for (poly = 0; poly < numOfPolys; ++poly) {
+		printf(" poly=%d\n",poly);
+		numPtsInCurrPoly=CreatePointArrFromMontage(&currPolyPts,montage,poly);
+		printf("About to display contents of polygon.\n");
+		DisplayPtArr(currPolyPts,numPtsInCurrPoly);
+		cvFillConvexPoly(rectWorm,currPolyPts,numPtsInCurrPoly,cvScalar(255,255,255),CV_AA);
+		free(currPolyPts);
+	}
+}
 
