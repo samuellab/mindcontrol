@@ -430,11 +430,40 @@ int CreatePointArrFromMontage(CvPoint** polyArr,CvSeq* montage,int polygonNum){
 void DisplayPtArr(CvPoint* PtArr,int numPts){
 	int k=0;
 	for (k = 0; k < numPts; ++k) {
-				printf(" PtArr[k].x;=%d\n",PtArr[k].x);
-				printf(" PtArr[k].y;=%d\n",PtArr[k].y);
-				printf("\n");
+				printf(" (%d,",PtArr[k].x);
+				printf(" %d)\n",PtArr[k].y);
+
 
 	}
+}
+
+/*
+ * Given an array of CvPoint(s), go through and add an offset
+ * to all of the x or y values.
+ *
+ * Use XorY=0 to change the offset of the x values.
+ * Use XorY=1 to change the offset of the y values.
+ *
+ */
+void OffsetPtArray(CvPoint** Pts,int numPts,int offset,int XorY){
+	if (*Pts==NULL){
+		printf("Error! Pts is NULL.\n");
+		return;
+	}
+
+	/** lPts is just a shortcut for *Pts **/
+	CvPoint* lPts=*Pts;
+
+	/** Loop through Array **/
+	int k;
+	for (k = 0; k < numPts; ++k) {
+		if (XorY==0){
+			lPts[k].x=lPts[k].x+offset;
+		} else {
+			lPts[k].y=lPts[k].y+offset;
+		}
+	}
+
 }
 
 /*
@@ -447,10 +476,12 @@ void IllumRectWorm(IplImage* rectWorm,Protocol* p,int step){
 	CvPoint* currPolyPts=NULL;
 	int poly;
 	for (poly = 0; poly < numOfPolys; ++poly) {
-		printf(" poly=%d\n",poly);
+		printf("==poly=%d==\n",poly);
 		numPtsInCurrPoly=CreatePointArrFromMontage(&currPolyPts,montage,poly);
-		printf("About to display contents of polygon.\n");
 		DisplayPtArr(currPolyPts,numPtsInCurrPoly);
+
+		OffsetPtArray(&currPolyPts,numPtsInCurrPoly,100,0);
+
 		cvFillConvexPoly(rectWorm,currPolyPts,numPtsInCurrPoly,cvScalar(255,255,255),CV_AA);
 		free(currPolyPts);
 	}

@@ -52,7 +52,7 @@ Protocol* CreateTestProtocol(char* name){
 	cvSeqPush(Left->Points,&cvPoint(-100,30));
 	cvSeqPush(Left->Points,&cvPoint(0,30));
 	cvSeqPush(Left->Points,&cvPoint(0,70));
-	cvSeqPush(Left->Points,&cvPoint(100,70));
+	cvSeqPush(Left->Points,&cvPoint(-100,70));
 
 	cvSeqPush(Right->Points,&cvPoint(0,30));
 	cvSeqPush(Right->Points,&cvPoint(100,30));
@@ -234,10 +234,16 @@ int main(){
 	printf("ShowImage\n");
 	cvNamedWindow("RectWorm");
 	cvShowImage("RectWorm",rectWorm);
-	cvWaitKey(0);
-	IllumRectWorm(rectWorm,protocol2,1);
-	cvShowImage("RectWorm",rectWorm);
-	cvWaitKey(0);
+	int k;
+	for (k = 0; k < protocol2->Steps->total; ++k) {
+		printf("====Step Number %d====\n",k);
+		cvZero(rectWorm);
+		IllumRectWorm(rectWorm,protocol2,k);
+		cvShowImage("RectWorm",rectWorm);
+		cvWaitKey(0);
+
+	}
+
 
 	return 0;
 }
