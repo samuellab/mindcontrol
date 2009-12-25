@@ -514,8 +514,14 @@ void OffsetPtArray(CvPoint** Pts,int numPts,int offset,int XorY){
 
 }
 
+/**********************************
+ *   ACTUALLY ILLUMINATE
+ *
+ *
+ */
+
 /*
- * Illuminate a rectangle worm
+ * Illuminate a rectangle worm (worm space)
  */
 void IllumRectWorm(IplImage* rectWorm,Protocol* p,int step){
 	CvSeq* polyMontage= GetMontageFromProtocol(p,step);
@@ -537,4 +543,30 @@ void IllumRectWorm(IplImage* rectWorm,Protocol* p,int step){
 		free(currPolyPts);
 	}
 }
+
+
+
+CvPoint CvtPtWormSpaceToImageSpace(CvPoint WormPt, SegmentedWorm* worm, CvSize gridSize){
+	CvPoint imPt;
+	/**ANDY!!! PICK UP RIGHT HERE */
+	// 1) Look at the y value of the wormPt
+	//   Find the coordinate in imspace of the pt on centerline corresponding to this y value
+	//    (this is like the disc on a spine)
+	// 2) Create a vector from the centerline to the corresponding point on the boundary
+	// 3) Find the fractional value of the x value in worm space to the x grid dimension...
+	//     e.g. if we were dealing with 3, then this would be 3/10ths.
+	//	   do this as a float
+	// 4) Scale the vector by the fractional value (all as floats)
+	// 5) convert to integer
+	// 6) That's your point.
+
+
+	return imPt;
+}
+
+void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img){
+
+}
+
+
 
