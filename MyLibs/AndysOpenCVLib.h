@@ -225,6 +225,18 @@ float dist(CvPoint a, CvPoint b);
 int GetLineFromEndPts(CvPoint a, CvPoint b, CvSeq* contour);
 
 /*
+ * Given a CvSeq of CvPoints defining a polygon, this function
+ * will create a contour of the outline of the polygon.
+ *
+ * Note this assumes that last point in the polygon sequence
+ * connects to the first point.
+ *
+ * polygon and contour must be CvSeq's that already have
+ * CvMemStorage associated with them
+ */
+int CvtPolySeq2ContourSeq(CvSeq* polygon, CvSeq* contour );
+
+/*
  * Given two CvSeq containing CvPoint's this function returns the midpoint.
  *
  */

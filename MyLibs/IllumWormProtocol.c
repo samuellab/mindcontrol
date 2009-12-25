@@ -428,6 +428,51 @@ int CreatePointArrFromMontage(CvPoint** polyArr,CvSeq* montage,int polygonNum){
 }
 
 
+/*
+ * Takes an illumination montage containing polygons and converts it to an illumination montage
+ * that has polygons with interpolated vertices, (called contour)
+ *
+ * Note: ContourMontage must already be created and have memstorage associated with it
+ */
+int CvtPolyMontage2ContourMontage(CvSeq* PolyMontage, CvSeq* ContourMontage){
+	int numOfPolys=PolyMontage->total;
+	CvSeqReader PolyReader;
+	cvStartReadSeq(PolyMontage,&PolyReader);
+
+		int poly;
+		for (poly = 0; poly < numOfPolys; ++poly) {
+			WormPolygon** polygonPtr=(WormPolygon**) PolyReader.ptr;
+			WormPolygon* polygon=*polygonPtr;
+
+			/** Create new contour  using ContourMontage's memstorage**/
+			CvSeq* newcontour = cvCreateSeq(CV_SEQ_ELTYPE_POINT, sizeof(CvSeq), sizeof(CvPoint),ContourMontage->storage);
+
+			/** Convert the polygon to the contour (interpolated vertices) **/
+			CvtPolySeq2ContourSeq(polygon->Points,newcontour);
+
+			/** package the contour as a WormPolygon object for consistency **/
+			/*
+			 * yes i realize this is stupid. Here is why its stupid:
+			 *   1) its no longer a traditional polygon. its a contour, so i shouldn't make it a WormPolygon object
+			 *   2) its completley unnecessary. There is no information on the WormPolygon object hat would be useful
+			 *
+			 *   But i need to do it anyway because otherwise functions that work with polygon montages will not
+			 *   work with contour montages and that would be REALLY stupid.
+			 *
+			 */
+			WormPolygon* wrappedContour= CreateWormPolygonFromSeq(ContourMontage->storage,polygon->GridSize,newcontour);
+
+
+			/** Push the new contour onto the ContourMontage **/
+			cvSeqPush(ContourMontage,&wrappedContour);
+
+			/** Move to the next polygon **/
+			CV_NEXT_SEQ_ELEM(PolyMontage->elem_size,PolyReader);
+
+		}
+		return 1;
+}
+
 
 
 void DisplayPtArr(CvPoint* PtArr,int numPts){
@@ -473,17 +518,20 @@ void OffsetPtArray(CvPoint** Pts,int numPts,int offset,int XorY){
  * Illuminate a rectangle worm
  */
 void IllumRectWorm(IplImage* rectWorm,Protocol* p,int step){
-	CvSeq* montage= GetMontageFromProtocol(p,step);
+	CvSeq* polyMontage= GetMontageFromProtocol(p,step);
+	CvSeq* montage=CreateIlluminationMontage(p->memory);
+	CvtPolyMontage2ContourMontage(polyMontage,montage);
+
 	int numOfPolys=montage->total;
 	int numPtsInCurrPoly;
 	CvPoint* currPolyPts=NULL;
 	int poly;
 	for (poly = 0; poly < numOfPolys; ++poly) {
-		printf("==poly=%d==\n",poly);
+		//printf("==poly=%d==\n",poly);
 		numPtsInCurrPoly=CreatePointArrFromMontage(&currPolyPts,montage,poly);
-		DisplayPtArr(currPolyPts,numPtsInCurrPoly);
+		//DisplayPtArr(currPolyPts,numPtsInCurrPoly);
 
-		OffsetPtArray(&currPolyPts,numPtsInCurrPoly,100,0);
+		OffsetPtArray(&currPolyPts,numPtsInCurrPoly, (int) (p->GridSize.width / 2) ,0);
 
 		cvFillConvexPoly(rectWorm,currPolyPts,numPtsInCurrPoly,cvScalar(255,255,255),CV_AA);
 		free(currPolyPts);

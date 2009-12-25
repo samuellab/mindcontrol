@@ -34,7 +34,7 @@ Protocol* CreateTestProtocol(char* name){
 	myP->Description="A test protocol.";
 	myP->Filename=name;
 
-	myP->GridSize=cvSize(201,99);
+	myP->GridSize=cvSize(21,99);
 	/** Create the Steps Object and Load it into the Protocol **/
 	myP->Steps=CreateStepsObject(myP->memory);
 
@@ -46,25 +46,25 @@ Protocol* CreateTestProtocol(char* name){
 	WormPolygon* Tail = CreateWormPolygon(myP->memory,myP->GridSize);
 
 	//(length along centerline,radius from centerline)
-	cvSeqPush(Head->Points,&cvPoint(-100,0));
-	cvSeqPush(Head->Points,&cvPoint(100,0));
-	cvSeqPush(Head->Points,&cvPoint(100,20));
-	cvSeqPush(Head->Points,&cvPoint(-100,20));
+	cvSeqPush(Head->Points,&cvPoint(-10,0));
+	cvSeqPush(Head->Points,&cvPoint(10,0));
+	cvSeqPush(Head->Points,&cvPoint(10,20));
+	cvSeqPush(Head->Points,&cvPoint(-10,20));
 
-	cvSeqPush(Left->Points,&cvPoint(-100,30));
+	cvSeqPush(Left->Points,&cvPoint(-10,30));
 	cvSeqPush(Left->Points,&cvPoint(0,30));
 	cvSeqPush(Left->Points,&cvPoint(0,70));
-	cvSeqPush(Left->Points,&cvPoint(-100,70));
+	cvSeqPush(Left->Points,&cvPoint(-10,70));
 
 	cvSeqPush(Right->Points,&cvPoint(0,30));
-	cvSeqPush(Right->Points,&cvPoint(100,30));
-	cvSeqPush(Right->Points,&cvPoint(100,70));
+	cvSeqPush(Right->Points,&cvPoint(10,30));
+	cvSeqPush(Right->Points,&cvPoint(10,70));
 	cvSeqPush(Right->Points,&cvPoint(0,70));
 
-	cvSeqPush(Tail->Points,&cvPoint(-100,80));
+	cvSeqPush(Tail->Points,&cvPoint(-10,80));
 	cvSeqPush(Tail->Points,&cvPoint(0,80));
 	cvSeqPush(Tail->Points,&cvPoint(0,99));
-	cvSeqPush(Tail->Points,&cvPoint(-100,99));
+	cvSeqPush(Tail->Points,&cvPoint(-10,99));
 
 
 	/** Create an Illumination Montage**/
