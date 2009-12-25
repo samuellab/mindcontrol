@@ -174,3 +174,17 @@ int ConvertCharArrayImageFromCam2DLP(int *CCD2DLPLookUp,
 
 
 
+
+/*
+ * Takes a SegmentedWorm and transforms all of the points from Camera to DLP coordinates
+ *
+ */
+void TransformSegWormCam2DLP(SegmentedWorm* camWorm, SegmentedWorm* dlpWorm,int *CCD2DLPLookUp){
+	/*************
+	 *
+	 * ANDY WRITE ME
+	 */
+	/** Write a function like : **/
+	// TransformPtCam2DLP(CvPoint);
+}
+
