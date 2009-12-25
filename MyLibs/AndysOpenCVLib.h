@@ -206,6 +206,23 @@ void resampleSeq(CvSeq* sequence,CvSeq* ResampledSeq, int Numsegments);
 int sqDist(CvPoint pta, CvPoint ptb);
 
 
+/*
+ * Finds the distance between two points
+ * and returns the value as a float
+ *
+ */
+float dist(CvPoint a, CvPoint b);
+
+/*
+ * Given two points a and b , and a sequence of CvPoints
+ * this function will find the points that walk the line
+ * between a and b and append those
+ * the end of the sequence
+ *
+ * Note that the output  includes point a, but not point b.
+ */
+
+int GetLineFromEndPts(CvPoint a, CvPoint b, CvSeq* contour);
 
 /*
  * Given two CvSeq containing CvPoint's this function returns the midpoint.

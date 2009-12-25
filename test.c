@@ -22,6 +22,7 @@ using namespace std;
 
 //Andy's Headers
 #include "MyLibs/IllumWormProtocol.h"
+#include "MyLibs/AndysOpenCvLib.h"
 #include "MyLibs/version.h"
 
 
@@ -228,7 +229,18 @@ int main(){
 	printf("protocol2->Steps->total=%d\n",protocol2->Steps->total);
 	WriteProtocolToYAML(protocol2);
 
+
+	printf("Points between line test\n");
+	cvWaitKey(0);
+	CvMemStorage* mem= cvCreateMemStorage();
+	CvSeq* test=cvCreateSeq(CV_SEQ_ELTYPE_POINT, sizeof(CvSeq), sizeof(CvPoint),mem);
+	GetLineFromEndPts(cvPoint(0,0),cvPoint(10,15),test);
+
+
+
 	printf("GenerateRectangleWorm\n");
+
+
 
 	IplImage* rectWorm= GenerateRectangleWorm(protocol2->GridSize);
 	printf("ShowImage\n");

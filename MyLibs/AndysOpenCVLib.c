@@ -436,6 +436,56 @@ int sqDist(CvPoint pta, CvPoint ptb){
 	return (  ((pta.x - ptb.x)*(pta.x - ptb.x) ) + ((pta.y - ptb.y)*(pta.y - ptb.y)  ) );
 }
 
+/*
+ * Finds the distance between two points
+ * and returns the value as a float
+ *
+ */
+float dist(CvPoint a, CvPoint b){
+	return ( sqrt( (float) sqDist(a,b))  );
+}
+
+/*
+ * Given two points a and b , and a sequence of CvPoints
+ * this function will find the points that walk the line
+ * between a and b and append those
+ * the end of the sequence
+ *
+ * Note that the output  includes point a, but not point b.
+ */
+int GetLineFromEndPts(CvPoint a, CvPoint b, CvSeq* contour){
+	if (contour==NULL) {
+		printf("ERROR! contour in GetLineFromEndPts() is NULL!\n");
+		return -1;
+	}
+	float d=dist(a,b);
+	/** Normalized vector with components i and j pointing along the line**/
+	float ihat= ( (float) (b.x -a.x) ) /d;
+	float jhat= ( (float) (b.y -a.y) ) /d;
+
+	/** Setup a parametric equation **/
+	CvPoint currPt; /* Current Point On integer grid*/
+	CvPoint prevPt=a; /* Prev Point on integer grid */
+
+
+	int t;
+	for (t = 0; t <  (int) (d+0.5) ; ++t) {
+		currPt=cvPoint((int) ( (float) t * ihat + 0.5 + (float) a.x) ,
+					(int) ( (float) t * jhat + 0.5 + (float) a.y));
+
+
+		/** If first point, OR the current approx point is not the same as prev **/
+		if ( t==0 ||  !( currPt.x == prevPt.x && currPt.y == prevPt.y   )   ){
+		cvSeqPush(contour,&currPt);
+//		printf(" t=%d\n",t);
+//		printf(" currPt.x=%d\n",currPt.x);
+//		printf(" currPt.y=%d\n",currPt.y);
+		}
+		prevPt=currPt;
+	}
+	return 1;
+}
+
 
 
 /*
@@ -826,6 +876,4 @@ bool IntExists(int MyInt){
 
 
 }
-
-
 
