@@ -463,10 +463,12 @@ int GetLineFromEndPts(CvPoint a, CvPoint b, CvSeq* contour){
 	float ihat= ( (float) (b.x -a.x) ) /d;
 	float jhat= ( (float) (b.y -a.y) ) /d;
 
-	/** Setup a parametric equation **/
 	CvPoint currPt; /* Current Point On integer grid*/
 	CvPoint prevPt=a; /* Prev Point on integer grid */
 
+	/** Prepare Writer for Appending Points to Seq **/
+	CvSeqWriter writer;
+	cvStartAppendToSeq( contour, &writer );
 
 	int t;
 	for (t = 0; t <  (int) (d+0.5) ; ++t) {
@@ -476,15 +478,59 @@ int GetLineFromEndPts(CvPoint a, CvPoint b, CvSeq* contour){
 
 		/** If first point, OR the current approx point is not the same as prev **/
 		if ( t==0 ||  !( currPt.x == prevPt.x && currPt.y == prevPt.y   )   ){
-		cvSeqPush(contour,&currPt);
+			CV_WRITE_SEQ_ELEM( currPt, writer );
 //		printf(" t=%d\n",t);
 //		printf(" currPt.x=%d\n",currPt.x);
 //		printf(" currPt.y=%d\n",currPt.y);
 		}
 		prevPt=currPt;
 	}
+	cvEndWriteSeq( &writer );
 	return 1;
 }
+
+
+/*
+ * Given a CvSeq of CvPoints defining a polygon, this function
+ * will create a contour of the outline of the polygon.
+ *
+ * Note this assumes that last point in the polygon sequence
+ * connects to the first point.
+ *
+ * polygon and contour must be CvSeq's that already have
+ * CvMemStorage associated with them
+ */
+int CvtPolySeq2ContourSeq(CvSeq* polygon, CvSeq* contour ){
+	if (polygon==NULL || contour==NULL){
+		printf("ERROR! CvtPolySeq2ContourSeq was passed a NULL sequence!\n ");
+		return -1;
+	}
+
+	/** Setup reader for the polygon **/
+	CvSeqReader VertexReader;
+	cvStartReadSeq(polygon,&VertexReader);
+
+	CvSeqReader NextVertexReader;
+	cvStartReadSeq(polygon,&NextVertexReader);
+	CV_NEXT_SEQ_ELEM(polygon->elem_size,NextVertexReader);
+
+	int k;
+	for (k = 0; k < (polygon->total) ; ++k) {
+		/** Get the current and next vertices **/
+		CvPoint* currVertex =(CvPoint*) VertexReader.ptr;
+		CvPoint* nextVertex =(CvPoint*) NextVertexReader.ptr;
+		/**Find all the points in between & append them to the contour **/
+		GetLineFromEndPts(*currVertex,*nextVertex,contour);
+
+		/** Increment **/
+		/** CV_NEXT_SEQ_ELEM will loop around when it runs off the seq **/
+		CV_NEXT_SEQ_ELEM(polygon->elem_size,VertexReader);
+		CV_NEXT_SEQ_ELEM(polygon->elem_size,NextVertexReader);
+	}
+
+	return 1;
+}
+
 
 
 
@@ -531,17 +577,6 @@ void FindCenterline(CvSeq* NBoundA, CvSeq* NBoundB, CvSeq* centerline) {
 }
 
 
-/*
-CvPoint MarcFindNearestPt (CvPoint Target, CvSeq *Contour) {
-	int i;
-	int dsq = MAXDIST;
-
-	for (i = 0; i < Contour->total; i++) {
-
-	}
-
-}
-*/
 
 /*
  * Given a point, and a boundary, this function returns the coordinates of the closest point on the boundary.
@@ -873,7 +908,5 @@ bool cvPointExists(CvPoint* MyPt){
  */
 bool IntExists(int MyInt){
 			return 1;
-
-
 }
 

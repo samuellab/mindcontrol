@@ -427,6 +427,9 @@ int CreatePointArrFromMontage(CvPoint** polyArr,CvSeq* montage,int polygonNum){
 	return polygon->Points->total;
 }
 
+
+
+
 void DisplayPtArr(CvPoint* PtArr,int numPts){
 	int k=0;
 	for (k = 0; k < numPts; ++k) {

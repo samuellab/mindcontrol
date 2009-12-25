@@ -116,8 +116,8 @@ FORCE:
 
 
 ###### Test.exe
-$(targetDir)/Test.exe : test.o $(CVlibs) IllumWormProtocol.o AndysOpenCvLib.o version.o
-	g++ -o $(targetDir)/Test.exe Test.o IllumWormProtocol.o AndysOpenCvLib.o version.o $(CVlibs) $(TailOpts)
+$(targetDir)/Test.exe : test.o $(CVlibs) IllumWormProtocol.o AndysOpenCvLib.o version.o $(TimerLibrary)
+	g++ -o $(targetDir)/Test.exe Test.o IllumWormProtocol.o AndysOpenCvLib.o version.o $(TimerLibrary) $(CVlibs) $(TailOpts)
 
 test.o : test.c
 	g++ -c -Wall test.c -I$(MyLibs) $(openCVincludes) $(TailOpts) 

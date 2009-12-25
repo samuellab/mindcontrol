@@ -25,7 +25,8 @@ using namespace std;
 #include "MyLibs/AndysOpenCvLib.h"
 #include "MyLibs/version.h"
 
-
+//3rd Party Libraries
+#include "3rdPartyLibs/tictoc.h"
 
 Protocol* CreateTestProtocol(char* name){
 
@@ -231,10 +232,12 @@ int main(){
 
 
 	printf("Points between line test\n");
-	cvWaitKey(0);
+
 	CvMemStorage* mem= cvCreateMemStorage();
 	CvSeq* test=cvCreateSeq(CV_SEQ_ELTYPE_POINT, sizeof(CvSeq), sizeof(CvPoint),mem);
-	GetLineFromEndPts(cvPoint(0,0),cvPoint(10,15),test);
+	TICTOC::timer().tic("GetLineFromEndPts()");
+	GetLineFromEndPts(cvPoint(0,0),cvPoint(100,15),test);
+	TICTOC::timer().toc("GetLineFromEndPts()");
 
 
 
@@ -250,13 +253,15 @@ int main(){
 	for (k = 0; k < protocol2->Steps->total; ++k) {
 		printf("====Step Number %d====\n",k);
 		cvZero(rectWorm);
+		TICTOC::timer().tic("IllumRectWorm()");
 		IllumRectWorm(rectWorm,protocol2,k);
+		TICTOC::timer().toc("IllumRectWorm()");
 		cvShowImage("RectWorm",rectWorm);
 		cvWaitKey(0);
 
 	}
 
-
+	printf("%s",TICTOC::timer().generateReportCstr());
 	return 0;
 }
 
