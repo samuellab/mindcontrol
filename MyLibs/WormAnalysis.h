@@ -49,6 +49,9 @@ typedef struct WormAnalysisParamStruct{
 	int IllumFloodEverything;
 	int DLPOn;
 
+	int ProtocolUse;
+	int ProtocolStep;
+
 	/** Record Data Parameters **/
 	int Record;
 

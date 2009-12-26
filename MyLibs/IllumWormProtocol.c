@@ -411,6 +411,7 @@ CvSeq* GetMontageFromProtocol(Protocol* p, int step){
 
 
 
+
 /*
  * Given a Montage CvSeq of WormPolygon objects,
  * This function allocates memory for an array of
@@ -592,8 +593,9 @@ CvPoint CvtPtWormSpaceToImageSpace(CvPoint WormPt, SegmentedWorm* worm, CvSize g
 	/**Create a vector from the centerline to the corresponding point on the boundary**/
 	CvPoint vecToBound=cvPoint(PtOnBound->x - PtOnCenterline->x,PtOnBound->y - PtOnCenterline->y);
 
+	float ScaleRadius = (float) (gridSize.width-1)/2;
 	/** Find fractional value of x in worm space relative to the x grid dimension... **/
-	float fracx= (float) WormPt.x / (float) gridSize.width;
+	float fracx= (float) WormPt.x / ScaleRadius;
 
 	/** Pt out = pt on the centerline + scaled vector towards point on the boundary **/
 	float outX= (float) (PtOnCenterline->x) + (fracx * (float) vecToBound.x);
@@ -610,13 +612,28 @@ CvPoint CvtPtWormSpaceToImageSpace(CvPoint WormPt, SegmentedWorm* worm, CvSize g
  *
  * To use with protocol, use GetMontageFromProtocolInterp() first
  */
-void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img){
+void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img,CvSize gridSize){
+	int DEBUG=1;
 	CvPoint* polyArr=NULL;
 	int k;
 	int numpts=0;
 	for (k = 0; k < IllumMontage->total; ++k) {
 		numpts=CreatePointArrFromMontage(&polyArr,IllumMontage,k);
+		int j;
+		CvPoint* ptPtr=polyArr;
+		for (j = 0; j < numpts; ++j) {
+			/** make a local copy of the current pt in worm space **/
+			CvPoint wormPt=*(ptPtr);
+			/** replace that point with the new pt in image space **/
+			*(ptPtr)=CvtPtWormSpaceToImageSpace(wormPt,segworm, gridSize);
+			/** move to the next pointer **/
+			ptPtr++;
+		}
+
 		cvFillConvexPoly(img,polyArr,numpts,cvScalar(255,255,255),CV_AA);
+		if (DEBUG) {
+			cvShowImage("Debug",img);
+		}
 		free(polyArr);
 		polyArr=NULL;
 	}
@@ -721,4 +738,7 @@ Protocol* LoadProtocolFromFile(const char* filename){
 		return myP;
 
 }
+
+
+
 

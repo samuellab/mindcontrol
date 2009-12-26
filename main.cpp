@@ -43,6 +43,13 @@ using namespace std;
 
 
 int main (int argc, char** argv){
+	int DEBUG=1;
+	if (DEBUG){
+		cvNamedWindow("Debug");
+		cvNamedWindow("Debug2");
+	}
+
+
 	/** Display output about the OpenCV setup currently installed **/
 	DisplayOpenCVInstall();
 
@@ -52,6 +59,7 @@ int main (int argc, char** argv){
 
 	/** Create memory and objects **/
 	InitializeExperiment(exp);
+
 
 	/** Deal with CommandLineArguments **/
 	LoadCommandLineArguments(exp,argc,argv);
@@ -136,8 +144,17 @@ int main (int argc, char** argv){
 				if (exp->Params->IllumFloodEverything) {
 					SetFrame(exp->IlluminationFrame,128); // Turn all of the pixels on
 				} else {
+					if (!(exp->Params->ProtocolUse)) /** if not running the protocol **/{
 					/** Otherwise Actually illuminate the  region of the worm your interested in **/
 					SimpleIlluminateWormLR(exp->Worm, exp->IlluminationFrame, exp->Params->IllumSegCenter, exp->Params->IllumSegRadius, exp->Params->IllumLRC);
+					} else{
+						IlluminateFromProtocol(exp);
+						IplImage* rectWorm= GenerateRectangleWorm(exp->p->GridSize);
+						cvZero(rectWorm);
+						IllumRectWorm(rectWorm,exp->p,exp->Params->ProtocolStep);
+						cvShowImage("Debug2",rectWorm);
+						cvReleaseImage(&rectWorm);
+					}
 				}
 			}
 

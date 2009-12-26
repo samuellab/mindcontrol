@@ -242,6 +242,10 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 	ParamPtr->IllumSegCenter=25;
 	ParamPtr->IllumFloodEverything=0;
 
+	ParamPtr->ProtocolUse=0;
+	ParamPtr->ProtocolStep=0;
+
+
 	/**Record Parameters **/
 	ParamPtr->Record=0;
 

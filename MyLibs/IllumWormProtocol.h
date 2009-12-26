@@ -101,13 +101,6 @@ CvSeq* CreateStepsObject(CvMemStorage* memory);
  */
 CvSeq* CreateIlluminationMontage(CvMemStorage* memory);
 
-/*
- * Creates an illumination image in image space
- * according to an illumination montage.
- *
- * To use with protocol, use GetMontageFromProtocolInterp() first
- */
-void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img);
 
 
 /*******************************************/
@@ -164,15 +157,13 @@ char *copyString (const char *src);
 
 
 /*
- * Returns the pointer to a montage of polygons corresponding
- * to a specific step of a protocol
+ * Returns a pointer to a montage of illumination polygons
+ * corresponding to a specific protocol step.
  *
- * Note: This returns the sparse form of the polygon. There are only
- * as many vertices in the polygon as the author of the protocol defined.
- * e.g. a square in worm space may only be defined by four points.
+ * NOTE: all polygons have been converted into contours so that they
+ * have at least one vertex per grid point on the worm-grid
  */
-CvSeq* GetMontageFromProtocol(Protocol* p, int step);
-
+CvSeq* GetMontageFromProtocolInterp(Protocol* p, int step);
 /*
  * This function makes a black image.
  *
@@ -184,6 +175,13 @@ IplImage* GenerateRectangleWorm(CvSize size);
  */
 void IllumRectWorm(IplImage* rectWorm,Protocol* p,int step);
 
+/*
+ * Creates an illumination image in image space
+ * according to an illumination montage.
+ *
+ * To use with protocol, use GetMontageFromProtocolInterp() first
+ */
+void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img,CvSize gridSize);
 
 /*****************
  * File INput Output
