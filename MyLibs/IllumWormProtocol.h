@@ -1,12 +1,20 @@
 /*
  * IllumWormProtocol.h
  *
+ * Depends on WormAnalysis.h
+ * which depends on AndysOpenCVLib.h
+ *
  *  Created on: Nov 11, 2009
  *      Author: Andy
  */
 
 #ifndef ILLUMWORMPROTOCOL_H_
 #define ILLUMWORMPROTOCOL_H_
+
+
+#ifndef WORMANALYSIS_H_
+ #error "#include WormAnalysis.h" must appear in source files before "#include IllumWormProtocol.h"
+#endif
 
 
 typedef struct ProtocolStruct{
@@ -93,6 +101,15 @@ CvSeq* CreateStepsObject(CvMemStorage* memory);
  */
 CvSeq* CreateIlluminationMontage(CvMemStorage* memory);
 
+/*
+ * Creates an illumination image in image space
+ * according to an illumination montage.
+ *
+ * To use with protocol, use GetMontageFromProtocolInterp() first
+ */
+void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img);
+
+
 /*******************************************/
 /*
  * Polygon Objects
@@ -147,6 +164,16 @@ char *copyString (const char *src);
 
 
 /*
+ * Returns the pointer to a montage of polygons corresponding
+ * to a specific step of a protocol
+ *
+ * Note: This returns the sparse form of the polygon. There are only
+ * as many vertices in the polygon as the author of the protocol defined.
+ * e.g. a square in worm space may only be defined by four points.
+ */
+CvSeq* GetMontageFromProtocol(Protocol* p, int step);
+
+/*
  * This function makes a black image.
  *
  */
@@ -156,6 +183,9 @@ IplImage* GenerateRectangleWorm(CvSize size);
  * Illuminate a rectangle worm
  */
 void IllumRectWorm(IplImage* rectWorm,Protocol* p,int step);
+
+
+
 
 
 #endif /* ILLUMWORMPROTOCOL_H_ */

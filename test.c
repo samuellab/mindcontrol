@@ -21,8 +21,9 @@ using namespace std;
 
 
 //Andy's Headers
-#include "MyLibs/IllumWormProtocol.h"
 #include "MyLibs/AndysOpenCvLib.h"
+#include "MyLibs/WormAnalysis.h"
+#include "MyLibs/IllumWormProtocol.h"
 #include "MyLibs/version.h"
 
 //3rd Party Libraries
@@ -117,7 +118,7 @@ Protocol* ReadTestProtocol(const char* name){
 	printf("In ReadTestProtocol()");
 	Protocol* myP=CreateProtocolObject();
 	LoadProtocolWithFilename(name,myP);
-	CvFileStorage* fs=cvOpenFileStorage("protocol.yml",0,CV_STORAGE_READ);
+	CvFileStorage* fs=cvOpenFileStorage(myP->Filename,0,CV_STORAGE_READ);
 	printf("Opened File Storage\n");
 
 	/** Point to Protocol Object **/

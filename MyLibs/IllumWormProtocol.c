@@ -398,19 +398,29 @@ IplImage* GenerateRectangleWorm(CvSize size){
 /*
  * Returns the pointer to a montage of polygons corresponding
  * to a specific step of a protocol
+ *
+ * Note: This returns the sparse form of the polygon. There are only
+ * as many vertices in the polygon as the author of the protocol defined.
+ * e.g. a square in worm space may only be defined by four points.
  */
 CvSeq* GetMontageFromProtocol(Protocol* p, int step){
 	CvSeq** montagePtr=(CvSeq**) cvGetSeqElem(p->Steps,step);
 	return *montagePtr;
 }
 
+
+
+
 /*
  * Given a Montage CvSeq of WormPolygon objects,
  * This function allocates memory for an array of
  * CvPoints and returns that.
  *
+ * Returns an integer with the number of points in the polygon.
+ *
  * When using this function, don't forget to release the allocated
  * memory.
+ *
  */
 int CreatePointArrFromMontage(CvPoint** polyArr,CvSeq* montage,int polygonNum){
 	if (polygonNum >= montage->total){
@@ -471,6 +481,21 @@ int CvtPolyMontage2ContourMontage(CvSeq* PolyMontage, CvSeq* ContourMontage){
 
 		}
 		return 1;
+}
+
+
+/*
+ * Returns a pointer to a montage of illumination polygons
+ * corresponding to a specific protocol step.
+ *
+ * NOTE: all polygons have been converted into contours so that they
+ * have at least one vertex per grid point on the worm-grid
+ */
+CvSeq* GetMontageFromProtocolInterp(Protocol* p, int step){
+	CvSeq** polymontagePtr=(CvSeq**) cvGetSeqElem(p->Steps,step);
+	CvSeq* montage=CreateIlluminationMontage(p->memory);
+	CvtPolyMontage2ContourMontage(*polymontagePtr,montage);
+	return montage;
 }
 
 
@@ -545,28 +570,61 @@ void IllumRectWorm(IplImage* rectWorm,Protocol* p,int step){
 }
 
 
-
+/*
+ *
+ * This function takes a point defined in the grid of the worm (0,0 is the head... etc)
+ * And converts that point into the coordinate system of the image.
+ *
+ * It takes as arguments a Segmentedworm* object which dfines the location of the boundaries
+ * of a worm in an image.
+ *
+ * This function is used by IlilumWorm to illuminate a worm.
+ */
 CvPoint CvtPtWormSpaceToImageSpace(CvPoint WormPt, SegmentedWorm* worm, CvSize gridSize){
-	CvPoint imPt;
-	/**ANDY!!! PICK UP RIGHT HERE */
-	// 1) Look at the y value of the wormPt
-	//   Find the coordinate in imspace of the pt on centerline corresponding to this y value
-	//    (this is like the disc on a spine)
-	// 2) Create a vector from the centerline to the corresponding point on the boundary
-	// 3) Find the fractional value of the x value in worm space to the x grid dimension...
-	//     e.g. if we were dealing with 3, then this would be 3/10ths.
-	//	   do this as a float
-	// 4) Scale the vector by the fractional value (all as floats)
-	// 5) convert to integer
-	// 6) That's your point.
+
+	/** Find the coordinate in imspace of the pt on centerline corresponding to this y value **/
+	CvPoint* PtOnCenterline=(CvPoint*) cvGetSeqElem(worm->Centerline,WormPt.y);
+
+	/** Find the Corresponding y-value point on the boundary **/
+	/** We'll use the right boundary by convention **/
+	CvPoint* PtOnBound=(CvPoint*) cvGetSeqElem(worm->RightBound,WormPt.y);
+
+	/**Create a vector from the centerline to the corresponding point on the boundary**/
+	CvPoint vecToBound=cvPoint(PtOnBound->x - PtOnCenterline->x,PtOnBound->y - PtOnCenterline->y);
+
+	/** Find fractional value of x in worm space relative to the x grid dimension... **/
+	float fracx= (float) WormPt.x / (float) gridSize.width;
+
+	/** Pt out = pt on the centerline + scaled vector towards point on the boundary **/
+	float outX= (float) (PtOnCenterline->x) + (fracx * (float) vecToBound.x);
+	float outY= (float) (PtOnCenterline->y) + (fracx * (float) vecToBound.y);
+	return cvPoint( (int)  (outX+.5), (int) (outY+.5));
 
 
-	return imPt;
 }
 
+
+/*
+ * Creates an illumination image in image space
+ * according to an illumination montage.
+ *
+ * To use with protocol, use GetMontageFromProtocolInterp() first
+ */
 void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img){
-
+	CvPoint* polyArr=NULL;
+	int k;
+	int numpts=0;
+	for (k = 0; k < IllumMontage->total; ++k) {
+		numpts=CreatePointArrFromMontage(&polyArr,IllumMontage,k);
+		cvFillConvexPoly(img,polyArr,numpts,cvScalar(255,255,255),CV_AA);
+		free(polyArr);
+		polyArr=NULL;
+	}
 }
 
-
+/**********************
+ *
+ * File Input/Output
+ *
+ */
 

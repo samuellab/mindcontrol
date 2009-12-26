@@ -14,6 +14,11 @@
 #ifndef WORMANALYSIS_H_
 #define WORMANALYSIS_H_
 
+#ifndef ANDYSOPENCVLIB_H_
+ #error "#include AndysOpenCVLib.h" must appear in source files before "#include WormAnalysis.h"
+#endif
+
+
 typedef struct WormAnalysisParamStruct{
 	/** Turn Analysis On Generally **/
 	int OnOff;
