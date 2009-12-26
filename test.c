@@ -52,10 +52,10 @@ Protocol* CreateTestProtocol(char* name){
 	cvSeqPush(Head->Points,&cvPoint(10,20));
 	cvSeqPush(Head->Points,&cvPoint(-10,20));
 
-	cvSeqPush(Left->Points,&cvPoint(-10,30));
 	cvSeqPush(Left->Points,&cvPoint(0,30));
-	cvSeqPush(Left->Points,&cvPoint(0,70));
+	cvSeqPush(Left->Points,&cvPoint(-10,30));
 	cvSeqPush(Left->Points,&cvPoint(-10,70));
+	cvSeqPush(Left->Points,&cvPoint(0,70));
 
 	cvSeqPush(Right->Points,&cvPoint(0,30));
 	cvSeqPush(Right->Points,&cvPoint(10,30));

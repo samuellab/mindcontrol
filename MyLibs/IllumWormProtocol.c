@@ -620,6 +620,7 @@ void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img,CvSize
 	for (k = 0; k < IllumMontage->total; ++k) {
 		numpts=CreatePointArrFromMontage(&polyArr,IllumMontage,k);
 		int j;
+		//DisplayPtArr(polyArr,numpts);
 		CvPoint* ptPtr=polyArr;
 		for (j = 0; j < numpts; ++j) {
 			/** make a local copy of the current pt in worm space **/
@@ -630,9 +631,21 @@ void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img,CvSize
 			ptPtr++;
 		}
 
-		cvFillConvexPoly(img,polyArr,numpts,cvScalar(255,255,255),CV_AA);
+		//cvFillConvexPoly(img,polyArr,numpts,cvScalar(255,255,255),CV_AA);
 		if (DEBUG) {
-			cvShowImage("Debug",img);
+			int i;
+			printf("new polygon\n");
+			for (i = 0; i < numpts; i++) {
+				printf(" (%d, %d)\n",polyArr[i].x,polyArr[i].y);
+				cvCircle(img, polyArr[i], 1, cvScalar(255, 255, 255), 1);
+				cvShowImage("Debug",img);
+				cvWaitKey(10);
+
+			}
+		cvFillConvexPoly(img,polyArr,numpts,cvScalar(255,255,255),CV_AA);
+		cvWaitKey(100);
+		cvShowImage("Debug",img);
+
 		}
 		free(polyArr);
 		polyArr=NULL;
