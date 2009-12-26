@@ -55,6 +55,7 @@ typedef struct ExperimentStruct{
 
 	/** Protocol Data **/
     Protocol* p;
+    int pflag;
 
 	/** Camera Input**/
 	CamData* MyCamera;
@@ -299,6 +300,26 @@ void DoDisplaySelectedDisplay(Experiment* exp);
  *
  */
 void DoWriteToDisk(Experiment* exp);
+
+/*********************
+ *
+ *  Protocol related functions
+ *
+ */
+
+/*
+ * Load a protocol from a YAML file into the
+ * experiment structure.
+ *
+ * Protocol filename must be specified in exp->protocolfname
+ */
+void LoadProtocol(Experiment* exp);
+
+/*
+ *  Releases a protocol from the experiment object.
+ */
+void ReleaseProtocolFromExperiment(Experiment* exp);
+
 
 
 #endif /* EXPERIMENT_H_ */

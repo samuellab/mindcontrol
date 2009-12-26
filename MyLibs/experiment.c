@@ -85,6 +85,10 @@ Experiment* CreateExperimentStruct(){
 	exp->dirname=NULL;
 	exp->protocolfname=NULL;
 
+	/** Protocol Data **/
+	exp->p=NULL;
+	exp->pflag=0;
+
 	/** Camera Input**/
 	exp->MyCamera=NULL;
 
@@ -216,9 +220,10 @@ int HandleCommandLineArguments(Experiment* exp) {
 			exp->SimDLP = 1;
 			break;
 
-		case 'p': /** specifiy directory **/
+		case 'p': /** Load Protocol **/
 			if (optarg != NULL) {
 				exp->protocolfname = optarg;
+				exp->pflag=1;
 			} else {
 				fprintf(stderr, "Detected '-p' switch but no protocol file specified\n");
 			}
@@ -782,3 +787,27 @@ void DoWriteToDisk(Experiment* exp){
 }
 
 
+/*********************
+ *
+ *  Protocol related functions
+ *
+ */
+
+/*
+ * Load a protocol from a YAML file into the
+ * experiment structure.
+ *
+ * Protocol filename must be specified in exp->protocolfname
+ */
+void LoadProtocol(Experiment* exp){
+	exp->p=LoadProtocolFromFile(exp->protocolfname);
+}
+
+/*
+ *  Releases a protocol from the experiment object.
+ */
+void ReleaseProtocolFromExperiment(Experiment* exp){
+	if (exp->p==NULL) return;
+	DestroyProtocolObject(&(exp->p));
+	return;
+}

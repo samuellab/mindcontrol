@@ -60,6 +60,9 @@ int main (int argc, char** argv){
 	/** Read In Calibration Data ***/
 	if (HandleCalibrationData(exp)<0) return -1;
 
+	/** Load protocol YAML file **/
+	if (exp->pflag) LoadProtocol(exp);
+
 	/** Start Camera or Vid Input **/
 	RollVideoInput(exp);
 
