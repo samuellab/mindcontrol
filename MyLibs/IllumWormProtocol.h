@@ -185,6 +185,16 @@ IplImage* GenerateRectangleWorm(CvSize size);
 void IllumRectWorm(IplImage* rectWorm,Protocol* p,int step);
 
 
+/*****************
+ * File INput Output
+ *
+ */
+
+/*
+ * Load a  Protocol From yaml File
+ *
+ */
+Protocol* LoadProtocolFromFile(const char* filename);
 
 
 

@@ -5,8 +5,8 @@
  *      Author: Andy
  */
 
-#ifndef T2DLP_H_
-#define T2DLP_H_
+#ifndef TALK2DLP_H_
+#define TALK2DLP_H_
 
 //Andy: I need to move this to the .h file soon.
 long T2DLP_on(); //returns the ID of the DMD
@@ -32,4 +32,4 @@ int T2DLP_clear(long myDLP);
 #define NSIZEX 1024
 #define NSIZEY 768
 
-#endif /* T2DLP_H_ */
+#endif /* TALK2DLP_H_ */

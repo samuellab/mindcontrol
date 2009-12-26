@@ -12,6 +12,24 @@
 #ifndef EXPERIMENT_H_
 #define EXPERIMENT_H_
 
+#ifndef WORMANALYSIS_H_
+ #error "#include WormAnalysis.h" must appear in source files before "#include experiment.h"
+#endif
+#ifndef ILLUMWORMPROTOCOL_H_
+ #error "#include IllumWormProtocol.h" must appear in source files before "#include experiment.h"
+#endif
+#ifndef WRITEOUTWORM_H_
+ #error "#include WriteOutWorm.h" must appear in source files before "#include experiment.h"
+#endif
+#ifndef TALK2DLP_H_
+ #error "#include Talk2DLP.h" must appear in source files before "#include experiment.h"
+#endif
+#ifndef TALK2CAMERA_H_
+ #error "#include Talk2Camera.h" must appear in source files before "#include experiment.h"
+#endif
+#ifndef ANDYSOPENCVLIB_H_
+ #error "#include AndysOpenCVLib.h" must appear in source files before "#include experiment.h"
+#endif
 
 
 
@@ -33,6 +51,10 @@ typedef struct ExperimentStruct{
 	char* dirname;
 	char* outfname;
 	char* infname;
+	char* protocolfname;
+
+	/** Protocol Data **/
+    Protocol* p;
 
 	/** Camera Input**/
 	CamData* MyCamera;

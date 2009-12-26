@@ -34,6 +34,7 @@ using namespace std;
 #include "MyLibs/TransformLib.h"
 #include "MyLibs/WormAnalysis.h"
 #include "MyLibs/WriteOutWorm.h"
+#include "MyLibs/IllumWormProtocol.h"
 #include "MyLibs/experiment.h"
 
 //3rd Party Libraries

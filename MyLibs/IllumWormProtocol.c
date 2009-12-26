@@ -628,3 +628,97 @@ void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img){
  *
  */
 
+/*
+ * Load a  Protocol From yaml File
+ *
+ */
+Protocol* LoadProtocolFromFile(const char* filename){
+		Protocol* myP=CreateProtocolObject();
+		LoadProtocolWithFilename(filename,myP);
+		CvFileStorage* fs=cvOpenFileStorage(myP->Filename,0,CV_STORAGE_READ);
+		printf("Opened File: %s for reading\n", myP->Filename);
+		/** Point to Protocol Object **/
+		CvFileNode* protonode=cvGetFileNodeByName(fs,NULL,"Protocol");
+
+		/** Load in Description **/
+		CvFileNode* node=cvGetFileNodeByName(fs,protonode,"Description");
+		myP->Description=copyString(cvReadString(node,NULL));
+		printf("=Description:\n %s\n",myP->Description);
+
+		/** Load in Grid Size **/
+		node=cvGetFileNodeByName(fs,protonode,"GridSize");
+		int height=cvReadIntByName(fs,node,"height",-1);
+		int width=cvReadIntByName(fs,node,"width",-1);
+		if (height>0 && width>0){
+			myP->GridSize=cvSize(width,height);
+		}
+
+		/** Create the Steps Object and Load it into the Protocol **/
+		myP->Steps=CreateStepsObject(myP->memory);
+
+		/** Point to the Steps node  in the YAML file **/
+		node=cvGetFileNodeByName(fs,protonode,"Steps");
+
+
+
+		/** Create a local object that contains the information of the steps **/
+		CvSeq* stepSeq=node->data.seq;
+		int numsteps=stepSeq->total;
+		printf("numsteps=%d\n",numsteps);
+
+		CvSeqReader StepReader;
+		cvStartReadSeq( stepSeq, &StepReader, 0 );
+
+		/** Let's loop through all of the steps **/
+		for (int i= 0; i< numsteps; ++i) {
+
+			/**Create Illumination Montage Object **/
+			CvSeq* montage=CreateIlluminationMontage(myP->memory);
+
+			/** Find the node of the current image montage (step) **/
+			CvFileNode* montageNode = (CvFileNode*)StepReader.ptr;
+
+			CvSeq* montageSeq=montageNode->data.seq;
+			int numPolygonsInMontage=montageSeq->total;
+			printf("Step %d: %d polygon(s) found\n",i,numPolygonsInMontage);
+
+			CvSeqReader MontageReader;
+			cvStartReadSeq( montageSeq, &MontageReader, 0 );
+
+			/** Loop through all of the polygons **/
+			for (int k = 0; k < numPolygonsInMontage; ++k) {
+				/** Load the CvSeq Polygon Objects and push them onto the montage **/
+				CvFileNode* polygonNode = (CvFileNode*)MontageReader.ptr;
+				CvSeq* polygonPts =(CvSeq*) cvRead(fs,polygonNode); // <---- Andy come back here.
+				printf("\tPolygon %d: found %d points.\n",k,polygonPts->total);
+
+				/**
+				 * Now we have the points for our polygon so we need to load
+				 * those points into a polygon object
+				 */
+				WormPolygon* polygon= CreateWormPolygonFromSeq(myP->memory,myP->GridSize,polygonPts);
+				printf("\t\t %d points copied\n",polygon->Points->total);
+
+				/** Add the polygon to the montage **/
+				cvSeqPush(montage,&polygon);
+				printf("\t\t Current montage now has %d polygons\n",montage->total);
+
+				/** Move to the next polygon **/
+				CV_NEXT_SEQ_ELEM( montageSeq->elem_size, MontageReader );
+			}
+			cvClearSeq(montageSeq);
+			numPolygonsInMontage=0;
+
+			printf("Loading a montage with %d polygons on the protocol\n.",montage->total);
+			/** Load the montage onto the step object**/
+			cvSeqPush(myP->Steps,&montage);
+
+			/** Progress to the next step **/
+			CV_NEXT_SEQ_ELEM( stepSeq->elem_size, StepReader );
+
+		}
+
+		return myP;
+
+}
+

@@ -39,6 +39,7 @@
 #include "AndysComputations.h"
 #include "TransformLib.h"
 #include "WormAnalysis.h"
+#include "IllumWormProtocol.h"
 #include "WriteOutWorm.h"
 
 
@@ -82,6 +83,7 @@ Experiment* CreateExperimentStruct(){
 	exp->outfname=NULL;
 	exp->infname=NULL;
 	exp->dirname=NULL;
+	exp->protocolfname=NULL;
 
 	/** Camera Input**/
 	exp->MyCamera=NULL;
@@ -179,7 +181,7 @@ int HandleCommandLineArguments(Experiment* exp) {
 	opterr = 0;
 
 	int c;
-	while ((c = getopt(exp->argc, exp->argv, "si:d:o:")) != -1) {
+	while ((c = getopt(exp->argc, exp->argv, "si:d:o:p:")) != -1) {
 		switch (c) {
 		case 'i': /** specify input video file **/
 			exp->VidFromFile = 1;
@@ -213,6 +215,15 @@ int HandleCommandLineArguments(Experiment* exp) {
 		case 's': /** Run in DLP simulation Mode **/
 			exp->SimDLP = 1;
 			break;
+
+		case 'p': /** specifiy directory **/
+			if (optarg != NULL) {
+				exp->protocolfname = optarg;
+			} else {
+				fprintf(stderr, "Detected '-p' switch but no protocol file specified\n");
+			}
+			break;
+
 
 		case '?':
 			if (optopt == 'i' || optopt == 'c' || optopt == 'd' || optopt
