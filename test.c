@@ -45,6 +45,7 @@ Protocol* CreateTestProtocol(char* name){
 	WormPolygon* Left = CreateWormPolygon(myP->memory,myP->GridSize);
 	WormPolygon* Right = CreateWormPolygon(myP->memory,myP->GridSize);
 	WormPolygon* Tail = CreateWormPolygon(myP->memory,myP->GridSize);
+	WormPolygon* Everything = CreateWormPolygon(myP->memory,myP->GridSize);
 
 	//(length along centerline,radius from centerline)
 	cvSeqPush(Head->Points,&cvPoint(-10,0));
@@ -67,11 +68,16 @@ Protocol* CreateTestProtocol(char* name){
 	cvSeqPush(Tail->Points,&cvPoint(0,99));
 	cvSeqPush(Tail->Points,&cvPoint(-10,99));
 
+	cvSeqPush(Everything->Points,&cvPoint(-10,0));
+	cvSeqPush(Everything->Points,&cvPoint(10,0));
+	cvSeqPush(Everything->Points,&cvPoint(10,99));
+	cvSeqPush(Everything->Points,&cvPoint(-10,99));
 
 	/** Create an Illumination Montage**/
 	CvSeq* FirstIllum=CreateIlluminationMontage(myP->memory);
 	CvSeq* SecondIllum=CreateIlluminationMontage(myP->memory);
 	CvSeq* ThirdIllum=CreateIlluminationMontage(myP->memory);
+	CvSeq* FourthIllum=CreateIlluminationMontage(myP->memory);
 
 
 	/** Let's load up the illumination montages with polygons**/
@@ -89,12 +95,15 @@ Protocol* CreateTestProtocol(char* name){
 	cvSeqPush(ThirdIllum,&Tail);
 	cvSeqPush(ThirdIllum,&Left);
 
+    cvSeqPush(FourthIllum,&Everything);
+
 
 
 	/** Let's Load the montages into a series of steps **/
 	cvSeqPush(myP->Steps,&FirstIllum);
 	cvSeqPush(myP->Steps,&SecondIllum);
 	cvSeqPush(myP->Steps,&ThirdIllum);
+	cvSeqPush(myP->Steps,&FourthIllum);
 
 
 	printf("Writing test protocol in file: %s\n",myP->Filename);

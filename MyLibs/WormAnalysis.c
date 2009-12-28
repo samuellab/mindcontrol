@@ -813,12 +813,10 @@ int CreateWormHUDS(IplImage* TempImage, WormAnalysisData* Worm, WormAnalysisPara
 	cvDrawContours(TempImage, Worm->Boundary, cvScalar(255,0,0),cvScalar(0,255,0),100);
 		printf("In CreateWormHUDS() in WormAnalysis.c Worm->Segmented->LeftBound->total=%d\n",Worm->Segmented->LeftBound->total);
 		printf("In CreateWormHUDS() in WormAnalysis.c Worm->Segmented->RightBound->total=%d\n",Worm->Segmented->RightBound->total);
-//	cvDrawContours(TempImage, Worm->Segmented->LeftBound, cvScalar(255,0,0),cvScalar(0,255,0),100);
-//	cvDrawContours(TempImage, Worm->Segmented->RightBound, cvScalar(255,0,0),cvScalar(0,255,0),100);
 
 
-//	DrawSequence(&TempImage,Worm->Segmented->LeftBound);
-//	DrawSequence(&TempImage,Worm->Segmented->RightBound);
+	DrawSequence(&TempImage,Worm->Segmented->LeftBound);
+	DrawSequence(&TempImage,Worm->Segmented->RightBound);
 
 	cvCircle(TempImage,*(Worm->Tail),CircleDiameterSize,cvScalar(255,255,255),1,CV_AA,0);
 	cvCircle(TempImage,*(Worm->Head),CircleDiameterSize/2,cvScalar(255,255,255),1,CV_AA,0);

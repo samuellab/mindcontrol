@@ -587,20 +587,35 @@ CvPoint CvtPtWormSpaceToImageSpace(CvPoint WormPt, SegmentedWorm* worm, CvSize g
 	CvPoint* PtOnCenterline=(CvPoint*) cvGetSeqElem(worm->Centerline,WormPt.y);
 
 	/** Find the Corresponding y-value point on the boundary **/
-	/** We'll use the right boundary by convention **/
-	CvPoint* PtOnBound=(CvPoint*) cvGetSeqElem(worm->RightBound,WormPt.y);
+
+	/** Depending on whether our pt is in the right half or the left half... **/
+
+	if (WormPt.x==0){
+			return *PtOnCenterline;
+		}
+	CvPoint* PtOnBound;
+	float sign = 1.0;
+	if (WormPt.x>0) {
+		/** We'll use the right boundary **/
+		PtOnBound=(CvPoint*) cvGetSeqElem(worm->RightBound,WormPt.y);
+		//sign=1;
+	}else {
+		/** We'll use the left boundary **/
+		PtOnBound=(CvPoint*) cvGetSeqElem(worm->LeftBound,WormPt.y);
+		sign = -1.0;
+	}
 
 	/**Create a vector from the centerline to the corresponding point on the boundary**/
 	CvPoint vecToBound=cvPoint(PtOnBound->x - PtOnCenterline->x,PtOnBound->y - PtOnCenterline->y);
 
 	float ScaleRadius = (float) (gridSize.width-1)/2;
 	/** Find fractional value of x in worm space relative to the x grid dimension... **/
-	float fracx= (float) WormPt.x / ScaleRadius;
+	float fracx=  sign * (float) WormPt.x / ScaleRadius;
 
 	/** Pt out = pt on the centerline + scaled vector towards point on the boundary **/
 	float outX= (float) (PtOnCenterline->x) + (fracx * (float) vecToBound.x);
 	float outY= (float) (PtOnCenterline->y) + (fracx * (float) vecToBound.y);
-	return cvPoint( (int)  (outX+.5), (int) (outY+.5));
+	return cvPoint( (int)  (outX+.5*sign), (int) (outY+.5*sign));
 
 
 }
@@ -633,7 +648,6 @@ void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img,CvSize
 
 
 
-		//cvFillConvexPoly(img,polyArr,numpts,cvScalar(255,255,255),CV_AA);
 		if (DEBUG) {
 				int i;
 			printf("new polygon\n");
@@ -648,7 +662,7 @@ void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img,CvSize
 
 
 
-		cvFillPoly(img,&polyArr,&numpts,1,cvScalar(255,255,255),CV_AA);
+	//	cvFillPoly(img,&polyArr,&numpts,1,cvScalar(255,255,255),8);
 
 
 	/*** ANDY!! THIS NEEDS TO GET LOADED INTO A FRAME SOMEHOW **/
