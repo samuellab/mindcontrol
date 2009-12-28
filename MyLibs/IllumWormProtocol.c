@@ -631,26 +631,40 @@ void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img,CvSize
 			ptPtr++;
 		}
 
-		//cvFillConvexPoly(img,polyArr,numpts,cvScalar(255,255,255),CV_AA);
-//		if (DEBUG) {
-//			int i;
-//			printf("new polygon\n");
-//			for (i = 0; i < numpts; i++) {
-				//printf(" (%d, %d)\n",polyArr[i].x,polyArr[i].y);
-//				cvCircle(img, polyArr[i], 1, cvScalar(255, 255, 255), 1);
-//				cvShowImage("Debug",img);
-//				cvWaitKey(10);
 
-//			}
+
+		//cvFillConvexPoly(img,polyArr,numpts,cvScalar(255,255,255),CV_AA);
+		if (DEBUG) {
+				int i;
+			printf("new polygon\n");
+			for (i = 0; i < numpts; i++) {
+				printf(" (%d, %d)\n",polyArr[i].x,polyArr[i].y);
+				cvCircle(img, polyArr[i], 1, cvScalar(255, 255, 255), 1);
+				cvShowImage("Debug",img);
+				cvWaitKey(10);
+
+			}
+		}
+
+
 
 		cvFillPoly(img,&polyArr,&numpts,1,cvScalar(255,255,255),CV_AA);
-	//	cvWaitKey(100);
-	if (DEBUG)	cvShowImage("Debug",img);
 
-//		}
+
+	/*** ANDY!! THIS NEEDS TO GET LOADED INTO A FRAME SOMEHOW **/
 		free(polyArr);
 		polyArr=NULL;
 	}
+
+	if (DEBUG)	{
+		IplImage* TempImage=cvCreateImage(cvGetSize(img),IPL_DEPTH_8U,1);
+		DrawSequence(&TempImage,segworm->LeftBound);
+		DrawSequence(&TempImage, segworm->RightBound);
+		double weighting=0.4;
+		cvAddWeighted(img,weighting,TempImage,1,0,TempImage);
+		cvShowImage("Debug",TempImage);
+	}
+
 }
 
 /**********************

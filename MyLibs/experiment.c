@@ -353,7 +353,7 @@ void SetupGUI(Experiment* exp){
 	/** If we have loaded a protocol, set up protocol specific sliders **/
 	if (exp->pflag){
 		cvCreateTrackbar("Protocol",exp->WinCon2,&(exp->Params->ProtocolUse),1,(int) NULL);
-		cvCreateTrackbar("ProtoStep",exp->WinCon2,&(exp->Params->ProtocolStep),exp->p->Steps->total,(int) NULL);
+		cvCreateTrackbar("ProtoStep",exp->WinCon2,&(exp->Params->ProtocolStep),exp->p->Steps->total - 1,(int) NULL);
 	}
 	printf("Created trackbars and windows\n");
 	return;
@@ -845,7 +845,6 @@ int IlluminateFromProtocol(Experiment* exp){
 	IplImage* TempImage=cvCreateImage(Worm->SizeOfImage, IPL_DEPTH_8U, 1);
 
 	/** Grab a montage for the selected step **/
-		printf(" exp->Params->ProtocolStep=%d\n",exp->Params->ProtocolStep);
 	CvSeq* montage=GetMontageFromProtocolInterp(exp->p,exp->Params->ProtocolStep);
 	IllumWorm(Worm->Segmented,montage,TempImage,exp->p->GridSize);
 	LoadFrameWithImage(TempImage,exp->IlluminationFrame);
