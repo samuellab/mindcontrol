@@ -632,21 +632,22 @@ void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img,CvSize
 		}
 
 		//cvFillConvexPoly(img,polyArr,numpts,cvScalar(255,255,255),CV_AA);
-		if (DEBUG) {
-			int i;
-			printf("new polygon\n");
-			for (i = 0; i < numpts; i++) {
-				printf(" (%d, %d)\n",polyArr[i].x,polyArr[i].y);
-				cvCircle(img, polyArr[i], 1, cvScalar(255, 255, 255), 1);
-				cvShowImage("Debug",img);
-				cvWaitKey(10);
+//		if (DEBUG) {
+//			int i;
+//			printf("new polygon\n");
+//			for (i = 0; i < numpts; i++) {
+				//printf(" (%d, %d)\n",polyArr[i].x,polyArr[i].y);
+//				cvCircle(img, polyArr[i], 1, cvScalar(255, 255, 255), 1);
+//				cvShowImage("Debug",img);
+//				cvWaitKey(10);
 
-			}
-		cvFillConvexPoly(img,polyArr,numpts,cvScalar(255,255,255),CV_AA);
-		cvWaitKey(100);
-		cvShowImage("Debug",img);
+//			}
 
-		}
+		cvFillPoly(img,&polyArr,&numpts,1,cvScalar(255,255,255),CV_AA);
+	//	cvWaitKey(100);
+	if (DEBUG)	cvShowImage("Debug",img);
+
+//		}
 		free(polyArr);
 		polyArr=NULL;
 	}
