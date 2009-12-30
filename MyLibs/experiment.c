@@ -448,7 +448,7 @@ void InitializeExperiment(Experiment* exp){
 		InitializeWormMemStorage(Worm);
 
 		/** Create SegWormDLP object using memory from the worm object **/
-		exp->segWormDLP=CreateSegmentedWormStructReuseMem(Worm->MemStorage);
+		exp->segWormDLP=CreateSegmentedWormStruct();
 
 		exp->Worm=Worm;
 		exp->Params=Params;

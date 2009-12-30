@@ -275,9 +275,9 @@ SegmentedWorm* CreateSegmentedWormStruct(){
 SegmentedWorm* SegWorm;
 SegWorm= (SegmentedWorm*) malloc(sizeof(SegmentedWorm));
 
-SegWorm->Head=NULL;
-SegWorm->Tail=NULL;
-SegWorm->NumSegments=NULL;
+SegWorm->Head=(CvPoint*) malloc (sizeof(CvPoint));
+SegWorm->Tail=(CvPoint*) malloc (sizeof(CvPoint));
+SegWorm->NumSegments=0;
 
 /*** Setup Memory storage ***/
 
@@ -303,7 +303,7 @@ SegWorm= (SegmentedWorm*) malloc(sizeof(SegmentedWorm));
 
 SegWorm->Head=NULL;
 SegWorm->Tail=NULL;
-SegWorm->NumSegments=NULL;
+SegWorm->NumSegments=0;
 
 /*** Setup Memory storage ***/
 
@@ -328,9 +328,25 @@ free(SegWorm);
 void ClearSegmentedInfo(SegmentedWorm* SegWorm){
 	//SegWorm->Head=NULL; /** This is probably a mistake **/
 	//SegWorm->Tail=NULL; /** This is probably a mistake  because memory is not reallocated later.**/
-	cvClearSeq(SegWorm->LeftBound);
-	cvClearSeq(SegWorm->RightBound);
-	cvClearSeq(SegWorm->Centerline);
+
+	if (SegWorm->LeftBound!=NULL){
+		cvClearSeq(SegWorm->LeftBound);
+	}else{
+		printf("SegWorm->LeftBound==NULL");
+	}
+	if (SegWorm->RightBound!=NULL){
+			cvClearSeq(SegWorm->RightBound);
+		}else{
+			printf("SegWorm->RightBound==NULL");
+		}
+
+	if (SegWorm->Centerline!=NULL){
+			cvClearSeq(SegWorm->Centerline);
+		}else{
+			printf("SegWorm->Centerline==NULL");
+		}
+
+
 }
 
 

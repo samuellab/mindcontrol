@@ -43,7 +43,7 @@ HardwareLibrary=$(3rdPartyLibs)/alp4basic.lib $(3rdPartyLibs)/tisgrabber.lib
 
 #All Library Objects
 objects= $(mylibraries) $(WormSpecificLibs) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)
-calib_objects= calibrate.o $(mylibraries) $(3rdpartyobjects) $(CVlibs)  $(MatlabLibs)
+calib_objects= calibrate.o $(objects)
 
 #Hardware Independent objects
 hw_ind= version.o AndysComputations.o AndysOpenCVLib.o TransformLib.o IllumWormProtocol.o $(WormSpecificLibs) DontTalk2DLP.o DontTalk2Camera.o $(TimerLibrary) $(CVlibs)
