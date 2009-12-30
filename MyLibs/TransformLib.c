@@ -218,15 +218,12 @@ int cvtPtCam2DLP(CvPoint camPt, CvPoint* DLPpt,CalibData* Calib) {
 		printf(" In accessing lookup table, we are out of bounds!!\n");
 		return 0;
 	}
-	printf("In cvtPtCam2DLP()\n");
-		printf(" camPt.x=%d\n",camPt.x);
-				printf(" camPt.y=%d\n",camPt.y);
+
 	/** Actually convert the camPt to the DLPpt **/
 	DLPpt->x = Calib->CCD2DLPLookUp[XOUT * nsizey * nsizex + camPt.x * nsizey + camPt.y];
 	DLPpt->y = Calib->CCD2DLPLookUp[YOUT * nsizey * nsizex + camPt.x * nsizey + camPt.y];
 
-		printf(" DLPpt->x=%d\n",DLPpt->x);
-		printf(" DLPpt->y=%d\n",DLPpt->y);
+
 
 	if (DLPpt->x < 0 || DLPpt->y < 0 || DLPpt->x >= nsizex || DLPpt->y >= nsizey) {
 		printf ("pt is invalid");
@@ -252,11 +249,9 @@ int TransformSeqCam2DLP(CvSeq* camSeq, CvSeq* DLPseq, CalibData* Calib){
 		printf ("ERROR! TransformSeqCam2DLP() was given NULL sequences\n");
 		return -1;
 	}
-	printf("In TransformSeqCam2DLP()\n");
 	/** Clear the points in the destination **/
-		printf(" DLPseq->total=%d\n",DLPseq->total);
-	//cvClearSeq(DLPseq);
-	printf("ping\n");
+	cvClearSeq(DLPseq);
+
 	/** Setup CvSeq Reader **/
 	CvSeqReader reader;
 	cvStartReadSeq(camSeq,&reader,0);
@@ -270,16 +265,16 @@ int TransformSeqCam2DLP(CvSeq* camSeq, CvSeq* DLPseq, CalibData* Calib){
 	CvPoint camPt;
 	CvPoint* camPtptr;
 	int numpts=camSeq->total;
-		printf(" numpts=%d\n",numpts);
 	int j;
 	for (j = 0; j < numpts; ++j) {
 
 		camPtptr= (CvPoint*) reader.ptr;
 		camPt=*camPtptr;
-		printf(" camPt->x=%d\n",camPt.x);
-		printf(" camPt->y=%d\n",camPt.y);
+
+		/** Actually do the conversion **/
 		cvtPtCam2DLP(camPt,&DLPpt,Calib);
-		printf("%d'th point converted\n",j);
+
+
 		CV_WRITE_SEQ_ELEM( DLPpt, writer);
 		CV_NEXT_SEQ_ELEM(camSeq->elem_size,reader);
 
@@ -297,14 +292,14 @@ int TransformSegWormCam2DLP(SegmentedWorm* camWorm, SegmentedWorm* dlpWorm,Calib
 		printf("ERROR! TransformSegWormCAm2DLP passed NULL value.\n");
 		return -1;
 	}
-	printf ("in TransformSegWormCam2DLP()\n");
+
 	/** Transform points on centerline, right and left bounds**/
 	ClearSegmentedInfo(dlpWorm);
 	TransformSeqCam2DLP(camWorm->Centerline, dlpWorm->Centerline, Calib);
 	TransformSeqCam2DLP(camWorm->RightBound, dlpWorm->RightBound, Calib);
 	TransformSeqCam2DLP(camWorm->LeftBound, dlpWorm->LeftBound, Calib);
 
-	printf("About to transform head and tail\n");
+
 	/** Transform points on Head and Tail **/
 	cvtPtCam2DLP(*(camWorm->Head),dlpWorm->Head,Calib);
 	cvtPtCam2DLP(*(camWorm->Tail),dlpWorm->Tail,Calib);

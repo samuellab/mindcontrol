@@ -173,14 +173,6 @@ int main (int argc, char** argv){
 			}
 
 
-			//cvWaitKey(0);
-			/*** <------------ 31fps ***/
-//			TICTOC::timer().tic("TransformFrameCam2DLP");
-//			if (!(exp->e)) TransformFrameCam2DLP(exp->IlluminationFrame,exp->forDLP,exp->Calib);
-//			TICTOC::timer().toc("TransformFrameCam2DLP");
-			/** ANDY!! FIGURE OUT HOW TO DISPLAY DIFFERENCE !! to compare teh different illuminations **/
-			/*** <------------ 26fps ***/
-
 
 
 			if (!(exp->e) && exp->Params->DLPOn && !(exp->SimDLP)) T2DLP_SendFrame((unsigned char *) exp->forDLP->binary, exp->myDLP); // Send image to DLP
@@ -193,6 +185,14 @@ int main (int argc, char** argv){
 				DoDisplaySelectedDisplay(exp);
 				TICTOC::timer().toc("DisplayOnScreen");
 			}
+
+			/************ PURELY FOR COMPARISON *********/
+			/*** <------------ 31fps ***/
+			TICTOC::timer().tic("TransformFrameCam2DLP");
+		if (!(exp->e)) TransformFrameCam2DLP(exp->IlluminationFrame,exp->forDLP,exp->Calib);
+			TICTOC::timer().toc("TransformFrameCam2DLP");
+			cvShowImage("Debug",exp->forDLP->iplimg);
+			/****************************************/
 
 
 
