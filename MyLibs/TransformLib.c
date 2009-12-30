@@ -83,6 +83,8 @@ int LoadCalibFromFile(CalibData* Calib, char * filename){
  * Transform's the binary image from the frame in Cam and transforms it DLP space.
  * Copies it into the DLP frame and also converts it to IlpImage and copies that to the DLP
  * frame also.
+ * DEPRECATED!! This is really really slow.
+ * If possible transform the outline of the worm using TransformSegWormCam2DLP isntead of the whole frame.
  *
  */
 int TransformFrameCam2DLP(Frame* Cam, Frame* DLP, CalibData* Calib) {

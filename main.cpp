@@ -146,6 +146,8 @@ int main (int argc, char** argv){
 			/*** Do Some Illumination ***/
 
 			if (!(exp->e)) {
+				TICTOC::timer().tic("EntireIllumination");
+
 				if (exp->Params->IllumFloodEverything) {
 					SetFrame(exp->IlluminationFrame,128); // Turn all of the pixels on
 				} else {
@@ -157,11 +159,15 @@ int main (int argc, char** argv){
 					/** Repeat but for the DLP space for sending to DLP **/
 					SimpleIlluminateWormLR(exp->segWormDLP, exp->forDLP, exp->Params->IllumSegCenter, exp->Params->IllumSegRadius, exp->Params->IllumLRC);
 					} else{
+
+
 						/** Illuminate The worm in Camera Space **/
+						TICTOC::timer().tic("IlluminateFromProtocol()");
 						IlluminateFromProtocol(exp->Worm->Segmented,exp->IlluminationFrame,exp->p,exp->Params);
 
 						/** Illuminate the worm in DLP space **/
 						IlluminateFromProtocol(exp->segWormDLP,exp->forDLP,exp->p,exp->Params);
+						TICTOC::timer().toc("IlluminateFromProtocol()");
 
 						IplImage* rectWorm= GenerateRectangleWorm(exp->p->GridSize);
 						cvZero(rectWorm);
@@ -170,6 +176,7 @@ int main (int argc, char** argv){
 						cvReleaseImage(&rectWorm);
 					}
 				}
+				TICTOC::timer().toc("EntireIllumination");
 			}
 
 
@@ -186,13 +193,7 @@ int main (int argc, char** argv){
 				TICTOC::timer().toc("DisplayOnScreen");
 			}
 
-			/************ PURELY FOR COMPARISON *********/
-			/*** <------------ 31fps ***/
-			TICTOC::timer().tic("TransformFrameCam2DLP");
-		if (!(exp->e)) TransformFrameCam2DLP(exp->IlluminationFrame,exp->forDLP,exp->Calib);
-			TICTOC::timer().toc("TransformFrameCam2DLP");
-			cvShowImage("Debug",exp->forDLP->iplimg);
-			/****************************************/
+
 
 
 
