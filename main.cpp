@@ -155,13 +155,13 @@ int main (int argc, char** argv){
 					SimpleIlluminateWormLR(exp->Worm->Segmented, exp->IlluminationFrame, exp->Params->IllumSegCenter, exp->Params->IllumSegRadius, exp->Params->IllumLRC);
 
 					/** Repeat but for the DLP space for sending to DLP **/
-			//		SimpleIlluminateWormLR(exp->segWormDLP, exp->forDLP, exp->Params->IllumSegCenter, exp->Params->IllumSegRadius, exp->Params->IllumLRC);
+					SimpleIlluminateWormLR(exp->segWormDLP, exp->forDLP, exp->Params->IllumSegCenter, exp->Params->IllumSegRadius, exp->Params->IllumLRC);
 					} else{
 						/** Illuminate The worm in Camera Space **/
 						IlluminateFromProtocol(exp->Worm->Segmented,exp->IlluminationFrame,exp->p,exp->Params);
 
 						/** Illuminate the worm in DLP space **/
-				//		IlluminateFromProtocol(exp->segWormDLP,exp->forDLP,exp->p,exp->Params);
+						IlluminateFromProtocol(exp->segWormDLP,exp->forDLP,exp->p,exp->Params);
 
 						IplImage* rectWorm= GenerateRectangleWorm(exp->p->GridSize);
 						cvZero(rectWorm);
@@ -173,6 +173,7 @@ int main (int argc, char** argv){
 			}
 
 
+			//cvWaitKey(0);
 			/*** <------------ 31fps ***/
 //			TICTOC::timer().tic("TransformFrameCam2DLP");
 //			if (!(exp->e)) TransformFrameCam2DLP(exp->IlluminationFrame,exp->forDLP,exp->Calib);

@@ -225,6 +225,8 @@ int cvtPtCam2DLP(CvPoint camPt, CvPoint* DLPpt,CalibData* Calib) {
 	DLPpt->x = Calib->CCD2DLPLookUp[XOUT * nsizey * nsizex + camPt.x * nsizey + camPt.y];
 	DLPpt->y = Calib->CCD2DLPLookUp[YOUT * nsizey * nsizex + camPt.x * nsizey + camPt.y];
 
+		printf(" DLPpt->x=%d\n",DLPpt->x);
+		printf(" DLPpt->y=%d\n",DLPpt->y);
 
 	if (DLPpt->x < 0 || DLPpt->y < 0 || DLPpt->x >= nsizex || DLPpt->y >= nsizey) {
 		printf ("pt is invalid");
@@ -278,7 +280,7 @@ int TransformSeqCam2DLP(CvSeq* camSeq, CvSeq* DLPseq, CalibData* Calib){
 		printf(" camPt->y=%d\n",camPt.y);
 		cvtPtCam2DLP(camPt,&DLPpt,Calib);
 		printf("%d'th point converted\n",j);
-		CV_WRITE_SEQ_ELEM( camPt, writer);
+		CV_WRITE_SEQ_ELEM( DLPpt, writer);
 		CV_NEXT_SEQ_ELEM(camSeq->elem_size,reader);
 
 	}
