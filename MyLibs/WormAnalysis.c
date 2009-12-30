@@ -13,7 +13,6 @@
 
 #include "AndysOpenCVLib.h"
 #include "AndysComputations.h"
-#include "TransformLib.h"
 
 // Andy's Libraries
 #include "WormAnalysis.h"
@@ -337,66 +336,6 @@ void ClearSegmentedInfo(SegmentedWorm* SegWorm){
 
 
 
-int TransformSeqCam2DLP(CvSeq* camSeq, CvSeq* DLPseq, int *CCD2DLPLookUp, CvSize DLPsize, CvSize camSize){
-	if (camSeq==NULL || DLPseq==NULL) {
-		printf ("ERROR! TransformSeqCam2DLP() was given NULL sequences\n");
-		return -1;
-	}
-
-	/** Clear the points in the destination **/
-	cvClearSeq(DLPseq);
-
-	/** Setup CvSeq Reader **/
-	CvSeqReader reader;
-	cvStartReadSeq(camSeq,&reader,0);
-
-	/**Setup CvSeq Writer **/
-	CvSeqWriter writer;
-	cvStartAppendToSeq(DLPseq, &writer);
-
-	/** Temp points **/
-	CvPoint* DLPpt=NULL;
-	CvPoint* camPt=NULL;
-
-	int numpts=DLPseq->total;
-	int j;
-	for (j = 0; j < numpts; ++j) {
-
-		camPt= (CvPoint*) reader.ptr;
-		cvtPtCam2DLP(CCD2DLPLookUp,*camPt,DLPpt,DLPsize,camSize);
-		CV_WRITE_SEQ_ELEM( *camPt, writer);
-		CV_NEXT_SEQ_ELEM(camSeq->elem_size,reader);
-
-	}
-	cvEndWriteSeq(&writer);
-	return 1;
-}
-
-/*
- * Takes a SegmentedWorm and transforms all of the points from Camera to DLP coordinates
- *
- */
-int TransformSegWormCam2DLP(SegmentedWorm* camWorm, SegmentedWorm* dlpWorm,int *CCD2DLPLookUp, CvSize DLPsize, CvSize camSize){
-	if (camWorm==NULL || dlpWorm==NULL || CCD2DLPLookUp ==NULL ){
-		printf("ERROR! TransformSegWormCAm2DLP passed NULL value.\n");
-		return -1;
-	}
-
-	/** Transform points on centerline, right and left bounds**/
-	TransformSeqCam2DLP(camWorm->Centerline, dlpWorm->Centerline, CCD2DLPLookUp, DLPsize, camSize);
-	TransformSeqCam2DLP(camWorm->RightBound, dlpWorm->RightBound, CCD2DLPLookUp, DLPsize, camSize);
-	TransformSeqCam2DLP(camWorm->LeftBound, dlpWorm->LeftBound, CCD2DLPLookUp, DLPsize, camSize);
-
-	/** Transform points on Head and Tail **/
-	cvtPtCam2DLP(CCD2DLPLookUp,*(camWorm->Head),dlpWorm->Head,DLPsize,camSize);
-	cvtPtCam2DLP(CCD2DLPLookUp,*(camWorm->Tail),dlpWorm->Tail,DLPsize,camSize);
-
-	dlpWorm->NumSegments=camWorm->NumSegments;
-
-	return 1;
-}
-
-
 
 /************************************************************/
 /* Higher Level Routines									*/
@@ -670,17 +609,17 @@ int SimpleIlluminateWorm(WormAnalysisData* Worm, Frame* IllumFrame,int start, in
  * radius is the number of segments wide that the illumination encompasses
  * and lrc is either 0,1,2,3 for nothing, left,right,DLP
  */
-int SimpleIlluminateWormLR(WormAnalysisData* Worm, Frame* IllumFrame,int center, int radius, int lrc){
-	IplImage* TempImage=cvCreateImage(Worm->SizeOfImage, IPL_DEPTH_8U, 1);
-	if (0>center || center > Worm->Segmented->NumSegments){
+int SimpleIlluminateWormLR(SegmentedWorm* SegWorm, Frame* IllumFrame,int center, int radius, int lrc){
+	IplImage* TempImage=cvCreateImage(cvGetSize(IllumFrame->iplimg), IPL_DEPTH_8U, 1);
+	if (0>center || center > SegWorm->NumSegments){
 		printf("ERROR: Segmented out of bounds! \n");
 		return -1;
 	}
 //	printf("cente=%d,radius=%d,lrc=%d",center,radius,lrc);
 	int endSeg=0;
 	int startSeg=0;
-	if ( (center+radius) > Worm->Segmented->NumSegments-1){
-		endSeg=Worm->Segmented->NumSegments-1;
+	if ( (center+radius) > SegWorm->NumSegments-1){
+		endSeg=SegWorm->NumSegments-1;
 	}else{
 		endSeg=center+radius;
 	}
@@ -693,22 +632,22 @@ int SimpleIlluminateWormLR(WormAnalysisData* Worm, Frame* IllumFrame,int center,
 //	printf("startSeg=%d,endSeg=%d\n",startSeg,endSeg);
 
 
-	/** Check to See if the Worm->Segmented has any NULL values**/
-	if (Worm->Segmented->Centerline==NULL || Worm->Segmented->LeftBound==NULL || Worm->Segmented->RightBound ==NULL ){
-		printf("Error! The Worm->Segmented had NULL children. in SimpleIlluminateWorm()\n");
+	/** Check to See if the SegWorm has any NULL values**/
+	if (SegWorm->Centerline==NULL || SegWorm->LeftBound==NULL || SegWorm->RightBound ==NULL ){
+		printf("Error! The SegWorm had NULL children. in SimpleIlluminateWorm()\n");
 		return -1;
 	}
 
 	/** Check to See that the Segmented Values are Not Zero **/
-	if (Worm->Segmented->Centerline->total==0 || Worm->Segmented->LeftBound->total==0 || Worm->Segmented->RightBound->total ==0 ){
-		printf("Error! At least one of the following: Centerline or Right and Left Boundaries in Worm->Segmented has zero points in SimpleIlluminateWorm()\n");
+	if (SegWorm->Centerline->total==0 || SegWorm->LeftBound->total==0 || SegWorm->RightBound->total ==0 ){
+		printf("Error! At least one of the following: Centerline or Right and Left Boundaries in SegWorm has zero points in SimpleIlluminateWorm()\n");
 		return -1;
 	}
 
 	int i;
 	for (i=startSeg; i<endSeg; i++){
-	if (lrc==1 || lrc==3) IlluminateWormSegment(TempImage,Worm->Segmented->Centerline,Worm->Segmented->LeftBound,i);
-	if (lrc >1) IlluminateWormSegment(TempImage,Worm->Segmented->Centerline,Worm->Segmented->RightBound,i);
+	if (lrc==1 || lrc==3) IlluminateWormSegment(TempImage,SegWorm->Centerline,SegWorm->LeftBound,i);
+	if (lrc >1) IlluminateWormSegment(TempImage,SegWorm->Centerline,SegWorm->RightBound,i);
 	}
 		LoadFrameWithImage(TempImage,IllumFrame);
 	//	cvShowImage("TestOut",IllumFrame);

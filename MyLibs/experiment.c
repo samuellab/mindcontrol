@@ -37,9 +37,9 @@
 #include "Talk2DLP.h"
 #include "Talk2Matlab.h"
 #include "AndysComputations.h"
-#include "TransformLib.h"
 #include "WormAnalysis.h"
 #include "IllumWormProtocol.h"
+#include "TransformLib.h"
 #include "WriteOutWorm.h"
 
 
@@ -832,34 +832,4 @@ void ReleaseProtocolFromExperiment(Experiment* exp){
 }
 
 
-/*
- * Illuminate the worm using the protocol in exp->p
- * with step specified in exp->Params->ProtocolStep
- */
-int IlluminateFromProtocol(Experiment* exp){
-	WormAnalysisData* Worm=exp->Worm;
-	/** Check to See if the Worm->Segmented has any NULL values**/
-	if (Worm->Segmented->Centerline==NULL || Worm->Segmented->LeftBound==NULL || Worm->Segmented->RightBound ==NULL ){
-		printf("Error! The Worm->Segmented had NULL children. in SimpleIlluminateWorm()\n");
-		return -1;
-	}
 
-
-
-	/** Check to See that the Segmented Values are Not Zero **/
-	if (Worm->Segmented->Centerline->total==0 || Worm->Segmented->LeftBound->total==0 || Worm->Segmented->RightBound->total ==0 ){
-		printf("Error! At least one of the following: Centerline or Right and Left Boundaries in Worm->Segmented has zero points in SimpleIlluminateWorm()\n");
-		return -1;
-	}
-
-	/** Create a Temp Image **/
-	IplImage* TempImage=cvCreateImage(Worm->SizeOfImage, IPL_DEPTH_8U, 1);
-
-	/** Grab a montage for the selected step **/
-	CvSeq* montage=GetMontageFromProtocolInterp(exp->p,exp->Params->ProtocolStep);
-	IllumWorm(Worm->Segmented,montage,TempImage,exp->p->GridSize);
-	LoadFrameWithImage(TempImage,exp->IlluminationFrame);
-
-	cvReleaseImage(&TempImage);
-	return 0;
-}

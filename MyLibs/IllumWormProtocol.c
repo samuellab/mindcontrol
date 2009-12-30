@@ -679,6 +679,51 @@ void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img,CvSize
 
 }
 
+
+
+
+/************************************************
+ *
+ *
+ * VERY HIGH LEVEL
+ *
+ */
+
+
+/*
+ * Illuminate the Segmented worm using the protocol in p
+ * with step specified in Params->ProtocolStep
+ *
+ * and writing to dest
+ */
+int IlluminateFromProtocol(SegmentedWorm* SegWorm,Frame* dest, Protocol* p,WormAnalysisParam* Params){
+	/** Check to See if the Worm->Segmented has any NULL values**/
+	if (SegWorm->Centerline==NULL || SegWorm->LeftBound==NULL || SegWorm->RightBound ==NULL ){
+		printf("Error! The Worm->Segmented had NULL children. in SimpleIlluminateWorm()\n");
+		return -1;
+	}
+
+
+
+	/** Check to See that the Segmented Values are Not Zero **/
+	if (SegWorm->Centerline->total==0 || SegWorm->LeftBound->total==0 || SegWorm->RightBound->total ==0 ){
+		printf("Error! At least one of the following: Centerline or Right and Left Boundaries in Worm->Segmented has zero points in SimpleIlluminateWorm()\n");
+		return -1;
+	}
+
+	/** Create a Temp Image **/
+	IplImage* TempImage=cvCreateImage(cvGetSize(dest->iplimg), IPL_DEPTH_8U, 1);
+
+	/** Grab a montage for the selected step **/
+	CvSeq* montage=GetMontageFromProtocolInterp(p,Params->ProtocolStep);
+	IllumWorm(SegWorm,montage,TempImage,p->GridSize);
+	LoadFrameWithImage(TempImage,dest);
+
+	cvReleaseImage(&TempImage);
+	return 0;
+}
+
+
 /**********************
  *
  * File Input/Output

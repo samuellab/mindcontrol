@@ -323,10 +323,6 @@ void LoadProtocol(Experiment* exp);
  */
 void ReleaseProtocolFromExperiment(Experiment* exp);
 
-/*
- * Illuminate the worm using the protocol in exp->p
- * with step specified in exp->Params->ProtocolStep
- */
-int IlluminateFromProtocol(Experiment* exp);
+
 
 #endif /* EXPERIMENT_H_ */

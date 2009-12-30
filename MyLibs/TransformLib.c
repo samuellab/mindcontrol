@@ -7,7 +7,9 @@
 #include <stdio.h>
 
 #include "AndysOpenCVLib.h"
+#include "WormAnalysis.h"
 #include "TransformLib.h"
+
 
 /*************************************
  *
@@ -186,22 +188,23 @@ int ConvertCharArrayImageFromCam2DLP(int *CCD2DLPLookUp,
  *
  *
  */
-int cvtPtCam2DLP(int *CCD2DLPLookUp, CvPoint camPt, CvPoint* DLPpt,CvSize DLPsize, CvSize CCDsize) {
+int cvtPtCam2DLP(CvPoint camPt, CvPoint* DLPpt,CalibData* Calib) {
 
 
-	int nsizex= DLPsize.width;
-	int nsizey=DLPsize.height;
-	int ccdsizex=CCDsize.width;
-	int ccdsizey=CCDsize.height;
+	int nsizex= Calib->SizeOfDLP.width;
+	int nsizey=Calib->SizeOfDLP.height;
+	int ccdsizex=Calib->SizeOfCCD.width;
+	int ccdsizey=Calib->SizeOfCCD.height;
 
 	if (nsizex != ccdsizex || nsizey != ccdsizey) {
 		printf(
 				"ERROR: Ignoring values of ccdsizex & ccdsizey. \nCurrently CCD must be the same size as the DLP.\n This functionality has yet to be coded up.");
 	}
-	if (CCD2DLPLookUp == NULL) {
+	if (Calib->CCD2DLPLookUp == NULL) {
 		printf("ERROR! CCD2DLPLookUp==NULL!\n");
 		return -1;
 	}
+	int* CCD2DLPLookUp=Calib->CCD2DLPLookUp;
 
 	const int XOUT = 0;
 	const int YOUT = 1;
@@ -237,22 +240,66 @@ int cvtPtCam2DLP(int *CCD2DLPLookUp, CvPoint camPt, CvPoint* DLPpt,CvSize DLPsiz
 
 
 
+/*
+ * Transform's a sequence from Cameraspace to DLP space
+ * This is an internal function only.
+ */
+int TransformSeqCam2DLP(CvSeq* camSeq, CvSeq* DLPseq, CalibData* Calib){
+	if (camSeq==NULL || DLPseq==NULL) {
+		printf ("ERROR! TransformSeqCam2DLP() was given NULL sequences\n");
+		return -1;
+	}
 
+	/** Clear the points in the destination **/
+	cvClearSeq(DLPseq);
 
+	/** Setup CvSeq Reader **/
+	CvSeqReader reader;
+	cvStartReadSeq(camSeq,&reader,0);
 
+	/**Setup CvSeq Writer **/
+	CvSeqWriter writer;
+	cvStartAppendToSeq(DLPseq, &writer);
 
+	/** Temp points **/
+	CvPoint* DLPpt=NULL;
+	CvPoint* camPt=NULL;
 
+	int numpts=DLPseq->total;
+	int j;
+	for (j = 0; j < numpts; ++j) {
+
+		camPt= (CvPoint*) reader.ptr;
+		cvtPtCam2DLP(*camPt,DLPpt,Calib);
+		CV_WRITE_SEQ_ELEM( *camPt, writer);
+		CV_NEXT_SEQ_ELEM(camSeq->elem_size,reader);
+
+	}
+	cvEndWriteSeq(&writer);
+	return 1;
+}
 
 /*
  * Takes a SegmentedWorm and transforms all of the points from Camera to DLP coordinates
  *
  */
-//void TransformSegWormCam2DLP(SegmentedWorm* camWorm, SegmentedWorm* dlpWorm,int *CCD2DLPLookUp){
-//	/*************
-//	 *
-//	 * ANDY WRITE ME
-//	 */
-//	/** Write a function like : **/
-//	// TransformPtCam2DLP(CvPoint);
-//}
+int TransformSegWormCam2DLP(SegmentedWorm* camWorm, SegmentedWorm* dlpWorm,CalibData* Calib){
+	if (camWorm==NULL || dlpWorm==NULL || Calib ==NULL ){
+		printf("ERROR! TransformSegWormCAm2DLP passed NULL value.\n");
+		return -1;
+	}
+
+	/** Transform points on centerline, right and left bounds**/
+	TransformSeqCam2DLP(camWorm->Centerline, dlpWorm->Centerline, Calib);
+	TransformSeqCam2DLP(camWorm->RightBound, dlpWorm->RightBound, Calib);
+	TransformSeqCam2DLP(camWorm->LeftBound, dlpWorm->LeftBound, Calib);
+
+	/** Transform points on Head and Tail **/
+	cvtPtCam2DLP(*(camWorm->Head),dlpWorm->Head,Calib);
+	cvtPtCam2DLP(*(camWorm->Tail),dlpWorm->Tail,Calib);
+
+	dlpWorm->NumSegments=camWorm->NumSegments;
+
+	return 1;
+}
 

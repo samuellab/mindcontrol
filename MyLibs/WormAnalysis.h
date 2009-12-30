@@ -253,6 +253,9 @@ void DestroySegmentedWormStruct(SegmentedWorm* SegWorm);
  */
 void ClearSegmentedInfo(SegmentedWorm* SegWorm);
 
+
+
+
 /************************************************************/
 /* Higher Level Routines									*/
 /*  					 									*/
@@ -317,7 +320,7 @@ void IlluminateWormSegment(IplImage* image, CvSeq* centerline, CvSeq* Boundary, 
  * radius is the number of segments wide that the illumination encompasses
  * and lrc is either 0,1,2,3 for nothing, left,right,DLP
  */
-int SimpleIlluminateWormLR(WormAnalysisData* Worm, Frame* IllumFrame,int center, int radius, int lrc);
+int SimpleIlluminateWormLR(SegmentedWorm* SegWorm, Frame* IllumFrame,int center, int radius, int lrc);
 
 /*
  * This Function segments a worm.

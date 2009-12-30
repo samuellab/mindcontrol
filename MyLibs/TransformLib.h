@@ -16,6 +16,11 @@
 #define TRANSFORMLIB_H_
 
 
+#ifndef WORMANALYSIS_H_
+ #error "#include WormAnalaysis.h" must appear in source files before "#include Transform.h" because one depends on the other.
+#endif
+
+
 
 /*
  * This structure contains information about calibrating the DLP to the CCD
@@ -98,7 +103,13 @@ int ConvertCharArrayImageFromCam2DLP(int *CCD2DLPLookUp,  unsigned char* fromCCD
  *
  *
  */
-int cvtPtCam2DLP(int *CCD2DLPLookUp, CvPoint camPt, CvPoint* DLPpt,CvSize DLPsize, CvSize CCDsize);
+int cvtPtCam2DLP(CvPoint camPt, CvPoint* DLPpt,CalibData* Calib);
+
+/*
+ * Takes a SegmentedWorm and transforms all of the points from Camera to DLP coordinates
+ *
+ */
+int TransformSegWormCam2DLP(SegmentedWorm* camWorm, SegmentedWorm* dlpWorm, CalibData* Calib);
 
 
 

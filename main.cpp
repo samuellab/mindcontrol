@@ -31,10 +31,10 @@ using namespace std;
 #include "MyLibs/Talk2DLP.h"
 #include "MyLibs/Talk2Matlab.h"
 #include "MyLibs/AndysComputations.h"
-#include "MyLibs/TransformLib.h"
 #include "MyLibs/WormAnalysis.h"
 #include "MyLibs/WriteOutWorm.h"
 #include "MyLibs/IllumWormProtocol.h"
+#include "MyLibs/TransformLib.h"
 #include "MyLibs/experiment.h"
 
 //3rd Party Libraries
@@ -137,7 +137,12 @@ int main (int argc, char** argv){
 			DoSegmentation(exp);
 			TICTOC::timer().toc("EntireSegmentation");
 
-
+			TICTOC::timer().tic("TransformSegWormCam2DLP");
+			if (!(exp->e)){
+				TransformSegWormCam2DLP(exp->Worm->Segmented, exp->segWormDLP,exp->Calib);
+			}
+			TICTOC::timer().toc("TransformSegWormCam2DLP");
+//
 			/*** Do Some Illumination ***/
 
 			if (!(exp->e)) {
@@ -146,9 +151,18 @@ int main (int argc, char** argv){
 				} else {
 					if (!(exp->Params->ProtocolUse)) /** if not running the protocol **/{
 					/** Otherwise Actually illuminate the  region of the worm your interested in **/
-					SimpleIlluminateWormLR(exp->Worm, exp->IlluminationFrame, exp->Params->IllumSegCenter, exp->Params->IllumSegRadius, exp->Params->IllumLRC);
+					/** Do the Illumination in Camera space for Display **/
+					SimpleIlluminateWormLR(exp->Worm->Segmented, exp->IlluminationFrame, exp->Params->IllumSegCenter, exp->Params->IllumSegRadius, exp->Params->IllumLRC);
+
+					/** Repeat but for the DLP space for sending to DLP **/
+					SimpleIlluminateWormLR(exp->segWormDLP, exp->forDLP, exp->Params->IllumSegCenter, exp->Params->IllumSegRadius, exp->Params->IllumLRC);
 					} else{
-						IlluminateFromProtocol(exp);
+						/** Illuminate The worm in Camera Space **/
+						IlluminateFromProtocol(exp->Worm->Segmented,exp->IlluminationFrame,exp->p,exp->Params);
+
+						/** Illuminate the worm in DLP space **/
+						IlluminateFromProtocol(exp->segWormDLP,exp->forDLP,exp->p,exp->Params);
+
 						IplImage* rectWorm= GenerateRectangleWorm(exp->p->GridSize);
 						cvZero(rectWorm);
 						IllumRectWorm(rectWorm,exp->p,exp->Params->ProtocolStep);
@@ -160,9 +174,10 @@ int main (int argc, char** argv){
 
 
 			/*** <------------ 31fps ***/
-			TICTOC::timer().tic("TransformFrameCam2DLP");
-			if (!(exp->e)) TransformFrameCam2DLP(exp->IlluminationFrame,exp->forDLP,exp->Calib);
-			TICTOC::timer().toc("TransformFrameCam2DLP");
+//			TICTOC::timer().tic("TransformFrameCam2DLP");
+//			if (!(exp->e)) TransformFrameCam2DLP(exp->IlluminationFrame,exp->forDLP,exp->Calib);
+//			TICTOC::timer().toc("TransformFrameCam2DLP");
+			/** ANDY!! FIGURE OUT HOW TO DISPLAY DIFFERENCE !! to compare teh different illuminations **/
 			/*** <------------ 26fps ***/
 
 

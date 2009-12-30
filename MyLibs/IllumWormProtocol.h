@@ -183,6 +183,24 @@ void IllumRectWorm(IplImage* rectWorm,Protocol* p,int step);
  */
 void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img,CvSize gridSize);
 
+
+/************************************************
+ *
+ *
+ * VERY HIGH LEVEL
+ *
+ */
+
+
+/*
+ * Illuminate the Segmented worm using the protocol in p
+ * with step specified in Params->ProtocolStep
+ *
+ * and writing to dest
+ */
+int IlluminateFromProtocol(SegmentedWorm* SegWorm,Frame* dest, Protocol* p,WormAnalysisParam* Params);
+
+
 /*****************
  * File INput Output
  *
