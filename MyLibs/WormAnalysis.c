@@ -13,6 +13,7 @@
 
 #include "AndysOpenCVLib.h"
 #include "AndysComputations.h"
+#include "TransformLib.h"
 
 // Andy's Libraries
 #include "WormAnalysis.h"
@@ -291,9 +292,108 @@ SegWorm->RightBound=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint
 return SegWorm;
 }
 
+/*
+ * Creates a Segmented Worm Struct
+ * and utilizes the speicfied memory storage.
+ *
+ */
+SegmentedWorm* CreateSegmentedWormStructReuseMem(CvMemStorage* mem){
+/** Create a new instance of SegWorm **/
+SegmentedWorm* SegWorm;
+SegWorm= (SegmentedWorm*) malloc(sizeof(SegmentedWorm));
+
+SegWorm->Head=NULL;
+SegWorm->Tail=NULL;
+SegWorm->NumSegments=NULL;
+
+/*** Setup Memory storage ***/
+
+SegWorm->MemSegStorage=mem;
+
+/*** Allocate Memory for the sequences ***/
+SegWorm->Centerline=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),SegWorm->MemSegStorage);
+SegWorm->LeftBound=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),SegWorm->MemSegStorage);
+SegWorm->RightBound=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),SegWorm->MemSegStorage);
+
+return SegWorm;
+}
+
+
 void DestroySegmentedWormStruct(SegmentedWorm* SegWorm){
 cvReleaseMemStorage(&(SegWorm->MemSegStorage));
 free(SegWorm);
+}
+
+
+/** Clear a SegmentedWorm struct but not dallocate memory. **/
+void ClearSegmentedInfo(SegmentedWorm* SegWorm){
+	//SegWorm->Head=NULL; /** This is probably a mistake **/
+	//SegWorm->Tail=NULL; /** This is probably a mistake  because memory is not reallocated later.**/
+	cvClearSeq(SegWorm->LeftBound);
+	cvClearSeq(SegWorm->RightBound);
+	cvClearSeq(SegWorm->Centerline);
+}
+
+
+
+
+int TransformSeqCam2DLP(CvSeq* camSeq, CvSeq* DLPseq, int *CCD2DLPLookUp, CvSize DLPsize, CvSize camSize){
+	if (camSeq==NULL || DLPseq==NULL) {
+		printf ("ERROR! TransformSeqCam2DLP() was given NULL sequences\n");
+		return -1;
+	}
+
+	/** Clear the points in the destination **/
+	cvClearSeq(DLPseq);
+
+	/** Setup CvSeq Reader **/
+	CvSeqReader reader;
+	cvStartReadSeq(camSeq,&reader,0);
+
+	/**Setup CvSeq Writer **/
+	CvSeqWriter writer;
+	cvStartAppendToSeq(DLPseq, &writer);
+
+	/** Temp points **/
+	CvPoint* DLPpt=NULL;
+	CvPoint* camPt=NULL;
+
+	int numpts=DLPseq->total;
+	int j;
+	for (j = 0; j < numpts; ++j) {
+
+		camPt= (CvPoint*) reader.ptr;
+		cvtPtCam2DLP(CCD2DLPLookUp,*camPt,DLPpt,DLPsize,camSize);
+		CV_WRITE_SEQ_ELEM( *camPt, writer);
+		CV_NEXT_SEQ_ELEM(camSeq->elem_size,reader);
+
+	}
+	cvEndWriteSeq(&writer);
+	return 1;
+}
+
+/*
+ * Takes a SegmentedWorm and transforms all of the points from Camera to DLP coordinates
+ *
+ */
+int TransformSegWormCam2DLP(SegmentedWorm* camWorm, SegmentedWorm* dlpWorm,int *CCD2DLPLookUp, CvSize DLPsize, CvSize camSize){
+	if (camWorm==NULL || dlpWorm==NULL || CCD2DLPLookUp ==NULL ){
+		printf("ERROR! TransformSegWormCAm2DLP passed NULL value.\n");
+		return -1;
+	}
+
+	/** Transform points on centerline, right and left bounds**/
+	TransformSeqCam2DLP(camWorm->Centerline, dlpWorm->Centerline, CCD2DLPLookUp, DLPsize, camSize);
+	TransformSeqCam2DLP(camWorm->RightBound, dlpWorm->RightBound, CCD2DLPLookUp, DLPsize, camSize);
+	TransformSeqCam2DLP(camWorm->LeftBound, dlpWorm->LeftBound, CCD2DLPLookUp, DLPsize, camSize);
+
+	/** Transform points on Head and Tail **/
+	cvtPtCam2DLP(CCD2DLPLookUp,*(camWorm->Head),dlpWorm->Head,DLPsize,camSize);
+	cvtPtCam2DLP(CCD2DLPLookUp,*(camWorm->Tail),dlpWorm->Tail,DLPsize,camSize);
+
+	dlpWorm->NumSegments=camWorm->NumSegments;
+
+	return 1;
 }
 
 
@@ -684,13 +784,6 @@ void IlluminateWormSegment(IplImage* image, CvSeq* centerline, CvSeq* Boundary, 
 
 
 
-void ClearSegmentedInfo(SegmentedWorm* SegWorm){
-	SegWorm->Head=NULL;
-	SegWorm->Tail=NULL;
-	cvClearSeq(SegWorm->LeftBound);
-	cvClearSeq(SegWorm->RightBound);
-	cvClearSeq(SegWorm->Centerline);
-}
 
 
 /*
@@ -811,12 +904,9 @@ int CreateWormHUDS(IplImage* TempImage, WormAnalysisData* Worm, WormAnalysisPara
 
 	//Want to also display boundary!
 	cvDrawContours(TempImage, Worm->Boundary, cvScalar(255,0,0),cvScalar(0,255,0),100);
-		printf("In CreateWormHUDS() in WormAnalysis.c Worm->Segmented->LeftBound->total=%d\n",Worm->Segmented->LeftBound->total);
-		printf("In CreateWormHUDS() in WormAnalysis.c Worm->Segmented->RightBound->total=%d\n",Worm->Segmented->RightBound->total);
 
-
-	DrawSequence(&TempImage,Worm->Segmented->LeftBound);
-	DrawSequence(&TempImage,Worm->Segmented->RightBound);
+//	DrawSequence(&TempImage,Worm->Segmented->LeftBound);
+//	DrawSequence(&TempImage,Worm->Segmented->RightBound);
 
 	cvCircle(TempImage,*(Worm->Tail),CircleDiameterSize,cvScalar(255,255,255),1,CV_AA,0);
 	cvCircle(TempImage,*(Worm->Head),CircleDiameterSize/2,cvScalar(255,255,255),1,CV_AA,0);

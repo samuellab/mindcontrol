@@ -81,6 +81,9 @@ typedef struct ExperimentStruct{
 	/** Information about the Previous frame's Worm **/
 	WormGeom* PrevWorm;
 
+	/** Segmented Worm in DLP Space **/
+	SegmentedWorm* segWormDLP;
+
 	/** internal IplImage **/
 	IplImage* SubSampled; // Image used to subsample stuff
 	IplImage* HUDS;  //Image used to generate the Heads Up Display

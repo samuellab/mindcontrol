@@ -238,6 +238,13 @@ void DestroyWormAnalysisParam(WormAnalysisParam* ParamPtr);
  */
 SegmentedWorm* CreateSegmentedWormStruct();
 
+/*
+ * Creates a Segmented Worm Struct
+ * and utilizes the speicfied memory storage.
+ *
+ */
+SegmentedWorm* CreateSegmentedWormStructReuseMem(CvMemStorage* mem);
+
 void DestroySegmentedWormStruct(SegmentedWorm* SegWorm);
 
 /*

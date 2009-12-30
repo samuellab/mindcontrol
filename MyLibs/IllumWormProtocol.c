@@ -628,7 +628,7 @@ CvPoint CvtPtWormSpaceToImageSpace(CvPoint WormPt, SegmentedWorm* worm, CvSize g
  * To use with protocol, use GetMontageFromProtocolInterp() first
  */
 void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img,CvSize gridSize){
-	int DEBUG=1;
+	int DEBUG=0;
 	CvPoint* polyArr=NULL;
 	int k;
 	int numpts=0;
@@ -661,11 +661,9 @@ void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img,CvSize
 		}
 
 
+		/** Actually draw the polygon **/
+		cvFillPoly(img,&polyArr,&numpts,1,cvScalar(255,255,255),8);
 
-	//	cvFillPoly(img,&polyArr,&numpts,1,cvScalar(255,255,255),8);
-
-
-	/*** ANDY!! THIS NEEDS TO GET LOADED INTO A FRAME SOMEHOW **/
 		free(polyArr);
 		polyArr=NULL;
 	}

@@ -114,6 +114,9 @@ Experiment* CreateExperimentStruct(){
 	/** Information about the Previous frame's Worm **/
 	exp->PrevWorm=NULL;
 
+	/** Segmented Worm in DLP Space **/
+	exp->segWormDLP=NULL;
+
 	/** internal IplImage **/
 	exp->SubSampled=NULL; // Image used to subsample stuff
 	exp->HUDS=NULL;  //Image used to generate the Heads Up Display
@@ -444,8 +447,12 @@ void InitializeExperiment(Experiment* exp){
 		InitializeEmptyWormImages(Worm,cvSize(NSIZEX,NSIZEY));
 		InitializeWormMemStorage(Worm);
 
+		/** Create SegWormDLP object using memory from the worm object **/
+		exp->segWormDLP=CreateSegmentedWormStructReuseMem(Worm->MemStorage);
+
 		exp->Worm=Worm;
 		exp->Params=Params;
+
 
 
 		/** Setup Previous Worm **/
@@ -472,6 +479,10 @@ void ReleaseExperiment(Experiment* exp){
 	exp->dirname=NULL;
 	exp->infname=NULL;
 	exp->outfname=NULL;
+
+	/** The segmented worm DLP structure **/
+	// Note that the memorystorage for the Cvseq's are in exp->worm->Memorystorage
+	free(exp->segWormDLP);
 
 	/** Free up Worm Objects **/
 	if (exp->Worm!=NULL) {
