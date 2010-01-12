@@ -45,7 +45,7 @@ using namespace std;
 #include "MyLibs/IllumWormProtocol.h"
 #include "MyLibs/TransformLib.h"
 #include "MyLibs/experiment.h"
-#include "MyIncludes/Talk2FrameGrabber.h"
+#include "MyLibs/Talk2FrameGrabber.h"
 
 //3rd Party Libraries
 #include "3rdPartyLibs/tictoc.h"
@@ -95,6 +95,23 @@ int main (int argc, char** argv){
 	/** Setup Segmentation Gui **/
 	AssignWindowNames(exp);
 	SetupGUI(exp);
+
+	/** Start New Thread **/
+	DWORD dwThreadId;
+	HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) Thread, (void*) exp,
+				0, &dwThreadId);
+	if (hThread == NULL) {
+		printf("Cannot create thread.\n");
+		return -1;
+	}
+
+	// wait for thread
+	while (!Running)
+		Sleep(10);
+
+
+
+
 
 	/** SetUp Data Recording **/
 	SetupRecording(exp);
@@ -243,6 +260,37 @@ int main (int argc, char** argv){
 
 
 	printf("\nGood bye.\n");
+	return 0;
+}
+
+
+/**
+ * Thread to display image. 
+ */
+UINT Thread(LPVOID lpdwParam) {
+	Experiment* exp= (Experiment*) lpdwParam;
+	printf("DisplayThread: Hello!\n");
+	MSG Msg;
+
+	cvNamedWindow("Display");
+	SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
+
+
+	Running = TRUE;
+
+	while (Running) {
+
+		//needed for display window
+			if (PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE))
+				DispatchMessage(&Msg);
+			TICTOC::timer().tic("cvShowImage");
+			cvShowImage("Display",exp->CurrentSelectedImg);
+			TICTOC::timer().toc("cvShowImage");
+			Sleep(40);
+	}
+
+	//	printf("%s",TICTOC::timer().generateReportCstr());
+		printf("DisplayThread: Goodbye!\n");
 	return 0;
 }
 

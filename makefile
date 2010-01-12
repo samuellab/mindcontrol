@@ -81,7 +81,7 @@ $(targetDir)/ClosedLoop.exe : main.o $(objects)
 	
 	
 main.o : main.cpp $(3rdPartyLibs)/tisgrabber.h $(3rdPartyLibs)/TISGrabberGlobalDefs.h $(MyLibs)/Talk2DLP.h $(MyLibs)/Talk2Camera.h  $(MyLibs)/TransformLib.h $(MatlabIncDir)/engine.h
-	$(CXX) $(CXXFLAGS) main.cpp -I"inc" -I$(MyLibs) $(openCVincludes) $(TailOpts) 
+	$(CXX) $(CXXFLAGS) main.cpp -I"inc" -I$(MyLibs) $(openCVincludes) -I$(bfIncDir) $(TailOpts) 
 	
 Talk2DLP.o : $(MyLibs)/Talk2DLP.h $(MyLibs)/Talk2DLP.cpp $(3rdPartyLibs)/alp4basic.lib
 	$(CXX) $(CXXFLAGS) $(MyLibs)/Talk2DLP.cpp -I$(MyLibs) -I$(3rdPartyLibs) $(TailOpts)
@@ -155,7 +155,7 @@ $(targetDir)/Simulate.exe : Simulate.o $(hw_ind)
 	$(CXX) -o $(targetDir)/Simulate.exe Simulate.o $(hw_ind) $(TailOpts) 
 
 Simulate.o : main.cpp $(myOpenCVlibraries) $(WormSpecificLibs) 
-	$(CXX) $(CXXFLAGS) main.cpp -oSimulate.o -I$(MyLibs) $(openCVincludes) $(TailOpts)
+	$(CXX) $(CXXFLAGS) main.cpp -oSimulate.o -I$(MyLibs) -I$(bfIncDir) $(openCVincludes) $(TailOpts)
 	
 ## Hardware independent hack
 DontTalk2Camera.o : $(MyLibs)/DontTalk2Camera.c $(MyLibs)/Talk2Camera.h

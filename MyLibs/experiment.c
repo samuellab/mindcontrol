@@ -120,6 +120,7 @@ Experiment* CreateExperimentStruct(){
 	/** internal IplImage **/
 	exp->SubSampled=NULL; // Image used to subsample stuff
 	exp->HUDS=NULL;  //Image used to generate the Heads Up Display
+	exp->CurrentSelectedImg=NULL; //The current image selected for display
 
 	/** Internal Frame data types **/
 	exp->fromCCD=NULL;
@@ -313,11 +314,10 @@ void SetupGUI(Experiment* exp){
 
 	printf("Begining to setup GUI\n");
 
-	cvNamedWindow(exp->WinDisp);
+//	cvNamedWindow(exp->WinDisp); // <-- This goes into the thread.
 	cvNamedWindow(exp->WinCon1);
 	cvResizeWindow(exp->WinCon1,450,700);
 
-	printf("Ping\n");
 
 
 	/** SelectDispilay **/
@@ -756,30 +756,40 @@ void DoDisplaySelectedDisplay(Experiment* exp){
 	/** There are no errors and we are displaying a frame **/
 	switch (exp->Params->Display) {
 		case 0:
-			 cvShowImage(exp->WinDisp, exp->Worm->ImgOrig);
+//			 cvShowImage(exp->WinDisp, exp->Worm->ImgOrig);
+			exp->CurrentSelectedImg=exp->Worm->ImgOrig;
+
 			break;
 		case 1:
-			cvShowImage(exp->WinDisp,exp->HUDS);
+//			cvShowImage(exp->WinDisp,exp->HUDS);
+			exp->CurrentSelectedImg=exp->HUDS;
 			break;
 		case 2:
-			 cvShowImage(exp->WinDisp,exp->Worm->ImgThresh);
+//			 cvShowImage(exp->WinDisp,exp->Worm->ImgThresh);
+			exp->CurrentSelectedImg=exp->Worm->ImgThresh;
 			 break;
 		case 3:
-			 DisplayWormHeadTail(exp->Worm,exp->WinDisp);
+			/** Implement this!! **/
+//			 DisplayWormHeadTail(exp->Worm,exp->WinDisp);
+			exp->CurrentSelectedImg=exp->HUDS; // For now...
 			 break;
 		case 4:
-			DisplayWormSegmentation(exp->Worm,exp->WinDisp);
+			/** Implement this!! **/
+//			DisplayWormSegmentation(exp->Worm,exp->WinDisp);
+			exp->CurrentSelectedImg=exp->HUDS;
 			break;
 		case 5:
-			cvShowImage(exp->WinDisp,exp->IlluminationFrame->iplimg);
+//			cvShowImage(exp->WinDisp,exp->IlluminationFrame->iplimg);
+			exp->CurrentSelectedImg=exp->IlluminationFrame->iplimg;
 			break;
 		case 6:
-			cvShowImage(exp->WinDisp, exp->forDLP->iplimg);
+//			cvShowImage(exp->WinDisp, exp->forDLP->iplimg);
+			exp->CurrentSelectedImg=exp->forDLP->iplimg;
 			break;
 		default:
 			break;
 	}
-	cvWaitKey(1); // Pause one millisecond for things to display onscreen.
+	//cvWaitKey(1); // Pause one millisecond for things to display onscreen.
 
 }
 

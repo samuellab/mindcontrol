@@ -87,6 +87,7 @@ typedef struct ExperimentStruct{
 	/** internal IplImage **/
 	IplImage* SubSampled; // Image used to subsample stuff
 	IplImage* HUDS;  //Image used to generate the Heads Up Display
+	IplImage* CurrentSelectedImg;
 
 	/** Internal Frame data types **/
 	Frame* fromCCD;
