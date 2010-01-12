@@ -589,7 +589,7 @@ int isFrameReady(Experiment* exp){
 		/** Otherwise this is a simulation **/
 
 		/** fake like we're waiting for something **/
-		cvWaitKey(20);
+		//cvWaitKey(0);
 		return 1;
 	}
 }

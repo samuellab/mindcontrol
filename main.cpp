@@ -14,11 +14,20 @@
 #include <conio.h>
 #include <math.h>
 
+//Windows Header
+#include <windows.h>
+
 //C++ header
 #include <iostream>
 #include <limits>
 
 using namespace std;
+
+/** BitFlow SDK includes **/
+#include    "CiApi.h"
+#include	"BFApi.h"
+#include	"BFErApi.h"
+#include	"DSApi.h"
 
 //OpenCV Headers
 #include <highgui.h>
@@ -36,11 +45,15 @@ using namespace std;
 #include "MyLibs/IllumWormProtocol.h"
 #include "MyLibs/TransformLib.h"
 #include "MyLibs/experiment.h"
+#include "MyIncludes/Talk2FrameGrabber.h"
 
 //3rd Party Libraries
 #include "3rdPartyLibs/tictoc.h"
 
-
+/** Global Variables (for multithreading) **/
+UINT Thread(LPVOID lpdwParam);
+IplImage* CurrentImg;
+bool Running;
 
 int main (int argc, char** argv){
 	int DEBUG=1;
