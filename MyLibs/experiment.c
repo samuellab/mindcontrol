@@ -220,7 +220,7 @@ int HandleCommandLineArguments(Experiment* exp) {
 			if (optarg != NULL) {
 				exp->outfname = optarg;
 			} else {
-				exp->outfname = "worm"; // set the base filename to the devault of worm;
+				exp->outfname = "worm"; // set the base filename to the default of worm;
 			}
 			exp->RECORDVID = 1;
 			exp->RECORDDATA = 1;

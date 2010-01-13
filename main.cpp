@@ -90,7 +90,7 @@ int main (int argc, char** argv){
 
 	/** Setup Segmentation Gui **/
 	AssignWindowNames(exp);
-	SetupGUI(exp);
+///	SetupGUI(exp); // Moved this to thread
 
 	/** Start New Thread **/
 	DWORD dwThreadId;
@@ -287,6 +287,7 @@ UINT Thread(LPVOID lpdwParam) {
 	cvNamedWindow("Display");
 	SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
 
+	SetupGUI(exp);
 
 	Running = TRUE;
 
