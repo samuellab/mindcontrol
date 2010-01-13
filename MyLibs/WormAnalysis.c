@@ -219,7 +219,7 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 
 	/** Single Frame Analysis Parameters **/
 	ParamPtr->BinThresh=48;
-	ParamPtr->GaussSize=4;
+	ParamPtr->GaussSize=1;
 	ParamPtr->LengthScale=9;
 	ParamPtr->LengthOffset=ParamPtr->LengthScale/2;
 	ParamPtr->NumSegments=100;

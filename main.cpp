@@ -56,7 +56,7 @@ bool DispThreadHasStopped;
 int main (int argc, char** argv){
 	int DEBUG=1;
 	if (DEBUG){
-		cvNamedWindow("Debug");
+	//	cvNamedWindow("Debug");
 		cvNamedWindow("Debug2");
 	}
 
@@ -204,7 +204,7 @@ int main (int argc, char** argv){
 					}
 				}
 				TICTOC::timer().toc("EntireIllumination");
-				TICTOC::timer().toc("OneLoop");
+
 			}
 
 
@@ -232,15 +232,11 @@ int main (int argc, char** argv){
 			}
 
 
-			if (!(exp->e)){
-				printf("*");
-			} else {
-				printf("\n:(\n");
-			}
+			if (exp->e) printf("\n:(\n");
 
 		}
 		if (kbhit()) break;
-		if (exp->e) cvWaitKey(1); /**Wait so that we don't end up in a loop lockign up the UI in case of error**/
+			TICTOC::timer().toc("OneLoop");
 
 	}
 	TICTOC::timer().toc("WholeLoop");
@@ -293,30 +289,52 @@ UINT Thread(LPVOID lpdwParam) {
 	cvWaitKey(30);
 	SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
 
-
-
+	printf("Beginning ProtocolStep Display\n");
 	DispThreadHasStarted = TRUE;
+	cvWaitKey(30);
+
+	/** Protocol WormSpace Display **/
+	int prevProtocolStep;
+	IplImage* rectWorm;
+	if (exp->pflag){ /** If a protocol was loaded **/
+		rectWorm= GenerateRectangleWorm(exp->p->GridSize);
+		cvZero(rectWorm);
+		IllumRectWorm(rectWorm,exp->p,exp->Params->ProtocolStep);
+		prevProtocolStep=exp->Params->ProtocolStep;
+		cvShowImage("Debug2",rectWorm);
+	}
+
+	printf("Starting DispThread loop\n");
+
 
 	while (!MainThreadHasStopped) {
 
 		//needed for display window
+
+
 			if (PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE))
 				DispatchMessage(&Msg);
+
+
+			TICTOC::timer().tic("DisplayThreadGuts");
 			TICTOC::timer().tic("cvShowImage");
 			cvShowImage("Display",exp->CurrentSelectedImg);
 			TICTOC::timer().toc("cvShowImage");
 
-			if (exp->Params->ProtocolUse){
-			IplImage* rectWorm= GenerateRectangleWorm(exp->p->GridSize);
-			cvZero(rectWorm);
-			IllumRectWorm(rectWorm,exp->p,exp->Params->ProtocolStep);
-			cvShowImage("Debug2",rectWorm);
-			cvReleaseImage(&rectWorm);
+
+			/** If we are using protocols and we havec chosen a new protocol step **/
+			if (exp->Params->ProtocolUse && (prevProtocolStep!= exp->Params->ProtocolStep))  {
+				cvZero(rectWorm);
+				IllumRectWorm(rectWorm,exp->p,exp->Params->ProtocolStep);
+				cvShowImage("Debug2",rectWorm);
+
 			}
 
-			Sleep(60);
+			TICTOC::timer().toc("DisplayThreadGuts");
+			Sleep(100);
 	}
 
+	if (exp->pflag) cvReleaseImage(&rectWorm);
 
 	//	printf("%s",TICTOC::timer().generateReportCstr());
 		printf("\nDisplayThread: Goodbye!\n");
