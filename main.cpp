@@ -49,7 +49,9 @@ using namespace std;
 /** Global Variables (for multithreading) **/
 UINT Thread(LPVOID lpdwParam);
 IplImage* CurrentImg;
-bool Running;
+bool DispThreadHasStarted;
+bool MainThreadHasStopped;
+bool DispThreadHasStopped;
 
 int main (int argc, char** argv){
 	int DEBUG=1;
@@ -102,7 +104,10 @@ int main (int argc, char** argv){
 	}
 
 	// wait for thread
-	while (!Running)
+	DispThreadHasStarted=FALSE;
+	DispThreadHasStopped=FALSE;
+	MainThreadHasStopped=FALSE;
+	while (!DispThreadHasStarted)
 		Sleep(10);
 
 
@@ -196,11 +201,6 @@ int main (int argc, char** argv){
 						IlluminateFromProtocol(exp->segWormDLP,exp->forDLP,exp->p,exp->Params);
 						TICTOC::timer().toc("IlluminateFromProtocol()");
 
-						IplImage* rectWorm= GenerateRectangleWorm(exp->p->GridSize);
-						cvZero(rectWorm);
-						IllumRectWorm(rectWorm,exp->p,exp->Params->ProtocolStep);
-						cvShowImage("Debug2",rectWorm);
-						cvReleaseImage(&rectWorm);
 					}
 				}
 				TICTOC::timer().toc("EntireIllumination");
@@ -245,7 +245,7 @@ int main (int argc, char** argv){
 	}
 	TICTOC::timer().toc("WholeLoop");
 	/** Flag to tell thread to stop  **/
-	Running=0;
+	MainThreadHasStopped=TRUE;
 
 	TICTOC::timer().tic("FinishRecording()");
 	FinishRecording(exp);
@@ -270,7 +270,11 @@ int main (int argc, char** argv){
 
 	printf("%s",TICTOC::timer().generateReportCstr());
 
-	Sleep(60);
+	printf("Waiting for DisplayThread to Stop...");
+	while (!DispThreadHasStopped){
+		printf(".");
+		cvWaitKey(500);
+	}
 	printf("\nGood bye.\n");
 	return 0;
 }
@@ -285,13 +289,15 @@ UINT Thread(LPVOID lpdwParam) {
 	MSG Msg;
 
 	cvNamedWindow("Display");
+	SetupGUI(exp);
+	cvWaitKey(30);
 	SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
 
-	SetupGUI(exp);
 
-	Running = TRUE;
 
-	while (Running) {
+	DispThreadHasStarted = TRUE;
+
+	while (!MainThreadHasStopped) {
 
 		//needed for display window
 			if (PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE))
@@ -299,11 +305,22 @@ UINT Thread(LPVOID lpdwParam) {
 			TICTOC::timer().tic("cvShowImage");
 			cvShowImage("Display",exp->CurrentSelectedImg);
 			TICTOC::timer().toc("cvShowImage");
-			Sleep(200);
+
+			if (exp->Params->ProtocolUse){
+			IplImage* rectWorm= GenerateRectangleWorm(exp->p->GridSize);
+			cvZero(rectWorm);
+			IllumRectWorm(rectWorm,exp->p,exp->Params->ProtocolStep);
+			cvShowImage("Debug2",rectWorm);
+			cvReleaseImage(&rectWorm);
+			}
+
+			Sleep(60);
 	}
 
+
 	//	printf("%s",TICTOC::timer().generateReportCstr());
-		printf("DisplayThread: Goodbye!\n");
+		printf("\nDisplayThread: Goodbye!\n");
+		DispThreadHasStopped=TRUE;
 	return 0;
 }
 

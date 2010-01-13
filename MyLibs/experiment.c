@@ -658,8 +658,8 @@ int isFrameReady(Experiment* exp){
 	} else{
 		/** Otherwise just keep chugging... **/
 
-		/** fake like we're waiting for something **/
-		//cvWaitKey(0);
+		/** Unless we're reading from video, in which case we should fake like we're waiting for something **/
+		if(exp->VidFromFile) cvWaitKey(30);
 		return 1;
 	}
 }
