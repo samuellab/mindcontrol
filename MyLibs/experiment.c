@@ -240,7 +240,14 @@ int HandleCommandLineArguments(Experiment* exp) {
 			break;
 
 		case 'g': /** Use frame grabber **/
+			if (exp->VidFromFile) {
+				printf("Error! Cannot read video from file and use the framegrabber at the same time!\n");
+				printf("Choose one or the other!");
+				displayHelp();
+				return -1;
+			}else{
 			exp->UseFrameGrabber=TRUE;
+			}
 			break;
 
 		case '?':
@@ -399,8 +406,23 @@ void RollVideoInput(Experiment* exp){
 		/** Use source from camera **/
 		if(exp->UseFrameGrabber){
 			exp->fg = CreateFrameGrabberObject();
-			InitializeFrameGrabber(fg);
-			PrepareFrameGrabberForAcquire(fg);
+			InitializeFrameGrabber(exp->fg);
+			FrameGrabberSetRegionOfInterest(exp->fg,0,0,1024,768);
+			PrepareFrameGrabberForAcquire(exp->fg);
+
+			printf("Checking frame size of frame grabber..\n");
+			/** Check to see that our image sizes are all the same. **/
+			if ((int) exp->fg->xsize != exp->fromCCD->size.width   ||  (int) exp->fg->ysize != exp->fromCCD->size.height){
+				printf("Error in RollVideoInput!\n");
+				printf("Size from framegrabber does not match size in IplImage fromCCD!\n");
+				printf(" exp->fg->xsize=%d\n",(int) exp->fg->xsize);
+				printf(" exp->fromCCD->size.width=%d\n",exp->fromCCD->size.width);
+				printf(" exp->fg->ysize=%d\n",(int)  exp->fg->ysize);
+				printf(" exp->fromCCD->size.height=%d\n",exp->fromCCD->size.height);
+				return;
+			}
+
+			printf("Frame size checks out..");
 
 			/**Use Frame Grabber **/
 		}else{
@@ -566,7 +588,7 @@ int GrabFrame(Experiment* exp){
 			/** Use BitFlow SDK to acquire from Frame Grabber **/
 			AcquireFrame(exp->fg);
 
-			LoadFrameGrabberFrameAndCrop(exp->fg, exp->fromCCD);
+			/** Check to see if file sizes match **/
 
 			LoadFrameWithBin(exp->fg->HostBuf,exp->fromCCD);
 
@@ -629,11 +651,12 @@ int GrabFrame(Experiment* exp){
  *
  */
 int isFrameReady(Experiment* exp){
-	if (!(exp->VidFromFile)){ /** If This isn't a simulation.. **/
-		/** check if we have a new frame read **/
+	if (!(exp->VidFromFile) && !(exp->UseFrameGrabber) ){
+		/** If This isn't a simulation.. **/
+		/** And if we arent using the frame grabber **/
 		return (exp->MyCamera->iFrameNumber > exp->lastFrameSeenOutside);
 	} else{
-		/** Otherwise this is a simulation **/
+		/** Otherwise just keep chugging... **/
 
 		/** fake like we're waiting for something **/
 		//cvWaitKey(0);

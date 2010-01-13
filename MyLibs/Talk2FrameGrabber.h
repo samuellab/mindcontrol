@@ -61,6 +61,16 @@ FrameGrabber* CreateFrameGrabberObject();
  */
 int InitializeFrameGrabber(FrameGrabber* fg);
 
+
+/**
+ * Set the region of interest to grab from from the frame grabber.
+ * This in effect will override the camera file settings.
+ * xsize must be  multiple of 4
+ *
+ * Runthis before PrepareFrameGrabberForAcquire
+ */
+int FrameGrabberSetRegionOfInterest(FrameGrabber* fg,int xoff, int yoff,int xsize,int ysize);
+
 int PrepareFrameGrabberForAcquire(FrameGrabber* fg);
 
 

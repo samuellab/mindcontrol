@@ -151,8 +151,10 @@ $(MyLibs)/WriteOutWorm.c :  $(MyLibs)/version.h
 
 
 ###### Simulate.exe
-$(targetDir)/Simulate.exe : Simulate.o $(hw_ind)
-	$(CXX) -o $(targetDir)/Simulate.exe Simulate.o $(hw_ind) $(TailOpts) 
+#andy.. take out the BitFlow SDK dependence
+#Write a DontTalk2FrameGrabber.h
+$(targetDir)/Simulate.exe : Simulate.o $(hw_ind) 
+	$(CXX) -o $(targetDir)/Simulate.exe Simulate.o Talk2FrameGrabber.o $(BFObj)  $(hw_ind)  $(TailOpts) 
 
 Simulate.o : main.cpp $(myOpenCVlibraries) $(WormSpecificLibs) 
 	$(CXX) $(CXXFLAGS) main.cpp -oSimulate.o -I$(MyLibs) -I$(bfIncDir) $(openCVincludes) $(TailOpts)

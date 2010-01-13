@@ -8,6 +8,7 @@
 #include	"BFApi.h"
 #include	"BFErApi.h"
 #include	"DSApi.h"
+#include 	"BiApi.h"
 
 #include "Talk2FrameGrabber.h"
 
@@ -83,6 +84,25 @@ int InitializeFrameGrabber(FrameGrabber* fg){
 	printf("Board has been opened.\n");
 	return 1;
 
+}
+
+/**
+ * Set the region of interest to grab from from the frame grabber.
+ * This in effect will override the camera file settings.
+ * xsize must be  multiple of 4
+ *
+ * Runthis before PrepareFrameGrabberForAcquire
+ */
+int FrameGrabberSetRegionOfInterest(FrameGrabber* fg,int xoff, int yoff,int xsize,int ysize){
+	BFRC ret=CiAqROISet(fg->hBoard,(BFU32) xoff, (BFU32) yoff,(BFU32) xsize, (BFU32) ysize, AqEngJ);
+
+	printf("Setting Region of Interest\n");
+	printf(" ret=%d\n",(int) ret);
+	BiErrorShow(fg->hBoard, ret);
+
+
+	if (ret==CI_OK) printf("FrameGrabberSetRegionOfInterst= is Good!!\n\n");
+	return 1;
 }
 
 
@@ -218,5 +238,8 @@ int CloseFrameGrabber(FrameGrabber* fg){
 
 		// close system
 		CiBrdClose(fg->hBoard);
+
+		free(fg);
+		printf("Frame grabber is cloed.\n");
 
 }

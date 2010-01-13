@@ -251,14 +251,18 @@ int main (int argc, char** argv){
 	FinishRecording(exp);
 	TICTOC::timer().toc("FinishRecording()");
 
-	if (!(exp->SimDLP)){
-	//	cvDestroyAllWindows();
-	T2DLP_off(exp->myDLP);
+	if (!(exp->SimDLP)) 	T2DLP_off(exp->myDLP);
 
-	/***** Turn off Camera & DLP ****/
-	T2Cam_TurnOff(&(exp->MyCamera));
-	T2Cam_CloseLib();
+	if (!(exp->VidFromFile) && !(exp->UseFrameGrabber)){
+		/***** Turn off Camera & DLP ****/
+		T2Cam_TurnOff(&(exp->MyCamera));
+		T2Cam_CloseLib();
 	}
+
+	if (!(exp->VidFromFile) && (exp->UseFrameGrabber)){
+		CloseFrameGrabber(exp->fg);
+	}
+
 
 	ReleaseExperiment(exp);
 	DestroyExperiment(&exp);
@@ -294,7 +298,7 @@ UINT Thread(LPVOID lpdwParam) {
 			TICTOC::timer().tic("cvShowImage");
 			cvShowImage("Display",exp->CurrentSelectedImg);
 			TICTOC::timer().toc("cvShowImage");
-			Sleep(40);
+			Sleep(200);
 	}
 
 	//	printf("%s",TICTOC::timer().generateReportCstr());
