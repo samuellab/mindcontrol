@@ -124,6 +124,7 @@ int main (int argc, char** argv){
 	int VideoRanOut=0;
 	while (1) {
 		_TICTOC_TIC_FUNC
+		TICTOC::timer().tic("OneLoop");
 		if (isFrameReady(exp)) {
 
 			/** Set error to zero **/
@@ -207,6 +208,7 @@ int main (int argc, char** argv){
 					}
 				}
 				TICTOC::timer().toc("EntireIllumination");
+				TICTOC::timer().toc("OneLoop");
 			}
 
 
@@ -227,7 +229,11 @@ int main (int argc, char** argv){
 
 
 
-			if (!(exp->e)) DoWriteToDisk(exp);
+			if (!(exp->e)) {
+				TICTOC::timer().tic("DoWriteToDisk()");
+				DoWriteToDisk(exp);
+				TICTOC::timer().toc("DoWriteToDisk()");
+			}
 
 
 			if (!(exp->e)){
@@ -242,9 +248,12 @@ int main (int argc, char** argv){
 
 	}
 	TICTOC::timer().toc("WholeLoop");
-	printf("%s",TICTOC::timer().generateReportCstr());
+	/** Flag to tell thread to stop  **/
+	Running=0;
 
+	TICTOC::timer().tic("FinishRecording()");
 	FinishRecording(exp);
+	TICTOC::timer().toc("FinishRecording()");
 
 	if (!(exp->SimDLP)){
 	//	cvDestroyAllWindows();
@@ -259,6 +268,9 @@ int main (int argc, char** argv){
 	DestroyExperiment(&exp);
 
 
+	printf("%s",TICTOC::timer().generateReportCstr());
+
+	Sleep(60);
 	printf("\nGood bye.\n");
 	return 0;
 }
