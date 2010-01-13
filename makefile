@@ -104,7 +104,7 @@ TransformLib.o: $(MyLibs)/TransformLib.c
 	$(CXX) $(CXXFLAGS) $(MyLibs)/TransformLib.c $(openCVincludes) $(TailOpts)
 	
 experiment.o: $(MyLibs)/experiment.c $(MyLibs)/experiment.h 
-	$(CXX) $(CXXFLAGS) $(MyLibs)/experiment.c $ -I$(MyLibs) $(openCVincludes) $(TailOpts)
+	$(CXX) $(CXXFLAGS) $(MyLibs)/experiment.c $ -I$(MyLibs) $(openCVincludes) -I$(bfIncDir) $(TailOpts)
 
 tictoc.o: $(3rdPartyLibs)/tictoc.cpp $(3rdPartyLibs)/tictoc.h 
 	$(CXX) $(CXXFLAGS) $(3rdPartyLibs)/tictoc.cpp $ -I$(3rdPartyLibs)  $(TailOpts)

@@ -12,15 +12,12 @@
 //Standard C headers
 #include <unistd.h>
 #include <stdio.h>
-#include <ctime>
+//#include <ctime>
 #include <time.h>
 #include <conio.h>
 #include <math.h>
 #include <assert.h>
 
-//C++ header
-#include <iostream>
-#include <limits>
 
 
 //OpenCV Headers
@@ -34,6 +31,7 @@
 //Andy's Personal Headers
 #include "AndysOpenCVLib.h"
 #include "Talk2Camera.h"
+#include "Talk2FrameGrabber.h"
 #include "Talk2DLP.h"
 #include "Talk2Matlab.h"
 #include "AndysComputations.h"
@@ -41,6 +39,7 @@
 #include "IllumWormProtocol.h"
 #include "TransformLib.h"
 #include "WriteOutWorm.h"
+
 
 
 
@@ -91,6 +90,10 @@ Experiment* CreateExperimentStruct(){
 
 	/** Camera Input**/
 	exp->MyCamera=NULL;
+
+	/** FrameGrabber Input **/
+	exp->fg = NULL;
+	exp->UseFrameGrabber=FALSE;
 
 	/** Video input **/
 	exp->capture=NULL;
@@ -167,14 +170,17 @@ void LoadCommandLineArguments(Experiment* exp, int argc, char** argv){
 
 
 void displayHelp(){
-	printf("Given a video stream, this software analyzes each frame, finds a worm and generates an illumination pattern.\n");
-	printf("\nUsage:\n");
-	printf("If run with no arguments, the software uses video from an attached camera, illuminates a worm with an attached DLP and records no data.\n");
+	printf("\n\nGiven a video stream, this software analyzes each frame, finds a worm and generates an illumination pattern.\n");
+	printf("\nUsage:\n\n");
+	printf("If run with no arguments,  uses video from ImagingSource USB camera, illuminates a worm with DLP and records no data.\n\n");
 	printf("Optional arguments:\n");
-	printf("\t-o\tbaseFileName\n\t\tWrite video and data output to file using the specified base file name.\n");
-	printf("\t-d\tD:/Path/To/My/Directory/\n\t\tWrite the video and data output to the specified directory. NOTE: it is important to have the trailing slash.\n");
-	printf("\t-i\tInputVideo.avi\n\t\tNo camera. Use video file source instead.\n");
-	printf("\t-s\n\t\tSimulate the existence of DLP. (No physical DLP required.)\n"); // <----- ANDY ADD SIMULATE FUNCTIONALITYkkk
+	printf("\t-o  baseFileName\n\t\tWrite video and data output to file using the specified base file name.\n\n");
+	printf("\t-d  D:/Path/To/My/Directory/\n\t\tWrite the video and data output to the specified directory. NOTE: it is important to have the trailing slash.\n\n");
+	printf("\t-i  InputVideo.avi\n\t\tNo camera. Use video file source instead.\n\n");
+	printf("\t-s\n\t\tSimulate the existence of DLP. (No physical DLP required.)\n\n");
+	printf("\t-g\n\t\tUse camera attached to FrameGrabber.\n\n");
+	printf("\t-p  protocol.yml\n\t\tIlluminate according to a YAML protocol file.\n\n");
+	printf("\t-?\n\t\tDisplay this help.\n\n");
 }
 
 
@@ -189,7 +195,7 @@ int HandleCommandLineArguments(Experiment* exp) {
 	opterr = 0;
 
 	int c;
-	while ((c = getopt(exp->argc, exp->argv, "si:d:o:p:")) != -1) {
+	while ((c = getopt(exp->argc, exp->argv, "si:d:o:p:g?")) != -1) {
 		switch (c) {
 		case 'i': /** specify input video file **/
 			exp->VidFromFile = 1;
@@ -233,8 +239,15 @@ int HandleCommandLineArguments(Experiment* exp) {
 			}
 			break;
 
+		case 'g': /** Use frame grabber **/
+			exp->UseFrameGrabber=TRUE;
+			break;
 
 		case '?':
+			if (optopt == '?') {
+				displayHelp();
+				return -1;
+			}
 			if (optopt == 'i' || optopt == 'c' || optopt == 'd' || optopt
 					== 's') {
 				fprintf(stderr, "Option -%c requires an argument.\n", optopt);
@@ -377,17 +390,29 @@ void SetupGUI(Experiment* exp){
  * OR open up the video file for reading.
  */
 void RollVideoInput(Experiment* exp){
-	if (exp->VidFromFile){
+	if (exp->VidFromFile){ /** Use source from file **/
 		/** Define the File catpure **/
 		exp->capture=cvCreateFileCapture(exp->infname);
-	}else{
 
-	/** Turn on Camera **/
-	T2Cam_InitializeLib();
-	T2Cam_AllocateCamData(&(exp->MyCamera));
-	T2Cam_ShowDeviceSelectionDialog(&(exp->MyCamera));
-	/** Start Grabbing Frames and Update the Internal Frame Number iFrameNumber **/
-	T2Cam_GrabFramesAsFastAsYouCan(&(exp->MyCamera));
+
+	}else{
+		/** Use source from camera **/
+		if(exp->UseFrameGrabber){
+			exp->fg = CreateFrameGrabberObject();
+			InitializeFrameGrabber(fg);
+			PrepareFrameGrabberForAcquire(fg);
+
+			/**Use Frame Grabber **/
+		}else{
+			/** Use ImagingSource USB Camera **/
+
+			/** Turn on Camera **/
+			T2Cam_InitializeLib();
+			T2Cam_AllocateCamData(&(exp->MyCamera));
+			T2Cam_ShowDeviceSelectionDialog(&(exp->MyCamera));
+			/** Start Grabbing Frames and Update the Internal Frame Number iFrameNumber **/
+			T2Cam_GrabFramesAsFastAsYouCan(&(exp->MyCamera));
+		}
 
 	}
 }
@@ -535,13 +560,35 @@ void DestroyExperiment(Experiment** exp){
  */
 int GrabFrame(Experiment* exp){
 
-	if (!(exp->VidFromFile)){ /** If This isn't a simulation.. **/
-		exp->lastFrameSeenOutside = exp->MyCamera->iFrameNumber;
+	if (!(exp->VidFromFile)){
+		/** Acquire from Physical Camera **/
+		if (exp->UseFrameGrabber){
+			/** Use BitFlow SDK to acquire from Frame Grabber **/
+			AcquireFrame(exp->fg);
+
+			LoadFrameGrabberFrameAndCrop(exp->fg, exp->fromCCD);
+
+			LoadFrameWithBin(exp->fg->HostBuf,exp->fromCCD);
 
 
-		/*** Create a local copy of the image***/
-		LoadFrameWithBin(exp->MyCamera->iImageData,exp->fromCCD);
-	} else {
+
+
+		} else{
+
+			/** Acqure from ImagingSource USB Cam **/
+
+			exp->lastFrameSeenOutside = exp->MyCamera->iFrameNumber;
+			/*** Create a local copy of the image***/
+			LoadFrameWithBin(exp->MyCamera->iImageData,exp->fromCCD);
+
+
+		}
+
+
+
+	}else {
+
+		/** Acquire  from file **/
 
 		IplImage* tempImg;
 		/** Grab the frame from the video **/

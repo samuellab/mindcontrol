@@ -27,6 +27,9 @@
 #ifndef TALK2CAMERA_H_
  #error "#include Talk2Camera.h" must appear in source files before "#include experiment.h"
 #endif
+#ifndef TALK2FRAMEGRABBER_H_
+ #error "#include Talk2FrameGrabber.h" must appear in source files before "#include experiment.h"
+#endif
 #ifndef ANDYSOPENCVLIB_H_
  #error "#include AndysOpenCVLib.h" must appear in source files before "#include experiment.h"
 #endif
@@ -59,6 +62,10 @@ typedef struct ExperimentStruct{
 
 	/** Camera Input**/
 	CamData* MyCamera;
+
+	/** FrameGrabber Input**/
+	FrameGrabber* fg;
+	bool UseFrameGrabber;
 
 	/** Video Capture (for simulation mode) **/
 	CvCapture* capture;

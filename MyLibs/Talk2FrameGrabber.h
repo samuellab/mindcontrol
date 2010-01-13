@@ -8,6 +8,13 @@
 #ifndef TALK2FRAMEGRABBER_H_
 #define TALK2FRAMEGRABBER_H_
 
+/** BitFlow SDK includes **/
+#include    "CiApi.h"
+#include	"BFApi.h"
+#include	"BFErApi.h"
+#include	"DSApi.h"
+
+
 /*
  * Thread to update the video display
  * using the BitFlow SDK.

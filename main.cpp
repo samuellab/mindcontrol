@@ -23,11 +23,6 @@
 
 using namespace std;
 
-/** BitFlow SDK includes **/
-#include    "CiApi.h"
-#include	"BFApi.h"
-#include	"BFErApi.h"
-#include	"DSApi.h"
 
 //OpenCV Headers
 #include <highgui.h>
@@ -37,6 +32,7 @@ using namespace std;
 //Andy's Personal Headers
 #include "MyLibs/AndysOpenCVLib.h"
 #include "MyLibs/Talk2Camera.h"
+#include "MyLibs/Talk2FrameGrabber.h"
 #include "MyLibs/Talk2DLP.h"
 #include "MyLibs/Talk2Matlab.h"
 #include "MyLibs/AndysComputations.h"
@@ -45,7 +41,7 @@ using namespace std;
 #include "MyLibs/IllumWormProtocol.h"
 #include "MyLibs/TransformLib.h"
 #include "MyLibs/experiment.h"
-#include "MyLibs/Talk2FrameGrabber.h"
+
 
 //3rd Party Libraries
 #include "3rdPartyLibs/tictoc.h"
