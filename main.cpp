@@ -158,7 +158,6 @@ int main (int argc, char** argv){
 			ClearDLPifNotDisplayingNow(exp);
 
 
-
 			/** Load Image into Our Worm Objects **/
 
 			if (!(exp->e)) exp->e=RefreshWormMemStorage(exp->Worm);
@@ -334,7 +333,7 @@ UINT Thread(LPVOID lpdwParam) {
 			Sleep(100);
 	}
 
-	if (exp->pflag) cvReleaseImage(&rectWorm);
+	//if (exp->pflag) cvReleaseImage(&rectWorm);
 
 	//	printf("%s",TICTOC::timer().generateReportCstr());
 		printf("\nDisplayThread: Goodbye!\n");

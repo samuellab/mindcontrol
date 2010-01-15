@@ -3,7 +3,7 @@
 # At the moment this includes: 
 #   CalibrateApparatus.exe -> Calibrates the position of the camera relative to the DLP. 
 #   ClosedLoop.exe   ->   Run's the Apparatus in a closed loop, imaging while projecting (formerly RunApparatus)
-#	Simulate.exe -> 	Same as ClosedLoop.exe except compiled without camera or DLP dependent libraries. 
+#	VirtualMC.exe -> 	Same as ClosedLoop.exe except compiled without camera or DLP dependent libraries. 
 #						Thus it must be run in simulation mode.
 
 #
@@ -60,14 +60,29 @@ objects= $(mylibraries) $(WormSpecificLibs) $(3rdpartyobjects) $(BFObj) $(CVlibs
 calib_objects= calibrate.o $(objects)
 
 #Hardware Independent objects
-hw_ind= version.o AndysComputations.o AndysOpenCVLib.o TransformLib.o IllumWormProtocol.o $(WormSpecificLibs) DontTalk2DLP.o DontTalk2Camera.o $(TimerLibrary) $(CVlibs)
+hw_ind= version.o AndysComputations.o AndysOpenCVLib.o TransformLib.o IllumWormProtocol.o $(WormSpecificLibs) $(TimerLibrary) $(CVlibs)
+
+#Virtual HArdware Libraries
+virtual_hardware =DontTalk2DLP.o DontTalk2Camera.o DontTalk2FrameGrabber.o 
 
 
+############DIFFERENT TARGETS
+## NOTE: depending on what hardware libraries you have installed, you should choose
+## Different targets of your make command
+##
+## For example, if you have installed: OpenCV, MATLAB, the FrameGrabber, Imaging Source, and the DLP,
+## Then go head and and "make all"
+## If you only have installed the framegrabber, but not the DLP or matlab or anything else, then
+## use "make framegrabberonly"
+## If you only have
 
-#Executables
-all : $(targetDir)/ClosedLoop.exe $(targetDir)/CalibrateApparatus.exe  $(targetDir)/Simulate.exe version.o $(targetDir)/Test.exe
 
-simulation :  $(targetDir)/Simulate.exe version.o $(targetDir)/Test.exe
+all : $(targetDir)/ClosedLoop.exe $(targetDir)/CalibrateApparatus.exe  $(targetDir)/VirtualMC.exe $(targetDir)/FGMindControl.exe version.o $(targetDir)/Test.exe
+
+framegrabberonly :  $(targetDir)/FGMindControl.exe version.o $(targetDir)/Test.exe
+
+virtual: $(targetDir)/VirtualMC.exe version.o $(targetDir)/Test.exe
+
 
 
 $(targetDir)/CalibrateApparatus.exe : $(calib_objects)
@@ -149,15 +164,23 @@ $(MyLibs)/WriteOutWorm.c :  $(MyLibs)/version.h
 
 
 
+## framegrabberonly FGMindControl.exe
 
-###### Simulate.exe
+$(targetDir)/FGMindControl.exe : FGMindControl.o DontTalk2DLP.o DontTalk2Camera.o $(hw_ind) 
+	$(CXX) -o $(targetDir)/FGMindControl.exe FGMindControl.o Talk2FrameGrabber.o $(BFObj)    DontTalk2DLP.o DontTalk2Camera.o $(hw_ind)  $(TailOpts) 
+
+FGMindControl.o : main.cpp $(myOpenCVlibraries) $(WormSpecificLibs) 
+	$(CXX) $(CXXFLAGS) main.cpp -oFGMindControl.o -I$(MyLibs) -I$(bfIncDir) $(openCVincludes) $(TailOpts)
+
+		
+###### VirtualMC.exe
 #andy.. take out the BitFlow SDK dependence
 #Write a DontTalk2FrameGrabber.h
-$(targetDir)/Simulate.exe : Simulate.o $(hw_ind) 
-	$(CXX) -o $(targetDir)/Simulate.exe Simulate.o Talk2FrameGrabber.o $(BFObj)  $(hw_ind)  $(TailOpts) 
+$(targetDir)/VirtualMC.exe : VirtualMC.o $(virtual_hardware) $(hw_ind) 
+	$(CXX) -o $(targetDir)/VirtualMC.exe VirtualMC.o $(virtual_hardware) $(hw_ind)  $(TailOpts) 
 
-Simulate.o : main.cpp $(myOpenCVlibraries) $(WormSpecificLibs) 
-	$(CXX) $(CXXFLAGS) main.cpp -oSimulate.o -I$(MyLibs) -I$(bfIncDir) $(openCVincludes) $(TailOpts)
+VirtualMC.o : main.cpp $(myOpenCVlibraries) $(WormSpecificLibs) 
+	$(CXX) $(CXXFLAGS) main.cpp -oVirtualMC.o -I$(MyLibs) -I$(bfIncDir) $(openCVincludes) $(TailOpts)
 	
 ## Hardware independent hack
 DontTalk2Camera.o : $(MyLibs)/DontTalk2Camera.c $(MyLibs)/Talk2Camera.h
@@ -166,7 +189,8 @@ DontTalk2Camera.o : $(MyLibs)/DontTalk2Camera.c $(MyLibs)/Talk2Camera.h
 DontTalk2DLP.o : $(MyLibs)/DontTalk2DLP.c $(MyLibs)/Talk2DLP.h
 	$(CXX) $(CXXFLAGS) $(MyLibs)/DontTalk2DLP.c -I$(MyLibs)  $(TailOpts)
 
-
+DontTalk2FrameGrabber.o : $(MyLibs)/DontTalk2FrameGrabber.cpp $(MyLibs)/Talk2FrameGrabber.h
+	$(CXX) $(CXXFLAGS) $(MyLibs)/DontTalk2FrameGrabber.cpp -I$(MyLibs) -I$(bfIncDir)  $(TailOpts)
 
 ##### BitFlow FrameGrabber based libraries
 Talk2FrameGrabber.o: $(MyLibs)/Talk2FrameGrabber.cpp $(MyLibs)/Talk2FrameGrabber.h

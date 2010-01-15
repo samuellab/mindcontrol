@@ -872,15 +872,26 @@ void DoWriteToDisk(Experiment* exp){
 
 	/** Record VideoFrame to Disk**/
 	if (exp->RECORDVID && exp->Params->Record) {
+		TICTOC::timer().tic("cvResize");
 		cvResize(exp->Worm->ImgOrig,exp->SubSampled,CV_INTER_LINEAR);
+		TICTOC::timer().toc("cvResize");
+
+		TICTOC::timer().tic("cvWriteFrame");
 		cvWriteFrame(exp->Vid,exp->SubSampled);
+		TICTOC::timer().toc("cvWriteFrame");
+
 		cvResize(exp->HUDS,exp->SubSampled,CV_INTER_LINEAR);
+
 		cvWriteFrame(exp->VidHUDS,exp->SubSampled);
 	}
 
 	/** Record data frame to diskl **/
-	if (exp->RECORDDATA && exp->Params->Record) AppendWormFrameToDisk(exp->Worm,exp->Params,exp->DataWriter);
 
+	if (exp->RECORDDATA && exp->Params->Record) {
+		TICTOC::timer().tic("AppendWormFrameToDisk");
+		AppendWormFrameToDisk(exp->Worm,exp->Params,exp->DataWriter);
+		TICTOC::timer().toc("AppendWormFrameToDisk");
+	}
 }
 
 

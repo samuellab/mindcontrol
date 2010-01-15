@@ -13,15 +13,6 @@
 #include "Talk2FrameGrabber.h"
 
 
-/**  FrameGrabber Globals.. used for info between threads**/
-/*
- * Note: this is really ugly programming style.
- * Globals should not be here. But since I don't really know
- * exactly how this works, I am just going to go with the example
- * code that uses globals.
- *
- */
-
 
 FrameGrabber* CreateFrameGrabberObject(){
 	FrameGrabber* fg;
@@ -241,5 +232,6 @@ int CloseFrameGrabber(FrameGrabber* fg){
 
 		free(fg);
 		printf("Frame grabber is cloed.\n");
+		return 1;
 
 }
