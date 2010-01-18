@@ -888,10 +888,20 @@ int CreateWormHUDS(IplImage* TempImage, WormAnalysisData* Worm, WormAnalysisPara
 		cvPutText(TempImage,"Floodlight",cvPoint(20,130),&font,cvScalar(255,255,255));
 	}
 
+	char protoNum[20];
+	/** If we are using protocols, display the protocol number **/
+	if (Params->ProtocolUse){
+		sprintf(protoNum,"Step %d",Params->ProtocolStep);
+		cvPutText(TempImage,protoNum,cvPoint(20,160),&font,cvScalar(255,255,255));
+
+	}
+	free(protoNum);
+
 
 	char frame[30];
 	sprintf(frame,"%d",Worm->frameNum);
 	cvPutText(TempImage,frame,cvPoint(Worm->SizeOfImage.width- 200,Worm->SizeOfImage.height - 10),&font,cvScalar(255,255,255) );
+	free( frame);
 	return 0;
 }
 

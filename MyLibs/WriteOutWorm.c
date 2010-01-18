@@ -176,6 +176,11 @@ int AppendWormFrameToDisk(WormAnalysisData* Worm, WormAnalysisParam* Params, Wri
 		cvWriteInt(fs,"IllumSegCenter",Params->IllumSegCenter);
 		cvWriteInt(fs,"IllumSegRadius",Params->IllumSegRadius);
 		cvWriteInt(fs,"IllumNullLeftRightBoth",Params->IllumLRC);
+
+		/** Protocol Information **/
+
+		cvWriteInt(fs,"ProtocolIsOn",Params->ProtocolUse);
+		cvWriteInt(fs,"ProtocolStep",Params->ProtocolStep);
 	cvEndWriteStruct(fs);
 
 	return 0;
