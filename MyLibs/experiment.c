@@ -141,6 +141,9 @@ Experiment* CreateExperimentStruct(){
 	exp->now=0;
 	exp->last=0;
 
+	/** Illumination Timing Info **/
+	exp->illumStart=0;
+
 	/** Frame Rate Information **/
 	exp->nframes=0;
 	exp->prevFrames=0;
@@ -281,6 +284,57 @@ int HandleCommandLineArguments(Experiment* exp) {
 
 
 
+/** Handle Transient Illumination Timing **/
+int HandleIlluminationTiming(Experiment* exp){
+
+	time_t current=time(NULL);
+	double diff;
+
+	/** Case 1: Nothing to do **/
+	if (!exp->Params->DLPOnFlash)
+		{
+		/** DLPOnFlash is off **/
+		exp->illumStart=0;
+		return 0;
+	}
+
+	/** Case 2: First time DLPOnFlash  is turned onon**/
+	if ((exp->Params->DLPOnFlash) && (exp->illumStart==0)){
+		/**Set the start time to now. **/
+		exp->illumStart=time(NULL);
+
+		/** Turn the DLP On **/
+		exp->Params->DLPOn=1;
+		return 1;
+	}
+
+	/** Case 3: DLPOnFlash has been on **/
+	if ((exp->Params->DLPOnFlash) && (exp->illumStart>0)){
+		diff=difftime(current,exp->illumStart);
+
+		if (diff > (double) exp->Params->IllumDuration){
+			/** The illumination is now finished **/
+			/** Turn the DLP Off **/
+			exp->Params->DLPOn=0;
+			exp->Params->DLPOnFlash=0;
+
+			/** Set the start time to zero.**/
+			exp->illumStart=0;
+			return 0;
+
+
+		} else{
+			/** We should continue to illuminate **/
+			exp->Params->DLPOn=1;
+			//printf("diff=%e illumstart=%d current=%d, IllumDuration=%d\n\n",diff,exp->illumStart,current,exp->Params->IllumDuration);
+			return 1;
+		}
+
+	}
+
+
+}
+
 
 
 /** GUI **/
@@ -335,12 +389,14 @@ void SetupGUI(Experiment* exp){
 	printf("Begining to setup GUI\n");
 
 //	cvNamedWindow(exp->WinDisp); // <-- This goes into the thread.
+	cvNamedWindow("Display");
 	cvNamedWindow(exp->WinCon1);
+	cvNamedWindow("ProtoIllum");
 	cvResizeWindow(exp->WinCon1,450,700);
 
 
 
-	/** SelectDispilay **/
+	/** SelectDisplay **/
 	cvCreateTrackbar("SelDisplay", "Controls"	, &(exp->Params->Display), 7, (int) NULL);
 	printf("Pong\n");
 
@@ -377,6 +433,8 @@ void SetupGUI(Experiment* exp){
 	if (exp->pflag){
 		cvCreateTrackbar("Protocol",exp->WinCon2,&(exp->Params->ProtocolUse),1,(int) NULL);
 		cvCreateTrackbar("ProtoStep",exp->WinCon2,&(exp->Params->ProtocolStep),exp->p->Steps->total - 1,(int) NULL);
+		cvCreateTrackbar("IllumDuration",exp->WinCon2,&(exp->Params->IllumDuration),15, (int) NULL);
+		cvCreateTrackbar("DLPFlashOn",exp->WinCon2,&(exp->Params->DLPOnFlash),1, (int) NULL);
 	}
 	printf("Created trackbars and windows\n");
 	return;

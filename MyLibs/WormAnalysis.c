@@ -237,6 +237,12 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 	ParamPtr->SegStart=25;
 	ParamPtr->SegStop=40;
 	ParamPtr->DLPOn=0;
+
+	ParamPtr->IllumDuration=1;
+	ParamPtr->DLPOnFlash=0;
+
+
+
 	ParamPtr->IllumLRC=3;
 	ParamPtr->IllumSegRadius=5;
 	ParamPtr->IllumSegCenter=25;

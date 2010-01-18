@@ -54,10 +54,10 @@ bool MainThreadHasStopped;
 bool DispThreadHasStopped;
 
 int main (int argc, char** argv){
-	int DEBUG=1;
+	int DEBUG=0;
 	if (DEBUG){
-	//	cvNamedWindow("Debug");
-		cvNamedWindow("Debug2");
+		cvNamedWindow("Debug");
+	//	cvNamedWindow("Debug2");
 	}
 
 
@@ -152,7 +152,8 @@ int main (int argc, char** argv){
 				continue;
 			}
 
-
+			/** Handle Transient Illumination Timing **/
+			HandleIlluminationTiming(exp);
 
 			/** If the DLP is not displaying right now, than turn off the mirrors */
 			ClearDLPifNotDisplayingNow(exp);
@@ -268,9 +269,10 @@ int main (int argc, char** argv){
 	printf("Waiting for DisplayThread to Stop...");
 	while (!DispThreadHasStopped){
 		printf(".");
-		cvWaitKey(500);
+		Sleep(500);
+		cvWaitKey(10);
 	}
-	printf("\nGood bye.\n");
+	printf("\nMain Thread: Good bye.\n");
 	return 0;
 }
 
@@ -283,7 +285,6 @@ UINT Thread(LPVOID lpdwParam) {
 	printf("DisplayThread: Hello!\n");
 	MSG Msg;
 
-	cvNamedWindow("Display");
 	SetupGUI(exp);
 	cvWaitKey(30);
 	SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
@@ -300,7 +301,7 @@ UINT Thread(LPVOID lpdwParam) {
 		cvZero(rectWorm);
 		IllumRectWorm(rectWorm,exp->p,exp->Params->ProtocolStep);
 		prevProtocolStep=exp->Params->ProtocolStep;
-		cvShowImage("Debug2",rectWorm);
+		cvShowImage("ProtoIllum",rectWorm);
 	}
 
 	printf("Starting DispThread loop\n");
@@ -309,8 +310,6 @@ UINT Thread(LPVOID lpdwParam) {
 	while (!MainThreadHasStopped) {
 
 		//needed for display window
-
-
 			if (PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE))
 				DispatchMessage(&Msg);
 
@@ -325,7 +324,8 @@ UINT Thread(LPVOID lpdwParam) {
 			if (exp->Params->ProtocolUse && (prevProtocolStep!= exp->Params->ProtocolStep))  {
 				cvZero(rectWorm);
 				IllumRectWorm(rectWorm,exp->p,exp->Params->ProtocolStep);
-				cvShowImage("Debug2",rectWorm);
+				/** Update the Protocol **/
+				cvShowImage("ProtoIllum",rectWorm);
 
 			}
 

@@ -112,6 +112,11 @@ typedef struct ExperimentStruct{
 	clock_t now;
 	clock_t last;
 
+	/** Illumination Timer **/
+	time_t illumStart;
+
+
+
 	/** Frame Rate Information **/
 	int nframes;
 	int prevFrames;
@@ -145,6 +150,10 @@ void LoadCommandLineArguments(Experiment* exp, int argc, char** argv);
  * Decides if user wants to record video or recorddata
  */
 int HandleCommandLineArguments(Experiment* exp);
+
+
+/** Handle Transient Illumination Timing **/
+int HandleIlluminationTiming(Experiment* exp);
 
 /*
  * Flips the simulation variable to on.
