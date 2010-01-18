@@ -45,6 +45,17 @@ void DestroyFilename(char**);
 WriteOut* SetUpWriteToDisk(const char* filename, CvMemStorage* Mem);
 
 /*
+ * Start the process of writing out frames. (Formerly this was contained in SetUpWriteToDisk)
+ */
+void BeginToWriteOutFrames(WriteOut* DataWriter);
+
+/*
+ * Writes the command line argument to YAML.
+ */
+void WriteOutCommandLineArguments(WriteOut* DataWriter,int argc, char** argv);
+
+
+/*
  * Writes Out information of one frame of the worm to a disk
  * in YAML format.
  *

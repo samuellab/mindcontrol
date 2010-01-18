@@ -60,7 +60,7 @@ Protocol* CreateProtocolObject(){
 
 
 /*
- * Write everything out to YAML
+ * Write everything out to its own seperate YAML file
  *
  */
 void WriteProtocolToYAML(Protocol* myP){
@@ -84,6 +84,19 @@ void WriteProtocolToYAML(Protocol* myP){
 	cvWriteComment(fs, "\n",0);
 	printf("wrote comments\n");
 
+	WriteProtocol(myP,fs);
+	cvReleaseFileStorage(&fs);
+}
+
+
+/**
+ * Write out a Protocol to YAML file, given an initialized CvFileStorage
+ */
+void WriteProtocol(Protocol* myP, CvFileStorage* fs){
+	if (fs==0){
+		printf("fs is zero! Could you have specified the wrong directory?\n");
+		return;
+	}
 	/** Write out Protocol **/
 	cvStartWriteStruct(fs,"Protocol",CV_NODE_MAP,NULL);
 		if (myP->Filename!=NULL) cvWriteString(fs,"Filename",myP->Filename);
@@ -92,7 +105,7 @@ void WriteProtocolToYAML(Protocol* myP){
 			cvWriteInt(fs,"height",myP->GridSize.height);
 			cvWriteInt(fs,"width",myP->GridSize.width);
 		cvEndWriteStruct(fs);
-		printf("yo\n");
+		//printf("yo\n");
 		/** Write Out Steps **/
 		cvStartWriteStruct(fs,"Steps",CV_NODE_SEQ,NULL);
 		int j;
@@ -102,21 +115,21 @@ void WriteProtocolToYAML(Protocol* myP){
 		CvSeqReader StepReader;
 		cvStartReadSeq(myP->Steps,&StepReader,0);
 		for (j = 0; j < jtot; ++j) {
-			printf("About to write step number %d\n",j);
+			//printf("About to write step number %d\n",j);
 			CvSeq** CurrentMontagePtr = (CvSeq**) StepReader.ptr;
 			CvSeq* CurrentMontage=*CurrentMontagePtr;
 			assert(CurrentMontage!=NULL);
-			printf("ping\n");
-			printf("CurrentMontage->total=%d",CurrentMontage->total);
+		//	printf("ping\n");
+		//	printf("CurrentMontage->total=%d",CurrentMontage->total);
 			cvStartWriteStruct(fs,NULL,CV_NODE_SEQ,NULL);
 			int k;
 			int ktot=CurrentMontage->total;
-			printf("ktot=%d\n",ktot);
+		//	printf("ktot=%d\n",ktot);
 
 			CvSeqReader MontageReader;
 			cvStartReadSeq(CurrentMontage,&MontageReader);
 			for (k = 0; k < ktot; ++k) {
-				printf("About to write polygon number %d\n",k);
+			//	printf("About to write polygon number %d\n",k);
 				WormPolygon** CurrentPolygonPtr= (WormPolygon**) MontageReader.ptr;
 				WormPolygon* CurrentPolygon=*CurrentPolygonPtr;
 
@@ -134,8 +147,8 @@ void WriteProtocolToYAML(Protocol* myP){
 		}
 		cvEndWriteStruct(fs);
 	cvEndWriteStruct(fs);
-	cvReleaseFileStorage(&fs);
 }
+
 
 
 void LoadProtocolWithFilename(const char* str, Protocol* myP){

@@ -68,10 +68,16 @@ void LoadProtocolWithDescription(const char* str, Protocol* myP);
 
 
 /*
- * Write everything out to YAML
+ * Write everything out to its own YAML file
  *
  */
 void WriteProtocolToYAML(Protocol* myP);
+
+/**
+ * Write out a Protocol to YAML file, given an initialized CvFileStorage
+ */
+void WriteProtocol(Protocol* myP, CvFileStorage* fs);
+
 
 /*******************************************/
 /*

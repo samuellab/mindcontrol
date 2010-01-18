@@ -6,6 +6,7 @@
  */
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
 
 //OpenCV Headers
 #include <cxcore.h>
@@ -81,16 +82,42 @@ WriteOut* SetUpWriteToDisk(const char* filename, CvMemStorage* Mem){
 	DataWriter->fs=cvOpenFileStorage(filename,Mem,CV_STORAGE_WRITE);
 	if (DataWriter->fs==0) printf("DataWriter->fs is zero! Could you have specified the wrong directory?\n");
 	// <--- ANDY ADD in something here so that this fails more gracefully if the folder does not exist!!!!
-	cvWriteComment(DataWriter->fs, "Remote Control Worm Experiment Data Log\nMade by OpticalMindControl software\nleifer@fas.harvard.edu",0);
-	cvWriteComment(DataWriter->fs, "\nSoftware Version Information:",0);
-	cvWriteComment(DataWriter->fs, build_git_sha,0);
-	cvWriteComment(DataWriter->fs, build_git_time,0);
-	cvWriteComment(DataWriter->fs, "\n",0);
+	cvWriteComment(DataWriter->fs, "Remote Control Worm Experiment Data Log\nMade by OpticalMindControl software\nleifer@fas.harvard.edu\n",0);
+	cvWriteString(DataWriter->fs, "gitHash", build_git_sha,0);
+	cvWriteString(DataWriter->fs, "gitBuildTime",build_git_time,0);
 
-	cvStartWriteStruct(DataWriter->fs,"Frames",CV_NODE_SEQ,NULL);
+	/** Write Out Current Time**/
+	  struct tm *local;
+	  time_t t;
+
+	  t = time(NULL);
+	  local = localtime(&t);
+
+	cvWriteString(DataWriter->fs, "ExperimentTime",asctime(local),0);
+
 	return DataWriter;
 }
 
+
+/*
+ * Start the process of writing out frames. (Formerly this was contained in SetUpWriteToDisk)
+ */
+void BeginToWriteOutFrames(WriteOut* DataWriter){
+	cvStartWriteStruct(DataWriter->fs,"Frames",CV_NODE_SEQ,NULL);
+	return;
+}
+
+/*
+ * Writes the command line argument to YAML.
+ */
+void WriteOutCommandLineArguments(WriteOut* DataWriter,int argc, char** argv){
+	char** largv=argv; /* Local Args */
+	char* command= (char *) malloc(sizeof(char)*500);
+	*command=0;
+    while(argc--)
+            sprintf(command +strlen(command) ,"%s ", *largv++);
+    cvWriteString(DataWriter->fs,"Command",command);
+}
 
 /*
  * Writes Out information of one frame of the worm to a disk

@@ -92,7 +92,7 @@ int main (int argc, char** argv){
 
 	/** Setup Segmentation Gui **/
 	AssignWindowNames(exp);
-///	SetupGUI(exp); // Moved this to thread
+
 
 	/** Start New Thread **/
 	DWORD dwThreadId;

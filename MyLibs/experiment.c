@@ -682,7 +682,19 @@ void SetupRecording(Experiment* exp){
 	if (exp->RECORDDATA)	{
 		if (exp->dirname==NULL || exp->outfname==NULL  ) printf("exp->dirname or exp->outfname is NULL!\n");
 		DataFileName=CreateFileName(exp->dirname,exp->outfname,".yaml");
+		/** Setup Writing and Write Out Comments **/
 		exp->DataWriter=SetUpWriteToDisk(DataFileName,exp->Worm->MemStorage);
+
+		/** Write the Command Line argument Out for reference **/
+		WriteOutCommandLineArguments(exp->DataWriter,exp->argc,exp->argv);
+
+		/** Write the Protocol Out for reference **/
+		if (exp->pflag){
+			WriteProtocol(exp->p,exp->DataWriter->fs);
+		}
+
+		BeginToWriteOutFrames(exp->DataWriter);
+
 		printf("Initialized data recording\n");
 		DestroyFilename(&DataFileName);
 	}
