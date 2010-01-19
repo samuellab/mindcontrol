@@ -13,6 +13,7 @@
 #include <time.h>
 #include <conio.h>
 #include <math.h>
+#include <sys/time.h>
 
 //Windows Header
 #include <windows.h>
@@ -178,7 +179,6 @@ int main (int argc, char** argv){
 			/*** Do Some Illumination ***/
 
 			if (!(exp->e)) {
-				TICTOC::timer().tic("EntireIllumination");
 
 				if (exp->Params->IllumFloodEverything) {
 					SetFrame(exp->IlluminationFrame,128); // Turn all of the pixels on
@@ -203,7 +203,7 @@ int main (int argc, char** argv){
 
 					}
 				}
-				TICTOC::timer().toc("EntireIllumination");
+
 
 			}
 
@@ -232,7 +232,7 @@ int main (int argc, char** argv){
 			}
 
 
-			if (exp->e) printf("\n:(\n");
+			if (exp->e) printf("\nError in main loop. :(\n");
 
 		}
 		if (kbhit()) break;
@@ -330,6 +330,7 @@ UINT Thread(LPVOID lpdwParam) {
 			}
 
 			TICTOC::timer().toc("DisplayThreadGuts");
+			UpdateGUI(exp);
 			Sleep(100);
 	}
 

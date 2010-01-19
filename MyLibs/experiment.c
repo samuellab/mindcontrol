@@ -12,12 +12,11 @@
 //Standard C headers
 #include <unistd.h>
 #include <stdio.h>
-//#include <ctime>
 #include <time.h>
 #include <conio.h>
 #include <math.h>
 #include <assert.h>
-
+#include <sys/time.h>
 
 
 //OpenCV Headers
@@ -287,8 +286,11 @@ int HandleCommandLineArguments(Experiment* exp) {
 /** Handle Transient Illumination Timing **/
 int HandleIlluminationTiming(Experiment* exp){
 
-	time_t current=time(NULL);
+	struct timeval curr_tv;
 	double diff;
+
+
+	int tenthsOfSecondsElapsed;
 
 	/** Case 1: Nothing to do **/
 	if (!exp->Params->DLPOnFlash)
@@ -301,18 +303,23 @@ int HandleIlluminationTiming(Experiment* exp){
 	/** Case 2: First time DLPOnFlash  is turned onon**/
 	if ((exp->Params->DLPOnFlash) && (exp->illumStart==0)){
 		/**Set the start time to now. **/
-		exp->illumStart=time(NULL);
+		gettimeofday(&curr_tv,NULL);
+		exp->illumStart=curr_tv.tv_sec+(curr_tv.tv_usec/1000000.0);
 
 		/** Turn the DLP On **/
 		exp->Params->DLPOn=1;
+		printf("Turning on DLP transiently...\n");
 		return 1;
 	}
 
 	/** Case 3: DLPOnFlash has been on **/
-	if ((exp->Params->DLPOnFlash) && (exp->illumStart>0)){
-		diff=difftime(current,exp->illumStart);
+	if ((exp->Params->DLPOnFlash) && (exp->illumStart> (double) 0)){
+		gettimeofday(&curr_tv,NULL);
+		diff=  curr_tv.tv_sec+(curr_tv.tv_usec/1000000.0) - exp->illumStart;
 
-		if (diff > (double) exp->Params->IllumDuration){
+		tenthsOfSecondsElapsed= (int) ( diff * 10.0) ;
+				printf(" tenthsOfSecondsElapsed=%d\n",tenthsOfSecondsElapsed);
+		if (tenthsOfSecondsElapsed > exp->Params->IllumDuration){
 			/** The illumination is now finished **/
 			/** Turn the DLP Off **/
 			exp->Params->DLPOn=0;
@@ -320,6 +327,7 @@ int HandleIlluminationTiming(Experiment* exp){
 
 			/** Set the start time to zero.**/
 			exp->illumStart=0;
+			printf("Illumination is finished.\n");
 			return 0;
 
 
@@ -327,6 +335,7 @@ int HandleIlluminationTiming(Experiment* exp){
 			/** We should continue to illuminate **/
 			exp->Params->DLPOn=1;
 			//printf("diff=%e illumstart=%d current=%d, IllumDuration=%d\n\n",diff,exp->illumStart,current,exp->Params->IllumDuration);
+			printf("#");
 			return 1;
 		}
 
@@ -437,6 +446,19 @@ void SetupGUI(Experiment* exp){
 		cvCreateTrackbar("DLPFlashOn",exp->WinCon2,&(exp->Params->DLPOnFlash),1, (int) NULL);
 	}
 	printf("Created trackbars and windows\n");
+	return;
+
+}
+
+/*
+ * Update's trackbar positions for variables that can be changed by the software
+ *
+ */
+void UpdateGUI(Experiment* exp){
+	if (exp->pflag){
+		cvSetTrackbarPos("DLPFlashOn",exp->WinCon2,(exp->Params->DLPOnFlash));
+		cvSetTrackbarPos("DLPOn",exp->WinCon1,(exp->Params->DLPOn));
+	}
 	return;
 
 }
@@ -673,6 +695,9 @@ int GrabFrame(Experiment* exp){
 		IplImage* tempImg;
 		/** Grab the frame from the video **/
 		tempImg=cvQueryFrame(exp->capture);
+
+		/** Stall for a little bit **/
+		Sleep(250);
 
 
 		if (tempImg==NULL){

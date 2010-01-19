@@ -113,7 +113,7 @@ typedef struct ExperimentStruct{
 	clock_t last;
 
 	/** Illumination Timer **/
-	time_t illumStart;
+	double illumStart;
 
 
 
@@ -178,6 +178,11 @@ void ReleaseWindowNames(Experiment* exp);
  */
 void SetupGUI(Experiment* exp);
 
+/*
+ * Update's trackbar positions for variables that can be changed by the software
+ *
+ */
+void UpdateGUI(Experiment* exp);
 
 
 /*

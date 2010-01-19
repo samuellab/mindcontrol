@@ -50,7 +50,7 @@ typedef struct WormAnalysisParamStruct{
 	int DLPOn;
 
 	/** Timed DLP On **/
-	int IllumDuration;
+	int IllumDuration; // in tenthsOfSeconds
 	int DLPOnFlash;
 
 	int ProtocolUse;

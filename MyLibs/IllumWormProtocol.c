@@ -758,12 +758,14 @@ Protocol* LoadProtocolFromFile(const char* filename){
 		/** Load in Description **/
 		CvFileNode* node=cvGetFileNodeByName(fs,protonode,"Description");
 		myP->Description=copyString(cvReadString(node,NULL));
-		printf("=Description:\n %s\n",myP->Description);
+		printf("Loading in Protocol, Description:\n %s\n",myP->Description);
 
 		/** Load in Grid Size **/
 		node=cvGetFileNodeByName(fs,protonode,"GridSize");
 		int height=cvReadIntByName(fs,node,"height",-1);
 		int width=cvReadIntByName(fs,node,"width",-1);
+				printf(" width =%d\n",width );
+								printf(" height=%d\n",height);
 		if (height>0 && width>0){
 			myP->GridSize=cvSize(width,height);
 		}
@@ -795,7 +797,7 @@ Protocol* LoadProtocolFromFile(const char* filename){
 
 			CvSeq* montageSeq=montageNode->data.seq;
 			int numPolygonsInMontage=montageSeq->total;
-			printf("Step %d: %d polygon(s) found\n",i,numPolygonsInMontage);
+//			printf("Step %d: %d polygon(s) found\n",i,numPolygonsInMontage);
 
 			CvSeqReader MontageReader;
 			cvStartReadSeq( montageSeq, &MontageReader, 0 );
@@ -805,18 +807,18 @@ Protocol* LoadProtocolFromFile(const char* filename){
 				/** Load the CvSeq Polygon Objects and push them onto the montage **/
 				CvFileNode* polygonNode = (CvFileNode*)MontageReader.ptr;
 				CvSeq* polygonPts =(CvSeq*) cvRead(fs,polygonNode); // <---- Andy come back here.
-				printf("\tPolygon %d: found %d points.\n",k,polygonPts->total);
+				printf("\tStep %d, Polygon %d: %d points found.\n",i,k,polygonPts->total);
 
 				/**
 				 * Now we have the points for our polygon so we need to load
 				 * those points into a polygon object
 				 */
 				WormPolygon* polygon= CreateWormPolygonFromSeq(myP->memory,myP->GridSize,polygonPts);
-				printf("\t\t %d points copied\n",polygon->Points->total);
+				//printf("\t\t %d points copied\n",polygon->Points->total);
 
 				/** Add the polygon to the montage **/
 				cvSeqPush(montage,&polygon);
-				printf("\t\t Current montage now has %d polygons\n",montage->total);
+				//printf("\t\t Current montage now has %d polygons\n",montage->total);
 
 				/** Move to the next polygon **/
 				CV_NEXT_SEQ_ELEM( montageSeq->elem_size, MontageReader );
@@ -824,7 +826,7 @@ Protocol* LoadProtocolFromFile(const char* filename){
 			cvClearSeq(montageSeq);
 			numPolygonsInMontage=0;
 
-			printf("Loading a montage with %d polygons on the protocol\n.",montage->total);
+			//printf("Loading a montage with %d polygons on the protocol\n.",montage->total);
 			/** Load the montage onto the step object**/
 			cvSeqPush(myP->Steps,&montage);
 
