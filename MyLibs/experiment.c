@@ -442,7 +442,7 @@ void SetupGUI(Experiment* exp){
 	if (exp->pflag){
 		cvCreateTrackbar("Protocol",exp->WinCon2,&(exp->Params->ProtocolUse),1,(int) NULL);
 		cvCreateTrackbar("ProtoStep",exp->WinCon2,&(exp->Params->ProtocolStep),exp->p->Steps->total - 1,(int) NULL);
-		cvCreateTrackbar("IllumDuration",exp->WinCon2,&(exp->Params->IllumDuration),15, (int) NULL);
+		cvCreateTrackbar("IllumDuration",exp->WinCon2,&(exp->Params->IllumDuration),50, (int) NULL);
 		cvCreateTrackbar("DLPFlashOn",exp->WinCon2,&(exp->Params->DLPOnFlash),1, (int) NULL);
 	}
 	printf("Created trackbars and windows\n");
