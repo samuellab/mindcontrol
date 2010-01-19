@@ -40,11 +40,25 @@ using namespace std;
 
 
 typedef struct CalibrationSessionStruct {
+	/** Calibration Transfomration **/
 	int *CCD2DLPLookUp;
-	long myDLP;
 
+	/** Input Output **/
+	long myDLP;
 	FrameGrabber* fg;
 
+	/** Frames **/
+	Frame* fromCCD;
+	Frame* toDLP;
+	Frame* temp;
+
+	/** Internal Variables **/
+	CvPoint MinPoint;
+	CvPoint MaxPoint;
+	double minvalue;
+	double maxvalue;
+	CvScalar mean;
+	CvScalar stdev;
 
 	/** Circle Drawing properties**/
 	int CircRadius;
@@ -65,8 +79,21 @@ CalibrationSession* CreateCalibrationSession(){
 	CalibrationSession* c = (CalibrationSession* ) malloc(sizeof(CalibrationSession) );
 
 	/** Set Everything to Zero **/
+
+	/** Input/Output **/
 	c->myDLP=0;
 	c->fg=NULL;
+
+
+	/*** Frames **/
+	fromCCD=NULL;
+	toDLP=NULL;
+
+	/** Internal Variables **/
+	MinPoint=cvPoint(0,0);
+	MaxPoint=cvPoint(0,0);
+	minvalue=0;
+	maxvalue=0;
 
 	/** Circle properties **/
 	c->CircRadius=4;
@@ -93,7 +120,20 @@ void InitializeCalibrationSession(CalibrationSession* c){
 		assert(0);
 	}
 
+	/** Calibration Lookup Table **/
 	c->	CCD2DLPLookUp = (int *) malloc(2 * c->Camsize.width * c->Camsize.height * sizeof(int));
+
+	/** Frames **/
+	c->fromCCD=CreateFrame(c->Camsize);
+	c->toDLP=CreateFrame(c->DLPsize);
+
+}
+
+void DestroyCalibrationSession(CalibrationSession* c){
+	DestroyFrame(&(c->fromCCD));
+	DestroyFrame(&(c->toDLP));
+
+	free(c);
 
 }
 
@@ -131,14 +171,31 @@ void SetupGUI(CalibrationSession* c){
 }
 
 void DrawCircleOnDLP(cvPoint center, CalibrationSession* c){
-	Frame* toDLP=CreateFrame(c->Camsize);
-	cvSetZero(toDLP->iplimg);
-	cvCircle(toDLP->iplimge, center, c->CircRadius+ 1,
+
+	cvSetZero(c->toDLP->iplimg);
+	cvCircle(c->toDLP->iplimge, center, c->CircRadius+ 1,
 			CV_RGB(255,255,255), CV_FILLED, 8);
-	copyIplImageToCharArray(toDLP->ilpimg,toDLP->binary);
-	T2DLP_SendFrame((unsigned char *) toDLP->binary, c->myDLP);
+	copyIplImageToCharArray(c->toDLP->ilpimg,toDLP->binary);
+	T2DLP_SendFrame((unsigned char *) c->toDLP->binary, c->myDLP);
+	cvShowImage("SentToDLP",c->toDLP->iplimg);
 }
 
+void AnalyzePointInFrame(CalibrationSession* c){
+	cvSmooth(c->fromCCD->iplimg, c->temp->iplimg, CV_GAUSSIAN, (c->gauss_radius) * 2
+			+ 1, (c->gauss_radius) * 2 + 1);
+
+
+	//Find the pixel with the maximal intensity
+	cvMinMaxLoc(c->temp->iplimg, &(c->minvalue), &(c->maxvalue), &(c->MinPoint), &(c->MaxPoint),
+			NULL);
+	cvAvgSdv(c->temp->iplimg, &(c->mean), &(c->stdev));
+
+	printf("x: %d, y: %d,\t value: %d \t mean: %f, stdev: %f\n",
+			c->MaxPoint.x, c->MaxPoint.y, (int) c->maxvalue, c->mean.val[0],
+					c->stdev.val[0]);
+	//Display the image
+
+}
 
 int main (int argc, char** argv){
 
@@ -167,239 +224,38 @@ int main (int argc, char** argv){
 
 
 	/** Draw A circle on the DLP so we can focus on the camera **/
-	DrawCircleOnDLP(cvPoint(c->Camsize.width/2,c->Camsize.height/2 ),c);
+	printf("Showing camera.\n Press any key to continue!\n");
+	while (!kbhit()){
+		/** Draw Circle on DLP **/
+		DrawCircleOnDLP(cvPoint(c->Camsize.width/2,c->Camsize.height/2 ),c);
 
+		/** Grab new frame from camera **/
+		AcquireFrame(c->fg);
+		LoadFrameWithBin(c->fg->HostBuf,c->fromCCD);
 
+		/** Analyze the image from the camera **/
+		AnalyzePointInFrame(c);
 
-
-	/**********************************
-	 *
-	 * EVERYTHING BELOW HERE IS JUNK
-	 */
-
-
-
-
-
-
-	/** Giant While Loop Where Everything Happens **/
-	TICTOC::timer().tic("WholeLoop");
-	int VideoRanOut=0;
-	while (1) {
-		_TICTOC_TIC_FUNC
-		TICTOC::timer().tic("OneLoop");
-		if (isFrameReady(exp)) {
-
-			/** Set error to zero **/
-			exp->e=0;
-			TICTOC::timer().tic("GrabFrame()");
-			/** Grab a frame **/
-			if (GrabFrame(exp)<0){
-				VideoRanOut=1;
-				printf("Video ran out!\n");
-				break;
-			}
-			TICTOC::timer().toc("GrabFrame()");
-
-
-			/** Calculate the frame rate and every second print the result **/
-			CalculateAndPrintFrameRate(exp);
-
-
-			/** Do we even bother doing analysis?**/
-			if (exp->Params->OnOff==0){
-				/**Don't perform any analysis**/
-				cvShowImage(exp->WinDisp, exp->fromCCD->iplimg);
-				cvWaitKey(10);
-				continue;
-			}
-
-			/** Handle Transient Illumination Timing **/
-			HandleIlluminationTiming(exp);
-
-			/** If the DLP is not displaying right now, than turn off the mirrors */
-			ClearDLPifNotDisplayingNow(exp);
-
-
-			/** Load Image into Our Worm Objects **/
-
-			if (!(exp->e)) exp->e=RefreshWormMemStorage(exp->Worm);
-			if (!(exp->e)) exp->e=LoadWormImg(exp->Worm,exp->fromCCD->iplimg);
-
-			TICTOC::timer().tic("EntireSegmentation");
-			/** Do Segmentation **/
-			DoSegmentation(exp);
-			TICTOC::timer().toc("EntireSegmentation");
-
-			TICTOC::timer().tic("TransformSegWormCam2DLP");
-			if (!(exp->e)){
-				TransformSegWormCam2DLP(exp->Worm->Segmented, exp->segWormDLP,exp->Calib);
-			}
-			TICTOC::timer().toc("TransformSegWormCam2DLP");
-
-			/*** Do Some Illumination ***/
-
-			if (!(exp->e)) {
-
-				if (exp->Params->IllumFloodEverything) {
-					SetFrame(exp->IlluminationFrame,128); // Turn all of the pixels on
-				} else {
-					if (!(exp->Params->ProtocolUse)) /** if not running the protocol **/{
-					/** Otherwise Actually illuminate the  region of the worm your interested in **/
-					/** Do the Illumination in Camera space for Display **/
-					SimpleIlluminateWormLR(exp->Worm->Segmented, exp->IlluminationFrame, exp->Params->IllumSegCenter, exp->Params->IllumSegRadius, exp->Params->IllumLRC);
-
-					/** Repeat but for the DLP space for sending to DLP **/
-					SimpleIlluminateWormLR(exp->segWormDLP, exp->forDLP, exp->Params->IllumSegCenter, exp->Params->IllumSegRadius, exp->Params->IllumLRC);
-					} else{
-
-
-						/** Illuminate The worm in Camera Space **/
-						TICTOC::timer().tic("IlluminateFromProtocol()");
-						IlluminateFromProtocol(exp->Worm->Segmented,exp->IlluminationFrame,exp->p,exp->Params);
-
-						/** Illuminate the worm in DLP space **/
-						IlluminateFromProtocol(exp->segWormDLP,exp->forDLP,exp->p,exp->Params);
-						TICTOC::timer().toc("IlluminateFromProtocol()");
-
-					}
-				}
-
-
-			}
-
-
-
-
-			if (!(exp->e) && exp->Params->DLPOn && !(exp->SimDLP)) T2DLP_SendFrame((unsigned char *) exp->forDLP->binary, exp->myDLP); // Send image to DLP
-
-			/*** DIsplay Some Monitoring Output ***/
-			if (!(exp->e)) CreateWormHUDS(exp->HUDS,exp->Worm,exp->Params,exp->IlluminationFrame);
-
-			if (!(exp->e) &&  EverySoOften(exp->Worm->frameNum,exp->Params->DispRate) ){
-				TICTOC::timer().tic("DisplayOnScreen");
-				DoDisplaySelectedDisplay(exp);
-				TICTOC::timer().toc("DisplayOnScreen");
-			}
-
-
-
-
-
-			if (!(exp->e)) {
-				TICTOC::timer().tic("DoWriteToDisk()");
-				DoWriteToDisk(exp);
-				TICTOC::timer().toc("DoWriteToDisk()");
-			}
-
-
-			if (exp->e) printf("\nError in main loop. :(\n");
-
-		}
-		if (kbhit()) break;
-			TICTOC::timer().toc("OneLoop");
+		/** Draw a square on the image and display it **/
+		SafeDrawSquare(&(c->fromCCD->iplimg) , &(c->MaxPoint), `7);
+		cvShowImage("FromCCD",c->fromCCD->iplimg);
+		cvWaitKey(30);
 
 	}
-	TICTOC::timer().toc("WholeLoop");
-	/** Flag to tell thread to stop  **/
-	MainThreadHasStopped=TRUE;
-
-	TICTOC::timer().tic("FinishRecording()");
-	FinishRecording(exp);
-	TICTOC::timer().toc("FinishRecording()");
-
-	if (!(exp->SimDLP)) 	T2DLP_off(exp->myDLP);
-
-	if (!(exp->VidFromFile) && !(exp->UseFrameGrabber)){
-		/***** Turn off Camera & DLP ****/
-		T2Cam_TurnOff(&(exp->MyCamera));
-		T2Cam_CloseLib();
-	}
-
-	if (!(exp->VidFromFile) && (exp->UseFrameGrabber)){
-		CloseFrameGrabber(exp->fg);
-	}
+	T2DLP_clear(c->myDLP);
 
 
-	ReleaseExperiment(exp);
-	DestroyExperiment(&exp);
+
+	/*** Start the actual calibration **/
 
 
-	printf("%s",TICTOC::timer().generateReportCstr());
 
-	printf("Waiting for DisplayThread to Stop...");
-	while (!DispThreadHasStopped){
-		printf(".");
-		Sleep(500);
-		cvWaitKey(10);
-	}
-	printf("\nMain Thread: Good bye.\n");
+
+
+
+
+	printf("\n Good bye.\n");
 	return 0;
 }
 
-
-/**
- * Thread to display image. 
- */
-UINT Thread(LPVOID lpdwParam) {
-	Experiment* exp= (Experiment*) lpdwParam;
-	printf("DisplayThread: Hello!\n");
-	MSG Msg;
-
-	SetupGUI(exp);
-	cvWaitKey(30);
-	SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
-
-	printf("Beginning ProtocolStep Display\n");
-	DispThreadHasStarted = TRUE;
-	cvWaitKey(30);
-
-	/** Protocol WormSpace Display **/
-	int prevProtocolStep;
-	IplImage* rectWorm;
-	if (exp->pflag){ /** If a protocol was loaded **/
-		rectWorm= GenerateRectangleWorm(exp->p->GridSize);
-		cvZero(rectWorm);
-		IllumRectWorm(rectWorm,exp->p,exp->Params->ProtocolStep);
-		prevProtocolStep=exp->Params->ProtocolStep;
-		cvShowImage("ProtoIllum",rectWorm);
-	}
-
-	printf("Starting DispThread loop\n");
-
-
-	while (!MainThreadHasStopped) {
-
-		//needed for display window
-			if (PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE))
-				DispatchMessage(&Msg);
-
-
-			TICTOC::timer().tic("DisplayThreadGuts");
-			TICTOC::timer().tic("cvShowImage");
-			cvShowImage("Display",exp->CurrentSelectedImg);
-			TICTOC::timer().toc("cvShowImage");
-
-
-			/** If we are using protocols and we havec chosen a new protocol step **/
-			if (exp->Params->ProtocolUse && (prevProtocolStep!= exp->Params->ProtocolStep))  {
-				cvZero(rectWorm);
-				IllumRectWorm(rectWorm,exp->p,exp->Params->ProtocolStep);
-				/** Update the Protocol **/
-				cvShowImage("ProtoIllum",rectWorm);
-
-			}
-
-			TICTOC::timer().toc("DisplayThreadGuts");
-			UpdateGUI(exp);
-			Sleep(100);
-	}
-
-	//if (exp->pflag) cvReleaseImage(&rectWorm);
-
-	//	printf("%s",TICTOC::timer().generateReportCstr());
-		printf("\nDisplayThread: Goodbye!\n");
-		DispThreadHasStopped=TRUE;
-	return 0;
-}
 
