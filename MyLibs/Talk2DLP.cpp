@@ -32,7 +32,7 @@ long T2DLP_on(){
 	//Allocate memory for the DMD
 	ret = AlpbDevAlloc( 0, &alpid );
 	if (0>ret) {// If that didn't work
-		printf("Error: AlpbDevAlloc\n"); //clean up.
+		printf("DLP Error: AlpbDevAlloc\n"); //clean up.
 		AlpbDevFree((ALPB_HDEVICE) alpid );	// close device driver
 		return (long) T2DLP_SAD; //throw an error.
 

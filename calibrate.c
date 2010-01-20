@@ -46,8 +46,8 @@ typedef struct {
 
 void CalibrationTest(int *CCD2DLPLookUp, CamData* MyCamera);
 
-int CalibrateAPoint(CvPoint PointOnDLP, CvSeq* CalibSeq, int numframes,
-		CircProp* MyCirc, CamData* MyCamera, long MyDLP);
+//int CalibrateAPoint(CvPoint PointOnDLP, CvSeq* CalibSeq, int numframes,
+//		CircProp* MyCirc, CamData* MyCamera, long MyDLP);
 
 /*
  * This function displays a circle on the DLP and images it with a camera for a number of frames specified by numframes.
