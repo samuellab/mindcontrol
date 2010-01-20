@@ -72,12 +72,15 @@ virtual_hardware =DontTalk2DLP.o DontTalk2Camera.o DontTalk2FrameGrabber.o
 ##
 ## For example, if you have installed: OpenCV, MATLAB, the FrameGrabber, Imaging Source, and the DLP,
 ## Then go head and and "make all"
-## If you only have installed the framegrabber, but not the DLP or matlab or anything else, then
+## If you only have installed the framegrabber & OpenCV, but not the DLP or matlab or anything else, then
 ## use "make framegrabberonly"
-## If you only have
+##
+## If you only: MATLAB, OpenCV, the DLP and FrameGrabber use "make FGandDLP"
 
 
-all : $(targetDir)/ClosedLoop.exe $(targetDir)/CalibrateApparatus.exe  $(targetDir)/VirtualMC.exe $(targetDir)/FGMindControl.exe version.o $(targetDir)/Test.exe
+all : $(targetDir)/ClosedLoop.exe $(targetDir)/CalibrateApparatus.exe FGandDLP  virtual
+
+FGandDLP : framegrabberonly $(targetDir)/FG_DLP.exe  version.o $(targetDir)/Test.exe
 
 framegrabberonly :  $(targetDir)/FGMindControl.exe version.o $(targetDir)/Test.exe
 
@@ -164,8 +167,16 @@ $(MyLibs)/WriteOutWorm.c :  $(MyLibs)/version.h
 
 
 
-## framegrabberonly FGMindControl.exe
+## framegrabb+DLP only FG_DLP.exe
+$(targetDir)/FG_DLP.exe : FG_DLP.o Talk2DLP.o DontTalk2Camera.o $(3rdPartyLibs)/alp4basic.lib $(hw_ind) 
+	$(CXX) -o $(targetDir)/FG_DLP.exe FGMindControl.o Talk2FrameGrabber.o $(BFObj)  Talk2DLP.o   DontTalk2Camera.o $(3rdPartyLibs)/alp4basic.lib $(hw_ind)  $(TailOpts) 
 
+FG_DLP.o : main.cpp $(myOpenCVlibraries) $(WormSpecificLibs) 
+	$(CXX) $(CXXFLAGS) main.cpp -oFG_DLP.o -I$(MyLibs) -I$(bfIncDir) $(openCVincludes) $(TailOpts)
+
+
+
+## framegrabberonly FGMindControl.exe
 $(targetDir)/FGMindControl.exe : FGMindControl.o DontTalk2DLP.o DontTalk2Camera.o $(hw_ind) 
 	$(CXX) -o $(targetDir)/FGMindControl.exe FGMindControl.o Talk2FrameGrabber.o $(BFObj)    DontTalk2DLP.o DontTalk2Camera.o $(hw_ind)  $(TailOpts) 
 
@@ -174,7 +185,7 @@ FGMindControl.o : main.cpp $(myOpenCVlibraries) $(WormSpecificLibs)
 
 		
 ###### VirtualMC.exe
-#andy.. take out the BitFlow SDK dependence
+# This is the software suite that does not depend on any hardware. It is hardware independent.
 #Write a DontTalk2FrameGrabber.h
 $(targetDir)/VirtualMC.exe : VirtualMC.o $(virtual_hardware) $(hw_ind) 
 	$(CXX) -o $(targetDir)/VirtualMC.exe VirtualMC.o $(virtual_hardware) $(hw_ind)  $(TailOpts) 

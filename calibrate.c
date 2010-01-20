@@ -35,7 +35,7 @@ using namespace std;
 #include "MyLibs/Talk2Camera.h"
 #include "MyLibs/Talk2DLP.h"
 #include "MyLibs/Talk2Matlab.h"
-#include "MyLibs/Talk2FrameGrabber.h"
+
 
 typedef struct {
 	int inputradius;
@@ -48,7 +48,6 @@ void CalibrationTest(int *CCD2DLPLookUp, CamData* MyCamera);
 
 int CalibrateAPoint(CvPoint PointOnDLP, CvSeq* CalibSeq, int numframes,
 		CircProp* MyCirc, CamData* MyCamera, long MyDLP);
-
 
 /*
  * This function displays a circle on the DLP and images it with a camera for a number of frames specified by numframes.
@@ -194,9 +193,6 @@ int CalibrateAPoint(CvPoint PointOnDLP, CvSeq* CalibSeq, int numframes,
 	return 0;
 
 }
-
-
-
 
 void CalibrationTest(int *CCD2DLPLookUp, CamData* MyCamera) {
 	/*========== Set Up Camera ============*/
