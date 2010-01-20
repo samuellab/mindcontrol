@@ -73,7 +73,7 @@ int T2DLP_SendFrame(unsigned char * image, long alpid){
 	long ret;
 	ret= AlpbDevLoadRows( alpid, image, 0, NSIZEY-1 );
 	if (0>ret){
-		printf("Error displaying image.\n");
+		printf("DLP: Error sending image to DLP.\n");
 	}
 	//printf("About to reset mirrors.\n");
 	// Reset DMD mirrors

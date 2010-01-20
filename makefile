@@ -80,7 +80,7 @@ virtual_hardware =DontTalk2DLP.o DontTalk2Camera.o DontTalk2FrameGrabber.o
 
 all : $(targetDir)/ClosedLoop.exe $(targetDir)/CalibrateApparatus.exe FGandDLP  virtual
 
-FGandDLP : framegrabberonly $(targetDir)/FG_DLP.exe  version.o $(targetDir)/Test.exe
+FGandDLP : framegrabberonly $(targetDir)/FG_DLP.exe  $(targetDir)/calibrateFG_DLP.exe version.o $(targetDir)/Test.exe
 
 framegrabberonly :  $(targetDir)/FGMindControl.exe version.o $(targetDir)/Test.exe
 
@@ -167,13 +167,21 @@ $(MyLibs)/WriteOutWorm.c :  $(MyLibs)/version.h
 
 
 
-## framegrabb+DLP only FG_DLP.exe
-$(targetDir)/FG_DLP.exe : FG_DLP.o Talk2DLP.o DontTalk2Camera.o $(3rdPartyLibs)/alp4basic.lib $(hw_ind) 
+########## framegrabb+DLP only 
+
+#FG_DLP.exe
+$(targetDir)/FG_DLP.exe : FG_DLP.o FGMindControl.o Talk2FrameGrabber.o $(BFObj)  Talk2DLP.o   DontTalk2Camera.o $(3rdPartyLibs)/alp4basic.lib $(hw_ind)  
 	$(CXX) -o $(targetDir)/FG_DLP.exe FGMindControl.o Talk2FrameGrabber.o $(BFObj)  Talk2DLP.o   DontTalk2Camera.o $(3rdPartyLibs)/alp4basic.lib $(hw_ind)  $(TailOpts) 
 
-FG_DLP.o : main.cpp $(myOpenCVlibraries) $(WormSpecificLibs) 
+FG_DLP.o : main.cpp  
 	$(CXX) $(CXXFLAGS) main.cpp -oFG_DLP.o -I$(MyLibs) -I$(bfIncDir) $(openCVincludes) $(TailOpts)
 
+#Calibrate FG and DLP
+$(targetDir)/calibrateFG_DLP.exe : calibrateFG_DLP.o Talk2FrameGrabber.o $(BFObj)  Talk2DLP.o   DontTalk2Camera.o $(3rdPartyLibs)/alp4basic.lib  Talk2Matlab.o $(MatlabLibs) $(hw_ind)
+	$(CXX) -o $(targetDir)/calibrateFG_DLP.exe  calibrateFG_DLP.o Talk2FrameGrabber.o $(BFObj)  Talk2DLP.o   DontTalk2Camera.o $(3rdPartyLibs)/alp4basic.lib  Talk2Matlab.o  $(MatlabLibs) $(hw_ind)
+
+calibrateFG_DLP.o : calibrateFG.cpp 
+	$(CXX) $(CXXFLAGS) calibrateFG.cpp -ocalibrateFG_DLP.o -I$(MyLibs) -I$(bfIncDir) -I$(MatlabIncDir) $(openCVincludes) $(TailOpts)
 
 
 ## framegrabberonly FGMindControl.exe

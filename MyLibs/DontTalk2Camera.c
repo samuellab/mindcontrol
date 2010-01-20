@@ -108,7 +108,3 @@ void T2Cam_TurnOff(CamData** CameraDataStruct){
 	assert(0);
 }
 
-void T2Matlab_ArrayTest(){
-	T2Cam_errormsg();
-	assert(0);
-}
