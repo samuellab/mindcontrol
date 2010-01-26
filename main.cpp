@@ -182,6 +182,8 @@ int main (int argc, char** argv){
 
 				if (exp->Params->IllumFloodEverything) {
 					SetFrame(exp->IlluminationFrame,128); // Turn all of the pixels on
+					SetFrame(exp->forDLP,128); // Turn all of the pixels o
+
 				} else {
 					if (!(exp->Params->ProtocolUse)) /** if not running the protocol **/{
 					/** Otherwise Actually illuminate the  region of the worm your interested in **/
