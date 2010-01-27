@@ -1,0 +1,430 @@
+/*
+ * ~/workspace/OpticalMindControl/main.cpp
+ * main.cpp
+ *
+ *  Created on: Jul 20, 2009
+ *      Author: Andy
+ */
+
+//Standard C headers
+#include <unistd.h>
+#include <stdio.h>
+#include <ctime>
+#include <time.h>
+#include <conio.h>
+#include <math.h>
+
+
+//Windows Header
+
+//C++ header
+#include <iostream>
+#include <limits>
+
+using namespace std;
+
+
+//OpenCV Headers
+#include <highgui.h>
+#include <cv.h>
+#include <cxcore.h>
+#include <assert.h>
+
+//Andy's Personal Headers
+#include "MyLibs/AndysOpenCVLib.h"
+#include "MyLibs/Talk2FrameGrabber.h"
+#include "MyLibs/Talk2DLP.h"
+#include "MyLibs/Talk2Matlab.h"
+#include "MyLibs/AndysComputations.h"
+
+
+
+typedef struct CalibrationSessionStruct {
+	/** Calibration Transfomration **/
+	int *CCD2DLPLookUp;
+
+	/** Input Output **/
+	long myDLP;
+	FrameGrabber* fg;
+
+	/** Frames **/
+	Frame* fromCCD;
+	Frame* toDLP;
+	Frame* temp;
+
+	/** Internal Variables **/
+	CvPoint MinPoint;
+	CvPoint MaxPoint;
+	double minvalue;
+	double maxvalue;
+	CvScalar mean;
+	CvScalar stdev;
+
+	/** Circle Drawing properties**/
+	int CircRadius;
+	int gauss_radius;
+	int rel_intensity_thresh;
+	/** Size of Objects **/
+	CvSize DLPsize;
+	CvSize Camsize;
+
+
+	/** Calibrated Points CvSeq Stuff **/
+	CvMemStorage* calibstorage;
+	CvSeq* CalibSeq;
+
+	/** Parameters **/
+	int StepSize;
+	int LoopsPerPt;
+
+}CalibrationSession;
+
+
+
+/*
+ * Create the calibration session structure
+ *
+ */
+CalibrationSession* CreateCalibrationSession(){
+	CalibrationSession* c = (CalibrationSession* ) malloc(sizeof(CalibrationSession) );
+
+	/** Set Everything to Zero **/
+
+	/** Input/Output **/
+	c->myDLP=0;
+	c->fg=NULL;
+
+
+	/*** Frames **/
+	c->fromCCD=NULL;
+	c->toDLP=NULL;
+
+	/** Internal Variables **/
+	c->MinPoint=cvPoint(0,0);
+	c->MaxPoint=cvPoint(0,0);
+	c->minvalue=0;
+	c->maxvalue=0;
+
+	/** Circle properties **/
+	c->CircRadius=4;
+	c->gauss_radius=10;
+	c->rel_intensity_thresh=4;
+
+	/** Sizing Info **/
+	c->DLPsize=cvSize(0,0);
+	c->Camsize=cvSize(0,0);
+
+	/** Lookup Table **/
+	c->CCD2DLPLookUp=NULL;
+
+	/** Calibrated Points CvSeq Stuff **/
+	c->calibstorage=NULL;
+	c->CalibSeq=NULL;
+
+	/** Parameters **/
+	c->StepSize=0;
+	c->LoopsPerPt=0;
+
+	return c;
+
+
+}
+
+
+
+
+/*
+ * Allocate memory for the members of the calibration session structure
+ */
+void InitializeCalibrationSession(CalibrationSession* c){
+
+	if (!(c->Camsize.width==c->DLPsize.width && c->Camsize.height==c->DLPsize.height) || c->Camsize.width==0 || c->DLPsize.width==0 || c->Camsize.height==0 || c->DLPsize.height==0){
+		printf("The dimensions of the Camera or the DLP are invalid in IntializeCalibtraionSession()\n");
+		assert(0);
+	}
+
+	/** Calibration Lookup Table **/
+	c->	CCD2DLPLookUp = (int *) malloc(2 * c->Camsize.width * c->Camsize.height * sizeof(int));
+
+	/** Frames **/
+	c->fromCCD=CreateFrame(c->Camsize);
+	c->toDLP=CreateFrame(c->DLPsize);
+	c->temp=CreateFrame(c->Camsize);
+
+	/** Calibration Data Sequences **/
+
+	c->calibstorage = cvCreateMemStorage(0);
+	c->CalibSeq = cvCreateSeq(0, sizeof(CvSeq), sizeof(PairOfPoints), c->calibstorage);
+
+	return;
+}
+
+void DestroyCalibrationSession(CalibrationSession* c){
+	DestroyFrame(&(c->fromCCD));
+	DestroyFrame(&(c->toDLP));
+
+	free(c);
+	return;
+
+}
+
+/*
+ * Set size of camera and DLP
+ */
+void SetHardwareDimensions(CalibrationSession* c, CvSize DLPsize, CvSize Camsize){
+	c->Camsize=Camsize;
+	c->DLPsize=DLPsize;
+	printf("For now the camera and the DLP must have the same dimensions.");
+	assert(Camsize.width==DLPsize.width && Camsize.height==DLPsize.height);
+	return;
+}
+
+
+
+FrameGrabber* TurnOnFrameGrabber(){
+	FrameGrabber* fg= CreateFrameGrabberObject();
+	InitializeFrameGrabber(fg);
+	FrameGrabberSetRegionOfInterest(fg,0,0,1024,768);
+	PrepareFrameGrabberForAcquire(fg);
+	return fg;
+}
+
+
+void SetupGUI(CalibrationSession* c){
+	cvNamedWindow("FromCamera", CV_WINDOW_AUTOSIZE);
+	cvNamedWindow("ToDLP", CV_WINDOW_AUTOSIZE);
+	cvCreateTrackbar("InputRad", "FromCamera", &(c->CircRadius), 10, NULL);
+	cvCreateTrackbar("GaussRad", "FromCamera", &(c->gauss_radius), 30,			NULL);
+	cvCreateTrackbar("RelIntThresh", "FromCamera",
+				&(c->rel_intensity_thresh), 10, NULL);
+	return;
+
+}
+
+void DrawCircleOnDLP(CvPoint center, CalibrationSession* c){
+
+	cvSetZero(c->toDLP->iplimg);
+	cvCircle(c->toDLP->iplimg, center, c->CircRadius+ 1,
+			CV_RGB(255,255,255), CV_FILLED, 8);
+	copyIplImageToCharArray(c->toDLP->iplimg,c->toDLP->binary);
+	T2DLP_SendFrame((unsigned char *) c->toDLP->binary, c->myDLP);
+	cvShowImage("SentToDLP",c->toDLP->iplimg);
+	return;
+}
+
+void AnalyzePointInFrame(CalibrationSession* c){
+	if (c->fromCCD==NULL || c->temp == NULL) printf("ERROR! c->fromCCD or c->temp are NULL!\n");
+	cvSmooth(c->fromCCD->iplimg, c->temp->iplimg, CV_GAUSSIAN, (c->gauss_radius) * 2
+			+ 1, (c->gauss_radius) * 2 + 1);
+
+	//Find the pixel with the maximal intensity
+	cvMinMaxLoc(c->temp->iplimg, &(c->minvalue), &(c->maxvalue), &(c->MinPoint), &(c->MaxPoint),
+			NULL);
+	cvAvgSdv(c->temp->iplimg, &(c->mean), &(c->stdev));
+
+	printf("x: %d, y: %d,\t value: %d \t mean: %f, stdev: %f\n",
+			c->MaxPoint.x, c->MaxPoint.y, (int) c->maxvalue, c->mean.val[0],
+					c->stdev.val[0]);
+	//Display the image
+
+}
+
+void CheckFGSizeMatch(IplImage* img, FrameGrabber* fg){
+	if ((int) fg->xsize != img->width   ||  (int) fg->ysize != img->height){
+		printf("Error in RollVideoInput!\n");
+		printf("Size from framegrabber does not match size in IplImage fromCCD!\n");
+		printf(" fg->xsize=%d\n",(int) fg->xsize);
+		printf(" img->width=%d\n",img->width);
+		printf(" fg->ysize=%d\n",(int)  fg->ysize);
+		printf(" img->height=%d\n",img->height);
+	}
+
+
+	return;
+}
+
+/*
+ * Draws a circle and sends it to the DLP. Acquires a frame from the camera
+ * and then conducts an analysis of the frame from the camera.
+ */
+void SendPt2DLPAndObserve(CvPoint pt, CalibrationSession* c ){
+	/** Draw Circle on DLP **/
+	DrawCircleOnDLP(pt,c);
+
+
+	/** Grab new frame from camera **/
+	AcquireFrame(c->fg);
+
+	/** Check that our image is properly sized **/
+	CheckFGSizeMatch(c->fromCCD->iplimg,c->fg);
+
+	LoadFrameWithBin(c->fg->HostBuf,c->fromCCD);
+
+	/** Analyze the image from the camera **/
+	AnalyzePointInFrame(c);
+	return;
+
+}
+
+void CalibrateAPoint(CvPoint pt, CalibrationSession* c){
+	int k;
+
+
+	/** Create sequence to store the max point for each frame **/
+	CvSeq* Pts= cvCreateSeq(CV_SEQ_ELTYPE_POINT, sizeof(CvSeq), sizeof(CvPoint), c->calibstorage);
+	cvClearSeq(Pts);
+
+
+	/** For each frame find the location of the brightest pixel **/
+	for (k = 0; k <	c->LoopsPerPt; ++k) {
+
+		/** Make pt on DLP, observe on Camera**/
+		SendPt2DLPAndObserve(pt,c);
+
+		/** Draw a square on the image and display it **/
+		SafeDrawSquare(&(c->fromCCD->iplimg) , &(c->MaxPoint), 7);
+
+		cvShowImage("ToDLP",c->toDLP->iplimg);
+		cvShowImage("FromCamera",c->fromCCD->iplimg);
+		cvWaitKey(3);
+
+		/** Is the Point Valid? **/
+		if (c->maxvalue > ((c->rel_intensity_thresh) * c->stdev.val[0])
+					+ c->mean.val[0]) {
+				cvSeqPush(Pts, &(c->MaxPoint));
+			} else {
+				printf("Tossing frame. Spot fails relative intensity threshold.\n");
+		}
+	}
+
+
+	/** Find the median point **/
+	PairOfPoints pair;
+	pair.alpha=pt;
+	pair.beta= GetMedianOfPoints(Pts);
+
+	//If the median is not -1, -1, AND if the number of valid points is greater than half of the expected number of points
+	if ((pair.beta.x != -1 && pair.beta.y != -1) && Pts->total > c->LoopsPerPt / 2) {
+		cvSeqPush(c->CalibSeq, &pair);
+		printf("Median Found ( %d, %d )\n", pair.beta.x, pair.beta.y);
+	} else {
+		printf("Tossing out the calibration for this point.\n");
+	}
+
+	cvClearSeq(Pts);
+
+}
+
+void WriteCalibrationToFile(int* CCD2DLPLookup, CvSize size, const char * filename ){
+
+	/** Open File **/
+	FILE *fp;
+	if ((fp = fopen(filename, "wb+")) == NULL) {
+		printf("ERROR: Cannot open file to write calibration\n");
+		return;
+	}
+
+	/** Write lookup table to disk **/
+	int result=fwrite(CCD2DLPLookup, sizeof(int)* 2 * size.width* size.height,1, fp);
+
+	if ( result != 1) {
+		printf("Write error!\n");
+	} else{
+		printf("Write was successful.\n");
+	}
+
+	fclose(fp);
+
+	return;
+}
+
+int main (int argc, char** argv){
+
+
+	/** Display output about the OpenCV setup currently installed **/
+	DisplayOpenCVInstall();
+
+	/** Create session object **/
+	CalibrationSession* c = CreateCalibrationSession();
+
+	/** Set the size of the objects **/
+	SetHardwareDimensions(c,cvSize(NSIZEX,NSIZEY),cvSize(NSIZEX,NSIZEY));
+
+	/** Allocate memory for the variables we will be using this session **/
+	InitializeCalibrationSession(c);
+
+
+	/** Set Parameters **/
+	c->StepSize=100; //pixels
+	c->LoopsPerPt=20; // Number of frames we use to calibrate a given point
+
+	/** Start Camera or Vid Input **/
+	c->fg= TurnOnFrameGrabber();
+
+	/** Prepare DLP ***/
+	c->myDLP= T2DLP_on();
+
+	/** Setup GUI **/
+	SetupGUI(c);
+
+
+
+	/** Draw A circle on the DLP so we can focus on the camera **/
+	printf("Showing camera.\n Press any key to continue!\n");
+	while (!kbhit()){
+
+		/** Make pt on DLP, observe on Camera**/
+		SendPt2DLPAndObserve(cvPoint(c->Camsize.width/2,c->Camsize.height/2 ),c);
+
+		/** Draw a square on the image and display it **/
+		SafeDrawSquare(&(c->fromCCD->iplimg) , &(c->MaxPoint), 7);
+		cvShowImage("ToDLP",c->toDLP->iplimg);
+		cvWaitKey(2);
+		cvShowImage("FromCamera",c->fromCCD->iplimg);
+		cvWaitKey(2);
+
+	}
+	T2DLP_clear(c->myDLP);
+
+
+
+	/*** Build Up a set of calibrated points ***/
+	int calx = 0;
+	int caly = 0;
+
+
+	printf(" Beginning calibration..\n");
+
+	while (caly < c->DLPsize.height ) {
+		calx = 0;
+
+		while (calx < c->DLPsize.width) {
+
+			CalibrateAPoint(cvPoint(calx,caly),c);
+
+			calx = calx + c->StepSize;
+		}
+		caly = caly + c->StepSize;
+	}
+
+	/** Generate Look Up Table in Matlab **/
+	cvDestroyAllWindows();
+
+	printf("Talking to MATLAB....\n");
+	T2Matlab_GenLookUpTable(c->CalibSeq, c->CCD2DLPLookUp, c->DLPsize.width, c->DLPsize.height, c->Camsize.width, c->Camsize.height);
+
+	/** Write calibration to file **/
+	WriteCalibrationToFile(c->CCD2DLPLookUp,c->Camsize,"calib.dat");
+
+	/** Turn everything Off **/
+	T2DLP_off(c->myDLP);
+	CloseFrameGrabber(c->fg);
+
+	DestroyCalibrationSession(c);
+
+
+	printf("\n Good bye.\n");
+	return 0;
+}
+
+
