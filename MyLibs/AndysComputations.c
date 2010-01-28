@@ -99,5 +99,34 @@ int GetMilliSeconds(clock_t time){
 	return (int) ms;
 }
 
+/*
+ * Toggles an integer from zero to 1.
+ * If x is nonzero, sets x to zero.
+ * If x is zero, sets x to one.
+ */
+void Toggle(int* x){
+	if (*x==0) {
+		*x=1;
+	} else {
+		*x=0;
+	}
+	return;
+}
+
+/*
+ * Safely decrement an integer value, as long as the result will not be less than min
+ */
+void Decrement(int* x, int min){
+	if ((*x) >min) (*x)--;
+	return;
+}
+
+/*
+ * Safely increment an integer value as long as the result will not be grater than max
+ */
+void Increment (int* x, int max){
+	if ((*x) < max) (*x)++;
+	return;
+}
 
 

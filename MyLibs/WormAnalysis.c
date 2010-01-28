@@ -255,6 +255,7 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 
 	ParamPtr->ProtocolUse=0;
 	ParamPtr->ProtocolStep=0;
+	ParamPtr->ProtocolTotalSteps=0;
 
 
 	/**Record Parameters **/

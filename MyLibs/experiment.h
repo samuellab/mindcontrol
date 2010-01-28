@@ -336,7 +336,7 @@ int DoOnTheFlyIllumination(Experiment* exp);
  * Returns 1 when the user is trying to exit
  *
  */
-int HandleKeyStroke(int c);
+int HandleKeyStroke(int c, Experiment* exp);
 
 /*
  * Write video and data to Disk

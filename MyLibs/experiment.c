@@ -457,16 +457,43 @@ void SetupGUI(Experiment* exp) {
  *
  */
 void UpdateGUI(Experiment* exp) {
-	if (exp->pflag) {
+
 		cvSetTrackbarPos("DLPFlashOn", exp->WinCon2, (exp->Params->DLPOnFlash));
 		cvSetTrackbarPos("DLPOn", exp->WinCon1, (exp->Params->DLPOn));
 
+		/** Illumination Controls **/
 		cvSetTrackbarPos("x", exp->WinCon1, (exp->Params->IllumSquareOrig.x));
 		cvSetTrackbarPos("y", exp->WinCon1, (exp->Params->IllumSquareOrig.y));
 		cvSetTrackbarPos("xRad", exp->WinCon1, (exp->Params->IllumSquareRad.width));
 		cvSetTrackbarPos("yRad", exp->WinCon1, (exp->Params->IllumSquareRad.height));
 
-	}
+		/** Threshold **/
+		cvSetTrackbarPos("Threshold", exp->WinCon1, (exp->Params->BinThresh));
+
+		/** Protocol Stuff **/
+		/** If we have loaded a protocol, update protocol specific sliders **/
+		if (exp->pflag) {
+			cvSetTrackbarPos("Protocol", exp->WinCon2, exp->Params->ProtocolUse);
+			cvSetTrackbarPos("ProtoStep", exp->WinCon2,
+					(exp->Params->ProtocolStep));
+			cvSetTrackbarPos("IllumDuration", exp->WinCon2,
+					(exp->Params->IllumDuration));
+			cvSetTrackbarPos("DLPFlashOn", exp->WinCon2,
+					(exp->Params->DLPOnFlash));
+		}
+
+		/** Floodlight **/
+		cvSetTrackbarPos("FloodLight", exp->WinCon2,exp->Params->IllumFloodEverything);
+
+
+		/** Record **/
+		cvSetTrackbarPos("RecordOn", exp->WinCon1, (exp->Params->Record));
+
+		/** Record **/
+		cvSetTrackbarPos("On", exp->WinCon1, (exp->Params->OnOff));
+
+
+
 	return;
 
 }
@@ -738,7 +765,7 @@ int isFrameReady(Experiment* exp) {
 
 		/** Unless we're reading from video, in which case we should fake like we're waiting for something **/
 		if (exp->VidFromFile)
-			cvWaitKey(1);
+			cvWaitKey(100);
 		return 1;
 	}
 }
@@ -960,23 +987,84 @@ void PrepareSelectedDisplay(Experiment* exp) {
  * Returns 1 when the user is trying to exit
  *
  */
-int HandleKeyStroke(int c) {
+int HandleKeyStroke(int c, Experiment* exp) {
 	switch (c) {
 	case 27:
 		printf("User has pressed escape!\n");
 		return 1;
 		break;
-	case ' ':
-		printf("Space bar!\n");
+	case ' ': /** Turn on off dlp **/
+		Toggle(&(exp->Params->DLPOn));
 		break;
-	case 'r':
-		printf("r pressed!\n");
+	case 'r': /** record **/
+		Toggle(&(exp->Params->Record));
 		break;
+	case 'f': /** turn on off flood light **/
+		Toggle(&(exp->Params->IllumFloodEverything));
+		break;
+
+	/** on off **/
+	case 'o':
+		Toggle(&(exp->Params->OnOff));
+		break;
+	/** On-The Fly Illumination Origin **/
+	case 'j':
+		Decrement(&(exp->Params->IllumSquareOrig.x),0);
+		break;
+	case 'l':
+		Increment(&(exp->Params->IllumSquareOrig.x),exp->Params->DefaultGridSize.width-1);
+		break;
+	case 'k':
+		Decrement(&(exp->Params->IllumSquareOrig.y),0);
+		break;
+	case 'i':
+		Increment(&(exp->Params->IllumSquareOrig.y),exp->Params->DefaultGridSize.height-1);
+		break;
+
+	/** On-The Fly Illumination Radius **/
+	case 'a':
+		Decrement(&(exp->Params->IllumSquareRad.width),0);
+		break;
+	case 'd':
+		Increment(&(exp->Params->IllumSquareRad.width),exp->Params->DefaultGridSize.width-1);
+		break;
+	case 's':
+		Decrement(&(exp->Params->IllumSquareRad.height),0);
+		break;
+	case 'w':
+		Increment(&(exp->Params->IllumSquareRad.height),exp->Params->DefaultGridSize.height-1);
+		break;
+
+	/** Protocol **/
+	case 'p':
+		if (exp->pflag) Toggle(&(exp->Params->ProtocolUse));
+		break;
+	case '.':
+		if (exp->pflag) Increment(&(exp->Params->ProtocolStep),CropNumber(0,exp->Params->ProtocolTotalSteps,exp->Params->ProtocolTotalSteps-1));
+		break;
+	case ',':
+		if (exp->pflag) Decrement(&(exp->Params->ProtocolStep),0);
+		break;
+
+	/** Threshold **/
+	case ']':
+		Increment(&(exp->Params->BinThresh),100);
+		break;
+	case '[':
+		Decrement(&(exp->Params->BinThresh),0);
+		break;
+
+	/** Timed DLP on **/
+	case '/':
+		Toggle(&(exp->Params->DLPOnFlash));
+		break;
+
+
 	default:
 		return 0;
 		break;
 	}
-
+	return 0;
 }
 
 /*
@@ -1053,6 +1141,7 @@ void LoadProtocol(Experiment* exp) {
 	exp->p = LoadProtocolFromFile(exp->protocolfname);
 	/** Set the protocol to be enabled by default. **/
 	exp->Params->ProtocolUse = 1;
+	exp->Params->ProtocolTotalSteps=exp->p->Steps->total;
 }
 
 /*

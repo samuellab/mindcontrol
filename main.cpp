@@ -151,9 +151,7 @@ int main (int argc, char** argv){
 
 			/** Do we even bother doing analysis?**/
 			if (exp->Params->OnOff==0){
-				/**Don't perform any analysis**/
-				cvShowImage(exp->WinDisp, exp->fromCCD->iplimg);
-				cvWaitKey(10);
+				/**Don't perform any analysis**/;
 				continue;
 			}
 
@@ -331,7 +329,11 @@ UINT Thread(LPVOID lpdwParam) {
 
 			TICTOC::timer().tic("DisplayThreadGuts");
 			TICTOC::timer().tic("cvShowImage");
-			cvShowImage("Display",exp->CurrentSelectedImg);
+			if (exp->Params->OnOff){
+				cvShowImage("Display",exp->CurrentSelectedImg);
+			}else{
+				cvShowImage(exp->WinDisp, exp->fromCCD->iplimg);
+			}
 			TICTOC::timer().toc("cvShowImage");
 
 
@@ -347,7 +349,7 @@ UINT Thread(LPVOID lpdwParam) {
 			TICTOC::timer().toc("DisplayThreadGuts");
 			UpdateGUI(exp);
 			key=cvWaitKey(100);
-			if (HandleKeyStroke(key)) {
+			if (HandleKeyStroke(key,exp)) {
 				printf("\n\nEscape key pressed!\n\n");
 				UserWantsToStop=1;
 

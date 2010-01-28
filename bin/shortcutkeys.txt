@@ -1,0 +1,26 @@
+shortcutkeys.txt
+
+ Created on: Jan 28, 2010
+     Author: andy
+
+- o: on/off
+- r: toggle recording
+- f: toggle floodlight
+- spacebar: toggle DLP
+
+- j: decrement origin in x
+- l: increment origin in x
+- k: decerment origin in y
+- i: increment origin in y
+- a: decrement radius in x
+- d: increment radius in x
+- w: increment radius in y
+- s: decrement radius in y
+
+- p: toggle protocol
+
+- ,: decrement protocol step
+- .: increment protocol step
+
+- [: decrement threshold
+- ]: increment threshold

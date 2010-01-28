@@ -64,6 +64,7 @@ typedef struct WormAnalysisParamStruct{
 
 	int ProtocolUse;
 	int ProtocolStep;
+	int ProtocolTotalSteps;
 
 	/** Record Data Parameters **/
 	int Record;

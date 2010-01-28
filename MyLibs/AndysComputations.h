@@ -70,8 +70,23 @@ int GetMilliSeconds(clock_t time);
 
 
 
+/*
+ * Toggles an integer from zero to 1.
+ * If x is nonzero, sets x to zero.
+ * If x is zero, sets x to one.
+ */
+void Toggle(int* x);
 
 
+/*
+ * Safely decrement an integer value, as long as the result will not be less than min
+ */
+void Decrement(int* x, int min);
+
+/*
+ * Safely increment an integer value as long as the result will not be grater than max
+ */
+void Increment (int* x, int max);
 
 
 #endif /* ANDYSCOMPUTATIONS_H_ */
