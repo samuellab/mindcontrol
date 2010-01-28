@@ -698,7 +698,7 @@ int GrabFrame(Experiment* exp){
 		tempImg=cvQueryFrame(exp->capture);
 
 		/** Stall for a little bit **/
-		Sleep(250);
+		Sleep(50);
 
 
 		if (tempImg==NULL){
@@ -996,6 +996,7 @@ void DoWriteToDisk(Experiment* exp){
  *
  */
 int DoOnTheFlyIllumination(Experiment* exp){
+
 
 	CvSeq* montage=CreateIlluminationMontage(exp->Worm->MemScratchStorage);
 

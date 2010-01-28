@@ -228,6 +228,7 @@ int main (int argc, char** argv){
 
 			if (!(exp->e) &&  EverySoOften(exp->Worm->frameNum,exp->Params->DispRate) ){
 				TICTOC::timer().tic("DisplayOnScreen");
+				/** Setup Display but don't actually send to screen **/
 				DoDisplaySelectedDisplay(exp);
 				TICTOC::timer().toc("DisplayOnScreen");
 			}
@@ -298,7 +299,7 @@ UINT Thread(LPVOID lpdwParam) {
 
 	SetupGUI(exp);
 	cvWaitKey(30);
-	SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
+//	SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
 
 	printf("Beginning ProtocolStep Display\n");
 	DispThreadHasStarted = TRUE;
@@ -343,6 +344,7 @@ UINT Thread(LPVOID lpdwParam) {
 			TICTOC::timer().toc("DisplayThreadGuts");
 			UpdateGUI(exp);
 			Sleep(100);
+
 	}
 
 	//if (exp->pflag) cvReleaseImage(&rectWorm);
