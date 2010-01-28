@@ -224,6 +224,9 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 	ParamPtr->LengthOffset=ParamPtr->LengthScale/2;
 	ParamPtr->NumSegments=100;
 
+	/** Default WormSpace GridSize **/
+	ParamPtr->DefaultGridSize=cvSize(20,ParamPtr->NumSegments);
+
 	/** Frame-to-Frame Temporal Analysis Parameters **/
 	ParamPtr->TemporalOn=0;
 	ParamPtr->MaxLocationChange=70;
@@ -238,8 +241,8 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 	ParamPtr->SegStop=40;
 	ParamPtr->DLPOn=0;
 
-	ParamPtr->IllumSquareOrig=cvPoint(50,50);
-	ParamPtr->IllumSquareRad=cvSize(20,10);
+	ParamPtr->IllumSquareOrig=cvPoint(ParamPtr->DefaultGridSize.width/2,ParamPtr->DefaultGridSize.height/2);
+	ParamPtr->IllumSquareRad=cvSize(ParamPtr->DefaultGridSize.width/4,ParamPtr->DefaultGridSize.height/4);
 	ParamPtr->IllumDuration=1;
 	ParamPtr->DLPOnFlash=0;
 
@@ -280,7 +283,7 @@ void DestroyWormAnalysisParam(WormAnalysisParam* ParamPtr){
  */
 SegmentedWorm* CreateSegmentedWormStruct(){
 /** Create a new instance of SegWorm **/
-SegmentedWorm* SegWorm;
+	SegmentedWorm* SegWorm;
 SegWorm= (SegmentedWorm*) malloc(sizeof(SegmentedWorm));
 
 SegWorm->Head=(CvPoint*) malloc (sizeof(CvPoint));
@@ -1182,8 +1185,8 @@ int PrevFrameImproveWormHeadTail(WormAnalysisData* Worm,
  * Converts the slider bar used to specify an origin into a coordinate on wormspace.
  *
  */
-CvPoint ConvertSlidlerToWormSpace(CvPoint SliderOrigin,int numsegments){
-	return cvPoint( SliderOrigin.x- ( numsegments / 2 ) , SliderOrigin.y  );
+CvPoint ConvertSlidlerToWormSpace(CvPoint SliderOrigin,CvSize gridSize){
+	return cvPoint( SliderOrigin.x- ( gridSize.width / 2 ) , SliderOrigin.y  );
 }
 
 

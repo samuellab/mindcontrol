@@ -54,6 +54,10 @@ void BeginToWriteOutFrames(WriteOut* DataWriter);
  */
 void WriteOutCommandLineArguments(WriteOut* DataWriter,int argc, char** argv);
 
+/*
+ *  Write out to YAML the default grid size for non-protocol based illumination
+ */
+void WriteOutDefaultGridSize(WriteOut* DataWriter, WormAnalysisParam* Param);
 
 /*
  * Writes Out information of one frame of the worm to a disk

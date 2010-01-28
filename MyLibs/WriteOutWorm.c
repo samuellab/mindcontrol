@@ -95,6 +95,8 @@ WriteOut* SetUpWriteToDisk(const char* filename, CvMemStorage* Mem){
 
 	cvWriteString(DataWriter->fs, "ExperimentTime",asctime(local),0);
 
+
+
 	return DataWriter;
 }
 
@@ -119,6 +121,20 @@ void WriteOutCommandLineArguments(WriteOut* DataWriter,int argc, char** argv){
     cvWriteString(DataWriter->fs,"Command",command);
 }
 
+
+/*
+ *  Write out to YAML the default grid size for non-protocol based illumination
+ */
+void WriteOutDefaultGridSize(WriteOut* DataWriter, WormAnalysisParam* Param){
+	/** Write out default grid size for non-protocol illumination **/
+	cvStartWriteStruct(DataWriter->fs,"DefaultGridSizeForNonProtocolIllum",CV_NODE_MAP,NULL);
+		cvWriteInt(DataWriter->fs,"x",Param->DefaultGridSize.width);
+		cvWriteInt(DataWriter->fs,"y",Param->DefaultGridSize.height);
+	cvEndWriteStruct(DataWriter->fs);
+
+	return;
+}
+
 /*
  * Writes Out information of one frame of the worm to a disk
  * in YAML format.
@@ -136,6 +152,8 @@ void WriteOutCommandLineArguments(WriteOut* DataWriter,int argc, char** argv){
  * Params->IllumSegCenter
  * Params->IllumSegRadius
  * Params->IllumLRC
+ *
+ * And more now!
  */
 int AppendWormFrameToDisk(WormAnalysisData* Worm, WormAnalysisParam* Params, WriteOut* DataWriter){
 
@@ -175,7 +193,7 @@ int AppendWormFrameToDisk(WormAnalysisData* Worm, WormAnalysisParam* Params, Wri
 		cvWriteInt(fs,"FloodLightIsOn",Params->IllumFloodEverything);
 
 
-		CvPoint origin=ConvertSlidlerToWormSpace(Params->IllumSquareOrig,Params->NumSegments);
+		CvPoint origin=ConvertSlidlerToWormSpace(Params->IllumSquareOrig,Params->DefaultGridSize);
 		cvStartWriteStruct(fs,"IllumRectOrigin",CV_NODE_MAP,NULL);
 			cvWriteInt(fs,"x",origin.x);
 			cvWriteInt(fs,"y",origin.y);

@@ -53,6 +53,7 @@ IplImage* CurrentImg;
 bool DispThreadHasStarted;
 bool MainThreadHasStopped;
 bool DispThreadHasStopped;
+bool UserWantsToStop;
 
 int main (int argc, char** argv){
 	int DEBUG=0;
@@ -126,6 +127,7 @@ int main (int argc, char** argv){
 	/** Giant While Loop Where Everything Happens **/
 	TICTOC::timer().tic("WholeLoop");
 	int VideoRanOut=0;
+	UserWantsToStop=0;
 	while (1) {
 		_TICTOC_TIC_FUNC
 		TICTOC::timer().tic("OneLoop");
@@ -229,7 +231,7 @@ int main (int argc, char** argv){
 			if (!(exp->e) &&  EverySoOften(exp->Worm->frameNum,exp->Params->DispRate) ){
 				TICTOC::timer().tic("DisplayOnScreen");
 				/** Setup Display but don't actually send to screen **/
-				DoDisplaySelectedDisplay(exp);
+				PrepareSelectedDisplay(exp);
 				TICTOC::timer().toc("DisplayOnScreen");
 			}
 
@@ -247,7 +249,7 @@ int main (int argc, char** argv){
 			if (exp->e) printf("\nError in main loop. :(\n");
 
 		}
-		if (kbhit()) break;
+		if (UserWantsToStop) break;
 			TICTOC::timer().toc("OneLoop");
 
 	}
@@ -318,6 +320,7 @@ UINT Thread(LPVOID lpdwParam) {
 
 	printf("Starting DispThread loop\n");
 
+	int key;
 
 	while (!MainThreadHasStopped) {
 
@@ -343,7 +346,14 @@ UINT Thread(LPVOID lpdwParam) {
 
 			TICTOC::timer().toc("DisplayThreadGuts");
 			UpdateGUI(exp);
-			Sleep(100);
+			key=cvWaitKey(100);
+			if (HandleKeyStroke(key)) {
+				printf("\n\nEscape key pressed!\n\n");
+				UserWantsToStop=1;
+
+			}
+			UpdateGUI(exp);
+
 
 	}
 

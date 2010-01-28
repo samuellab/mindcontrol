@@ -23,6 +23,8 @@ typedef struct WormAnalysisParamStruct{
 	/** Turn Analysis On Generally **/
 	int OnOff;
 
+
+
 	/** Single Frame Analysis Parameters**/
 	int LengthScale;
 	int LengthOffset;
@@ -36,16 +38,19 @@ typedef struct WormAnalysisParamStruct{
 	int MaxPerimChange;
 
 	/** Display Stuff**/
-	int DispRate;
+	int DispRate; //Deprecated
 	int Display;
+
+	/** Defaul Wormspace GridSize for illumination **/
+	CvSize DefaultGridSize;
 
 
 	/** Illumination Parameters **/
-	int IllumSegCenter;
-	int IllumSegRadius;
-	int IllumLRC;
-	int SegStart;
-	int SegStop;
+	int IllumSegCenter; // Deprecated
+	int IllumSegRadius; // Deprecated
+	int IllumLRC; // Deprecated
+	int SegStart; // Deprecated
+	int SegStop; // Deprecated
 
 
 	CvPoint IllumSquareOrig;
@@ -431,7 +436,7 @@ int PrevFrameImproveWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Para
  * Converts the slider bar used to specify an origin into a coordinate on wormspace.
  *
  */
-CvPoint ConvertSlidlerToWormSpace(CvPoint SliderOrigin,int numsegments);
+CvPoint ConvertSlidlerToWormSpace(CvPoint SliderOrigin,CvSize gridSize);
 
 
 

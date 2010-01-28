@@ -315,10 +315,10 @@ void DoSegmentation(Experiment* exp);
 
 
 /*
- * Display the Selected Display
+ * Preparesthe Selected Display
  *
  */
-void DoDisplaySelectedDisplay(Experiment* exp);
+void PrepareSelectedDisplay(Experiment* exp);
 
 
 /*
@@ -328,6 +328,15 @@ void DoDisplaySelectedDisplay(Experiment* exp);
 int DoOnTheFlyIllumination(Experiment* exp);
 
 
+
+/*
+ *
+ * Handle KeyStroke
+ *
+ * Returns 1 when the user is trying to exit
+ *
+ */
+int HandleKeyStroke(int c);
 
 /*
  * Write video and data to Disk
