@@ -238,6 +238,8 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 	ParamPtr->SegStop=40;
 	ParamPtr->DLPOn=0;
 
+	ParamPtr->IllumSquareOrig=cvPoint(50,50);
+	ParamPtr->IllumSquareRad=cvSize(20,10);
 	ParamPtr->IllumDuration=1;
 	ParamPtr->DLPOnFlash=0;
 
@@ -1174,4 +1176,14 @@ int PrevFrameImproveWormHeadTail(WormAnalysisData* Worm,
 	return 1; /** The Head and Tail are within the required distance **/
 
 }
+
+
+/*
+ * Converts the slider bar used to specify an origin into a coordinate on wormspace.
+ *
+ */
+CvPoint ConvertSlidlerToWormSpace(CvPoint SliderOrigin,int numsegments){
+	return cvPoint( SliderOrigin.x- ( numsegments / 2 ) , SliderOrigin.y  );
+}
+
 

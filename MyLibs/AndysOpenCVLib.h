@@ -359,6 +359,15 @@ bool cvPointExists(CvPoint* MyPt);
  */
 bool IntExists(int MyInt);
 
+/*
+ *  If x is greater than max, the function returns max;
+ *  If x is less then min, the function returns min.
+ *  Ohterwise the function returns x
+ *
+ */
+int CropNumber(int max, int min, int x);
+
+
 
 #endif /* ANDYSOPENCVLIB_H_ */
 

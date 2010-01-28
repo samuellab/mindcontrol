@@ -89,7 +89,7 @@ int FrameGrabberSetRegionOfInterest(FrameGrabber* fg,int xoff, int yoff,int xsiz
 
 	printf("Setting Region of Interest\n");
 	printf(" ret=%d\n",(int) ret);
-	BiErrorShow(fg->hBoard, ret);
+	//BiErrorShow(fg->hBoard, ret);
 
 
 	if (ret==CI_OK) printf("FrameGrabberSetRegionOfInterst= is Good!!\n\n");

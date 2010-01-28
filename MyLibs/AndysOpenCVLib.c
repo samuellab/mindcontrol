@@ -386,7 +386,11 @@ void DrawSequence(IplImage** image, CvSeq* Seq) {
 
 
 
+void resampleAndInterp(CvSeq* sequence, CvSeq* ResampledSeq, int Numsegments){
+	/** Start by coursegraining the worm into a bunch of segments **/
+	/** In each coursegrained segment, we want the density of points to be the same **/
 
+}
 
 
 /*
@@ -425,6 +429,9 @@ void resampleSeq(CvSeq* sequence, CvSeq* ResampledSeq, int Numsegments) {
 
 	cvEndWriteSeq(&writer);
 }
+
+
+
 
 
 /*
@@ -908,5 +915,18 @@ bool cvPointExists(CvPoint* MyPt){
  */
 bool IntExists(int MyInt){
 			return 1;
+}
+
+
+/*
+ *  If x is greater than max, the function returns max;
+ *  If x is less then min, the function returns min.
+ *  Ohterwise the function returns x
+ *
+ */
+int CropNumber(int min, int max, int x){
+	if (x>max) return max;
+	if (x<min) return min;
+	return x;
 }
 

@@ -46,6 +46,10 @@ typedef struct WormAnalysisParamStruct{
 	int IllumLRC;
 	int SegStart;
 	int SegStop;
+
+
+	CvPoint IllumSquareOrig;
+	CvSize IllumSquareRad;
 	int IllumFloodEverything;
 	int DLPOn;
 
@@ -422,4 +426,13 @@ void LoadWormGeom(WormGeom* SimpleWorm, WormAnalysisData* Worm);
  * Returns 2 if there is no previous worm information
  */
 int PrevFrameImproveWormHeadTail(WormAnalysisData* Worm, WormAnalysisParam* Params, WormGeom* PrevWorm);
+
+/*
+ * Converts the slider bar used to specify an origin into a coordinate on wormspace.
+ *
+ */
+CvPoint ConvertSlidlerToWormSpace(CvPoint SliderOrigin,int numsegments);
+
+
+
 #endif /* WORMANALYSIS_H_ */

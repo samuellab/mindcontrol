@@ -24,10 +24,12 @@
 
 // Andy's Libraries
 
+
 #include "AndysOpenCVLib.h"
 #include "WormAnalysis.h"
 #include "IllumWormProtocol.h"
 #include "version.h"
+#include "AndysComputations.h"
 
 
 
@@ -288,7 +290,7 @@ WormPolygon* CreateWormPolygonFromSeq(CvMemStorage* memory,CvSize GridSize,CvSeq
 	return myPoly;
 }
 
-
+//
 
 /*
  * Destroys a polygon but doesn't free up the CvMemStorage that that polygon used
@@ -513,6 +515,64 @@ CvSeq* GetMontageFromProtocolInterp(Protocol* p, int step){
 }
 
 
+/*
+ * This function generates an illumination montage containing a square in worm space
+ * at a location specified.
+ *
+ * This function is most useful when it takes input from a slider bar.
+ *
+ * In that manner the user can specify a rectangular (in worm space) region of illumination
+ * at run time.
+ *
+ */
+int GenerateSimpleIllumMontage(CvSeq* montage, CvPoint origin, CvSize radius, CvSize gridSize){
+	/** If the square has no length or width, then  there is nothing to do **/
+	if (radius.width == 0 || radius.height ==  0) return 0;
+
+	/** If the y value extends off the worm, we need to crop it.. (otherwise it wraps... weird!)**/
+
+
+
+	cvClearSeq(montage);
+
+	WormPolygon* polygon=CreateWormPolygon(montage->storage,gridSize);
+
+
+	CvPoint curr;
+
+	/** Lower Left **/
+	curr=cvPoint(origin.x-radius.width, CropNumber(1,gridSize.height-1,origin.y-radius.height));
+	cvSeqPush(polygon->Points,&curr);
+
+	/** Lower Right **/
+	curr=cvPoint(origin.x+radius.width, CropNumber(1,gridSize.height-1,origin.y-radius.height));
+	cvSeqPush(polygon->Points,&curr);
+
+	/** Upper Right **/
+	curr=cvPoint(origin.x+radius.width, CropNumber(1,gridSize.height-1,origin.y+radius.height));
+	cvSeqPush(polygon->Points,&curr);
+
+
+	/** Upper Left **/
+	curr=cvPoint(origin.x-radius.width, CropNumber(1,gridSize.height-1,origin.y+radius.height));
+	cvSeqPush(polygon->Points,&curr);
+
+
+	/** Push this sparse polygon onto the temp montage **/
+	CvSeq* tempMontage= CreateIlluminationMontage(montage->storage);
+	cvSeqPush(tempMontage,&polygon);
+
+	/** Convert the sparse polygon into a contour-polygon **/
+	CvtPolyMontage2ContourMontage(tempMontage,montage);
+	cvClearSeq(tempMontage);
+
+	return 1;
+
+
+}
+
+
+
 
 void DisplayPtArr(CvPoint* PtArr,int numPts){
 	int k=0;
@@ -635,17 +695,19 @@ CvPoint CvtPtWormSpaceToImageSpace(CvPoint WormPt, SegmentedWorm* worm, CvSize g
 
 
 /*
- * Creates an illumination image in image space
- * according to an illumination montage.
+ * Creates an illumination
+ * according to an illumination montage and the location of a segmented owrm.
  *
  * To use with protocol, use GetMontageFromProtocolInterp() first
  */
 void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img,CvSize gridSize){
 	int DEBUG=0;
+	if (DEBUG) printf("In IllumWorm()\n");
 	CvPoint* polyArr=NULL;
 	int k;
 	int numpts=0;
 	for (k = 0; k < IllumMontage->total; ++k) {
+
 		numpts=CreatePointArrFromMontage(&polyArr,IllumMontage,k);
 		int j;
 		//DisplayPtArr(polyArr,numpts);

@@ -320,6 +320,15 @@ void DoSegmentation(Experiment* exp);
  */
 void DoDisplaySelectedDisplay(Experiment* exp);
 
+
+/*
+ * Use the slider bar to generate a rectangle in an arbitrary location and illuminate with it on the fly
+ *
+ */
+int DoOnTheFlyIllumination(Experiment* exp);
+
+
+
 /*
  * Write video and data to Disk
  *

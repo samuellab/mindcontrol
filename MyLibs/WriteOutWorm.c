@@ -173,9 +173,18 @@ int AppendWormFrameToDisk(WormAnalysisData* Worm, WormAnalysisParam* Params, Wri
 		/** Illumination Information **/
 		cvWriteInt(fs,"DLPIsOn",Params->DLPOn);
 		cvWriteInt(fs,"FloodLightIsOn",Params->IllumFloodEverything);
-		cvWriteInt(fs,"IllumSegCenter",Params->IllumSegCenter);
-		cvWriteInt(fs,"IllumSegRadius",Params->IllumSegRadius);
-		cvWriteInt(fs,"IllumNullLeftRightBoth",Params->IllumLRC);
+
+
+		CvPoint origin=ConvertSlidlerToWormSpace(Params->IllumSquareOrig,Params->NumSegments);
+		cvStartWriteStruct(fs,"IllumRectOrigin",CV_NODE_MAP,NULL);
+			cvWriteInt(fs,"x",origin.x);
+			cvWriteInt(fs,"y",origin.y);
+		cvEndWriteStruct(fs);
+
+		cvStartWriteStruct(fs,"IllumRectRadius",CV_NODE_MAP,NULL);
+			cvWriteInt(fs,"x",Params->IllumSquareRad.width);
+			cvWriteInt(fs,"y",Params->IllumSquareRad.height);
+		cvEndWriteStruct(fs);
 
 		/** Protocol Information **/
 

@@ -424,9 +424,10 @@ void SetupGUI(Experiment* exp){
 
 
 	/**Illumination Parameters **/
-	cvCreateTrackbar("Center",exp->WinCon1,&(exp->Params->IllumSegCenter),100, (int) NULL);
-	cvCreateTrackbar("Radius",exp->WinCon1,&(exp->Params->IllumSegRadius),100, (int) NULL);
-	cvCreateTrackbar("LRC",exp->WinCon1,&(exp->Params->IllumLRC),3,(int) NULL);
+	cvCreateTrackbar("x",exp->WinCon1,&(exp->Params->IllumSquareOrig.x),exp->Params->NumSegments,(int) NULL);
+	cvCreateTrackbar("y",exp->WinCon1,&(exp->Params->IllumSquareOrig.y),exp->Params->NumSegments,(int) NULL);
+	cvCreateTrackbar("xRad",exp->WinCon1,&(exp->Params->IllumSquareRad.width),exp->Params->NumSegments,(int) NULL);
+	cvCreateTrackbar("yRad",exp->WinCon1,&(exp->Params->IllumSquareRad.height),exp->Params->NumSegments,(int) NULL);
 	cvCreateTrackbar("DLPOn",exp->WinCon1,&(exp->Params->DLPOn),1,(int) NULL);
 
 	/** Record Data **/
@@ -988,6 +989,35 @@ void DoWriteToDisk(Experiment* exp){
 		TICTOC::timer().toc("AppendWormFrameToDisk");
 	}
 }
+
+
+/*
+ * Use the slider bar to generate a rectangle in an arbitrary location and illuminate with it on the fly
+ *
+ */
+int DoOnTheFlyIllumination(Experiment* exp){
+
+	CvSeq* montage=CreateIlluminationMontage(exp->Worm->MemScratchStorage);
+
+	/** Note, out of laziness I am hardcoding the grid dimensions to be Numsegments by number of segments **/
+	CvSize gridSize=cvSize(exp->Params->NumSegments,exp->Params->NumSegments );
+
+	CvPoint origin= ConvertSlidlerToWormSpace(exp->Params->IllumSquareOrig,exp->Params->NumSegments);
+	GenerateSimpleIllumMontage(montage,origin,exp->Params->IllumSquareRad,gridSize);
+
+	/** Illuminate the worm **/
+	/** ...in camera space **/
+	IllumWorm(exp->Worm->Segmented,montage,exp->IlluminationFrame->iplimg,gridSize);
+	LoadFrameWithImage(exp->IlluminationFrame->iplimg,exp->IlluminationFrame);
+	/** ... in DLP space **/
+	IllumWorm(exp->segWormDLP,montage,exp->forDLP->iplimg,gridSize);
+	LoadFrameWithImage(exp->forDLP->iplimg,exp->forDLP);
+
+	cvClearSeq(montage);
+
+}
+
+
 
 
 /*********************

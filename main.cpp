@@ -104,6 +104,8 @@ int main (int argc, char** argv){
 		return -1;
 	}
 
+
+
 	// wait for thread
 	DispThreadHasStarted=FALSE;
 	DispThreadHasStopped=FALSE;
@@ -179,6 +181,10 @@ int main (int argc, char** argv){
 			/*** Do Some Illumination ***/
 
 			if (!(exp->e)) {
+				/** Clear the illumination pattern **/
+				SetFrame(exp->forDLP,0);
+				SetFrame(exp->IlluminationFrame,0);
+
 
 				if (exp->Params->IllumFloodEverything) {
 					SetFrame(exp->IlluminationFrame,128); // Turn all of the pixels on
@@ -186,12 +192,14 @@ int main (int argc, char** argv){
 
 				} else {
 					if (!(exp->Params->ProtocolUse)) /** if not running the protocol **/{
-					/** Otherwise Actually illuminate the  region of the worm your interested in **/
-					/** Do the Illumination in Camera space for Display **/
-					SimpleIlluminateWormLR(exp->Worm->Segmented, exp->IlluminationFrame, exp->Params->IllumSegCenter, exp->Params->IllumSegRadius, exp->Params->IllumLRC);
+						/** Otherwise Actually illuminate the  region of the worm your interested in **/
+						/** Do the Illumination in Camera space for Display **/
 
-					/** Repeat but for the DLP space for sending to DLP **/
-					SimpleIlluminateWormLR(exp->segWormDLP, exp->forDLP, exp->Params->IllumSegCenter, exp->Params->IllumSegRadius, exp->Params->IllumLRC);
+						DoOnTheFlyIllumination(exp);
+					//	SimpleIlluminateWormLR(exp->Worm->Segmented, exp->IlluminationFrame, exp->Params->IllumSegCenter, exp->Params->IllumSegRadius, exp->Params->IllumLRC);
+
+						/** Repeat but for the DLP space for sending to DLP **/
+					//	SimpleIlluminateWormLR(exp->segWormDLP, exp->forDLP, exp->Params->IllumSegCenter, exp->Params->IllumSegRadius, exp->Params->IllumLRC);
 					} else{
 
 
@@ -206,13 +214,14 @@ int main (int argc, char** argv){
 					}
 				}
 
-
 			}
 
 
 
 
 			if (!(exp->e) && exp->Params->DLPOn && !(exp->SimDLP)) T2DLP_SendFrame((unsigned char *) exp->forDLP->binary, exp->myDLP); // Send image to DLP
+
+
 
 			/*** DIsplay Some Monitoring Output ***/
 			if (!(exp->e)) CreateWormHUDS(exp->HUDS,exp->Worm,exp->Params,exp->IlluminationFrame);

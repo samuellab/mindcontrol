@@ -176,6 +176,20 @@ CvSeq* GetMontageFromProtocolInterp(Protocol* p, int step);
  */
 IplImage* GenerateRectangleWorm(CvSize size);
 
+
+/*
+ * This function generates an illumination montage containing a square in worm space
+ * at a location specified.
+ *
+ * This function is most useful when it takes input from a slider bar.
+ *
+ * In that manner the user can specify a rectangular (in worm space) region of illumination
+ * at run time.
+ *
+ */
+int GenerateSimpleIllumMontage(CvSeq* montage, CvPoint origin, CvSize radius, CvSize gridSize);
+
+
 /*
  * Illuminate a rectangle worm
  */

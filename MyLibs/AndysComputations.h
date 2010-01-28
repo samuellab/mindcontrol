@@ -74,6 +74,4 @@ int GetMilliSeconds(clock_t time);
 
 
 
-
-
 #endif /* ANDYSCOMPUTATIONS_H_ */
