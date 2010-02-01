@@ -198,6 +198,22 @@ void DrawSequence(IplImage** image, CvSeq* Seq);
  */
 void resampleSeq(CvSeq* sequence,CvSeq* ResampledSeq, int Numsegments);
 
+
+/*
+ * This function resamples a sequence of points on a boundary so as to keep the number of points
+ * per arc length constant.
+ *
+ * It does this by first resampling to the specified points through decimation, then calculating
+ * the arc length and then interpolating between those points so as to keep constant point density.
+ *
+ *	Note that this function resampleSeq always includes the first point of the sequence
+ *	but it does not necessarily include the last point.
+ *	As long as the initial number of points is large compared to the Numsegments requested,
+ *	then the last point should be fairly close.
+ */
+
+void resampleSeqConstPtsPerArcLength(CvSeq* sequence, CvSeq* ResampledSeq, int Numsegments);
+
 /*
  *
  * Returns the squared distance between two points

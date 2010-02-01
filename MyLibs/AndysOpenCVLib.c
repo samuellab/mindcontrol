@@ -422,7 +422,8 @@ void resampleSeqConstPtsPerArcLength(CvSeq* sequence, CvSeq* ResampledSeq, int N
 	    float sum;
 	}PtAndSum;
 
-	CvSeq* decimated = cvCreateSeq(CV_SEQ_ELTYPE_POINT, sizeof(CvSeq), sizeof(PtAndSum), sequence->storage);
+
+	CvSeq* decimated = cvCreateSeq(0, sizeof(CvSeq), sizeof(PtAndSum), sequence->storage);
 
 
 
@@ -437,11 +438,15 @@ void resampleSeqConstPtsPerArcLength(CvSeq* sequence, CvSeq* ResampledSeq, int N
 	cvStartAppendToSeq(decimated, &writer);
 	CvPoint* tempPt;
 	PtAndSum curr;
-	curr.x=0; curr.y=0; curr.sum=0;
+
+
+	tempPt = (CvPoint*) reader.ptr;
+	curr.x=tempPt->x; curr.y=tempPt->y; curr.sum=0;
 
 
 	int i=0;
 	int tempPos;
+
 
 
 
@@ -473,6 +478,7 @@ void resampleSeqConstPtsPerArcLength(CvSeq* sequence, CvSeq* ResampledSeq, int N
 
 
 	int totalArcLength=curr.sum;
+//	printf("Moving on to part II\n");
 
 	/**************************************************
 	 * Part II: Interpolate so as to keep constant
@@ -513,37 +519,53 @@ void resampleSeqConstPtsPerArcLength(CvSeq* sequence, CvSeq* ResampledSeq, int N
 		CvPoint interpPt;
 		CvPoint2D32f unitVec;
 
+		int k=0; // decimated counter;
 
 		/** For each point we are looking for **/
+
 		while (i<Numsegments){
 			s=i*(float) n; // The point should lie a distance s along the arc length
 
 			/** While the correct pair of vertices do not enclose s **/
-			while (!(s> prevVertex->sum && s <currVertex->sum)){
+			k=0;
+//			printf("New\n");
+			while (!(  (s>= prevVertex->sum )&& (s <= currVertex->sum) )){
 
+//				printf("\n\ns=%f,i=%d,k=%d\n",s,i,k);
+//				printf("prevVertex->sum = %f\n",prevVertex->sum );
+//				printf("currVertex->sum = %f\n",currVertex->sum );
 				/** prevVertex=currVertex **/
 				prevVertex=currVertex;
 
 				/** Increment currVertex**/
 				CV_NEXT_SEQ_ELEM(sizeof(PtAndSum),reader);
+				k++;
 				currVertex = (PtAndSum*) reader.ptr;
 
+
 			}
+//			printf("\nSuccess!\ns=%f,i=%d,k=%d\n",s,i,k);
+//			printf("prevVertex->sum = %f\n",prevVertex->sum );
+//			printf("currVertex->sum = %f\n",currVertex->sum );
 
 			/** Interpolate & record output 	**/
-			DistBetVertices=currVertex->sum-prevVertex->sum;
+			DistBetVertices=(double) currVertex->sum - (double) prevVertex->sum;
+//			printf("DistBetVertices=%f\n",DistBetVertices);
 
 			/** t is the arc length beyond the previous vertex (s=prevVertex->sum+t)**/
-			t = s - currVertex->sum; //Think of t as the parameter in a parametric equation
+			t = (double) s - prevVertex->sum; //Think of t as the parameter in a parametric equation
 
 			if (t<0) printf("ERROR! This should never happen!\n");
 
+
+//			printf("t=%f\n",t);
 			unitVec=cvPoint2D32f( (double) (currVertex->x-prevVertex->x) / (double) DistBetVertices  ,
 					(double) (currVertex->y-prevVertex->y) / (double) DistBetVertices);
 
 
 			/** Parametric equation **/
-			interpPt=cvPoint((int) (unitVec.x * t+0.5),(int) (unitVec.y * t+0.5));
+			interpPt=cvPoint((int) ((int) prevVertex->x+unitVec.x * t+0.5),(int) ((int) prevVertex->y +unitVec.y * t+0.5));
+//			printf("interpPt.x=%d, interpPt.y=%d\n",interpPt.x,interpPt.y);
 
 			CV_WRITE_SEQ_ELEM(interpPt, writer);
 

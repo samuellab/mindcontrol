@@ -837,7 +837,11 @@ int SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
 
 
 	/*** Resample the Centerline So it has the specified Number of Points ***/
-	resampleSeq(SmoothUnresampledCenterline,Worm->Segmented->Centerline,Params->NumSegments);
+	//resampleSeq(SmoothUnresampledCenterline,Worm->Segmented->Centerline,Params->NumSegments);
+
+	resampleSeqConstPtsPerArcLength(SmoothUnresampledCenterline,Worm->Segmented->Centerline,Params->NumSegments);
+
+
 
 	/*** Remove Repeat Points***/
 	//RemoveSequentialDuplicatePoints (Worm->Segmented->Centerline);

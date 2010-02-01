@@ -435,6 +435,8 @@ void SetupGUI(Experiment* exp) {
 	cvCreateTrackbar("FloodLight", exp->WinCon2,
 			&(exp->Params->IllumFloodEverything), 1, (int) NULL);
 
+
+
 	/** If we have loaded a protocol, set up protocol specific sliders **/
 	if (exp->pflag) {
 		cvCreateTrackbar("Protocol", exp->WinCon2, &(exp->Params->ProtocolUse),
@@ -469,6 +471,12 @@ void UpdateGUI(Experiment* exp) {
 
 		/** Threshold **/
 		cvSetTrackbarPos("Threshold", exp->WinCon1, (exp->Params->BinThresh));
+
+
+		/** Updated Temporal IQ **/
+		/** Temporal Coding **/
+		cvSetTrackbarPos("TemporalIQ", exp->WinCon1, (exp->Params->TemporalOn));
+
 
 		/** Protocol Stuff **/
 		/** If we have loaded a protocol, update protocol specific sliders **/
@@ -1059,6 +1067,10 @@ int HandleKeyStroke(int c, Experiment* exp) {
 		Toggle(&(exp->Params->DLPOnFlash));
 		break;
 
+	/** Timed DLP on **/
+	case 't':
+		Toggle(&(exp->Params->TemporalOn));
+		break;
 
 	default:
 		return 0;
