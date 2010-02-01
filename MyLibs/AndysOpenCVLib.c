@@ -386,11 +386,176 @@ void DrawSequence(IplImage** image, CvSeq* Seq) {
 
 
 
-void resampleAndInterp(CvSeq* sequence, CvSeq* ResampledSeq, int Numsegments){
-	/** Start by coursegraining the worm into a bunch of segments **/
-	/** In each coursegrained segment, we want the density of points to be the same **/
 
+
+/*
+ * This function resamples a sequence of points on a boundary so as to keep the number of points
+ * per arc length constant.
+ *
+ * It does this by first resampling to the specified points through decimation, then calculating
+ * the arc length and then interpolating between those points so as to keep constant point density.
+ *
+ *	Note that this function resampleSeq always includes the first point of the sequence
+ *	but it does not necessarily include the last point.
+ *	As long as the initial number of points is large compared to the Numsegments requested,
+ *	then the last point should be fairly close.
+ */
+
+void resampleSeqConstPtsPerArcLength(CvSeq* sequence, CvSeq* ResampledSeq, int Numsegments) {
+	if (sequence==NULL || ResampledSeq==NULL) {
+		printf("Error! sequence passed to resampleSeqConstPtsPerArcLength() is NULL!\n");
+		return;
+	}
+	if (sequence->total < 1) printf("Error! Sequence passed to resampleSeq() is empty!\n");
+
+
+	/**********************************
+	 * Step I: Decimate the boundary while
+	 * calculating cumsum
+	 */
+
+	/** Let's create a struct that holds our decimated subsampled sequence, and the cumsum arclength **/
+	typedef struct PtAndSumStruct
+	{
+	    int x;
+	    int y;
+	    float sum;
+	}PtAndSum;
+
+	CvSeq* decimated = cvCreateSeq(CV_SEQ_ELTYPE_POINT, sizeof(CvSeq), sizeof(PtAndSum), sequence->storage);
+
+
+
+
+
+
+	/** n-1 is the number of decimated points between sampled points**/
+	float n = (float) ( sequence->total -1 )/ (float) ( Numsegments-1);
+	CvSeqReader reader;
+	CvSeqWriter writer;
+	cvStartReadSeq(sequence, &reader, 0);
+	cvStartAppendToSeq(decimated, &writer);
+	CvPoint* tempPt;
+	PtAndSum curr;
+	curr.x=0; curr.y=0; curr.sum=0;
+
+
+	int i=0;
+	int tempPos;
+
+
+
+
+	while (i<Numsegments){
+		tempPos=(int) (i *n + 0.5);
+		cvSetSeqReaderPos(&reader, tempPos, 0);
+		tempPt = (CvPoint*) reader.ptr;
+
+		/** Current sum= cumsum at prev pt + distance between current Pt and Previous Pt **/
+		curr.sum=curr.sum+dist(*tempPt,cvPoint(curr.x,curr.y));
+
+		/** Update Current Pt**/
+		curr.x=tempPt->x;
+		curr.y=tempPt->y;
+
+
+		CV_WRITE_SEQ_ELEM( curr, writer );
+		if (!(tempPos < sequence->total && tempPos >= 0)){
+					printf(" Error. Position to set sequence reader to is out of range in resampleSeq()\n");
+		}
+		i++;
+	}
+
+	cvEndWriteSeq(&writer);
+
+
+
+
+
+	int totalArcLength=curr.sum;
+
+	/**************************************************
+	 * Part II: Interpolate so as to keep constant
+	 * number of pts per arc length
+	 *
+	 */
+
+	n=0;
+	i=0;
+	float s; // s is length along arc of current point
+
+	/*
+	 * Let's introduce some terminology.
+	 *
+	 * The decimated boundary is now made of Numsegments number of "vertices."
+	 * We will find new "points" along the boundary by interpolating between the vertices.
+	 *
+	 */
+
+	/** n-1 is the optimum arc length between points**/
+		n = (float) ( curr.sum)/ (float) ( Numsegments-1); //Andy: i checked the -1's for and the (while <numseg)for the  case of 10 pts spaced 1 apart on line **/
+
+
+		PtAndSum* prevVertex;
+		PtAndSum* currVertex;
+
+
+		/** Start reading through sequence of decimated points **/
+		cvStartReadSeq(decimated, &reader, 0);
+
+		/** Start Writing output **/
+		cvStartAppendToSeq(ResampledSeq, &writer);
+
+		currVertex = (PtAndSum*) reader.ptr;
+		prevVertex = currVertex;
+		double DistBetVertices=0;
+		double t=0;
+		CvPoint interpPt;
+		CvPoint2D32f unitVec;
+
+
+		/** For each point we are looking for **/
+		while (i<Numsegments){
+			s=i*(float) n; // The point should lie a distance s along the arc length
+
+			/** While the correct pair of vertices do not enclose s **/
+			while (!(s> prevVertex->sum && s <currVertex->sum)){
+
+				/** prevVertex=currVertex **/
+				prevVertex=currVertex;
+
+				/** Increment currVertex**/
+				CV_NEXT_SEQ_ELEM(sizeof(PtAndSum),reader);
+				currVertex = (PtAndSum*) reader.ptr;
+
+			}
+
+			/** Interpolate & record output 	**/
+			DistBetVertices=currVertex->sum-prevVertex->sum;
+
+			/** t is the arc length beyond the previous vertex (s=prevVertex->sum+t)**/
+			t = s - currVertex->sum; //Think of t as the parameter in a parametric equation
+
+			if (t<0) printf("ERROR! This should never happen!\n");
+
+			unitVec=cvPoint2D32f( (double) (currVertex->x-prevVertex->x) / (double) DistBetVertices  ,
+					(double) (currVertex->y-prevVertex->y) / (double) DistBetVertices);
+
+
+			/** Parametric equation **/
+			interpPt=cvPoint((int) (unitVec.x * t+0.5),(int) (unitVec.y * t+0.5));
+
+			CV_WRITE_SEQ_ELEM(interpPt, writer);
+
+			i++;
+
+		}
+
+
+		cvEndWriteSeq(&writer);
 }
+
+
 
 
 /*
