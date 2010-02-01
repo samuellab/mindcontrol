@@ -378,11 +378,11 @@ void DisplayWormHeadTail(WormAnalysisData* Worm, char* WindowName);
 void DisplayWormHUDS(WormAnalysisData* Worm, WormAnalysisParam* Params, Frame* IlluminationFrame,char* WindowName);
 
 /*
- * Displays the original image of the worm
- * with segmentation in window WindowName
- *
+ * Generates the original image of the worm
+ * with segmentation
+ * And also the head and tail.
  */
-void DisplayWormSegmentation(WormAnalysisData* Worm, char* WindowName);
+void DisplayWormSegmentation(WormAnalysisData* Worm, IplImage* ImgOut);
 
 
 /*

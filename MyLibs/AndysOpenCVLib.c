@@ -558,14 +558,20 @@ void resampleSeqConstPtsPerArcLength(CvSeq* sequence, CvSeq* ResampledSeq, int N
 			if (t<0) printf("ERROR! This should never happen!\n");
 
 
-//			printf("t=%f\n",t);
-			unitVec=cvPoint2D32f( (double) (currVertex->x-prevVertex->x) / (double) DistBetVertices  ,
-					(double) (currVertex->y-prevVertex->y) / (double) DistBetVertices);
 
+			if (DistBetVertices <1 ) { // If the two points are the same.
+				unitVec.x=0;  /** Avoid dividing by zero **/
+				unitVec.y=0;
+			} else {
+				unitVec=cvPoint2D32f( (double) (currVertex->x-prevVertex->x) / (double) DistBetVertices  ,
+						(double) (currVertex->y-prevVertex->y) / (double) DistBetVertices);
+			}
 
 			/** Parametric equation **/
 			interpPt=cvPoint((int) ((int) prevVertex->x+unitVec.x * t+0.5),(int) ((int) prevVertex->y +unitVec.y * t+0.5));
-//			printf("interpPt.x=%d, interpPt.y=%d\n",interpPt.x,interpPt.y);
+
+
+
 
 			CV_WRITE_SEQ_ELEM(interpPt, writer);
 

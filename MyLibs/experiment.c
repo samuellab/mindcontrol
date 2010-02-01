@@ -596,7 +596,9 @@ void InitializeExperiment(Experiment* exp) {
 	IplImage* SubSampled = cvCreateImage(cvSize(NSIZEX / 2, NSIZEY / 2),
 			IPL_DEPTH_8U, 1);
 	IplImage* HUDS = cvCreateImage(cvSize(NSIZEX, NSIZEY), IPL_DEPTH_8U, 1);
-	;
+
+
+	exp->CurrentSelectedImg= cvCreateImage(cvSize(NSIZEX,NSIZEY), IPL_DEPTH_8U,1);
 
 	exp->SubSampled = SubSampled;
 	exp->HUDS = HUDS;
@@ -970,8 +972,8 @@ void PrepareSelectedDisplay(Experiment* exp) {
 		break;
 	case 4:
 		/** Implement this!! **/
-		//			DisplayWormSegmentation(exp->Worm,exp->WinDisp);
-		exp->CurrentSelectedImg = exp->HUDS;
+		DisplayWormSegmentation(exp->Worm,exp->CurrentSelectedImg);
+
 		break;
 	case 5:
 		//			cvShowImage(exp->WinDisp,exp->IlluminationFrame->iplimg);

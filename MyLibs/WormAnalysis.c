@@ -228,7 +228,7 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 	ParamPtr->DefaultGridSize=cvSize(20,ParamPtr->NumSegments);
 
 	/** Frame-to-Frame Temporal Analysis Parameters **/
-	ParamPtr->TemporalOn=0;
+	ParamPtr->TemporalOn=1;
 	ParamPtr->MaxLocationChange=70;
 	ParamPtr->MaxPerimChange=10;
 
@@ -966,12 +966,12 @@ void DisplayWormHUDS(WormAnalysisData* Worm, WormAnalysisParam* Params, Frame* I
 
 
 /*
- * Displays the original image of the worm
- * with segmentation in window WindowName
+ * Generates the original image of the worm
+ * with segmentation
  * And also the head and tail.
  */
-void DisplayWormSegmentation(WormAnalysisData* Worm, char* WindowName){
-	IplImage* TempImage=cvCreateImage(cvGetSize(Worm->ImgSmooth),IPL_DEPTH_8U,1);
+void DisplayWormSegmentation(WormAnalysisData* Worm, IplImage* ImgOut){
+	IplImage* TempImage=ImgOut;
 	cvCopyImage(Worm->ImgOrig,TempImage);
 
 	int i;
@@ -990,10 +990,10 @@ void DisplayWormSegmentation(WormAnalysisData* Worm, char* WindowName){
 		int CircleDiameterSize=10;
 		cvCircle(TempImage,*(Worm->Tail),CircleDiameterSize,cvScalar(255,255,255),1,CV_AA,0);
 		cvCircle(TempImage,*(Worm->Head),CircleDiameterSize/2,cvScalar(255,255,255),1,CV_AA,0);
+
+
 	}
-	cvShowImage(WindowName, TempImage);
-	///// ANDY DELETE THIS NEXT LINE SOON!!!!
-	cvReleaseImage(&TempImage);
+
 
 }
 
