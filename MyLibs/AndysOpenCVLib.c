@@ -541,7 +541,15 @@ void resampleSeqConstPtsPerArcLength(CvSeq* sequence, CvSeq* ResampledSeq, int N
 				CV_NEXT_SEQ_ELEM(sizeof(PtAndSum),reader);
 				k++;
 				currVertex = (PtAndSum*) reader.ptr;
-				printf("."); /** ANDY!! PREVENT THIS FROM GOING INTO AN INFINITE LOOP **/
+
+
+
+				/** If we've gone through all the vertices and still nothing works **/
+				if (k==Numsegments) {
+					printf("Whoops! Something is not right with this boundary for point number %d.\n",i);
+					break;
+
+				}
 
 			}
 //			printf("\nSuccess!\ns=%f,i=%d,k=%d\n",s,i,k);
