@@ -17,6 +17,8 @@ shortcutkeys.txt
 - w: increment radius in y
 - s: decrement radius in y
 
+
+- t: toggle temporal head/tail inteligence
 - p: toggle protocol
 
 - ,: decrement protocol step
@@ -24,3 +26,5 @@ shortcutkeys.txt
 
 - [: decrement threshold
 - ]: increment threshold
+
+- I: invert selection (to be implemented)

@@ -541,7 +541,7 @@ void resampleSeqConstPtsPerArcLength(CvSeq* sequence, CvSeq* ResampledSeq, int N
 				CV_NEXT_SEQ_ELEM(sizeof(PtAndSum),reader);
 				k++;
 				currVertex = (PtAndSum*) reader.ptr;
-
+				printf("."); /** ANDY!! PREVENT THIS FROM GOING INTO AN INFINITE LOOP **/
 
 			}
 //			printf("\nSuccess!\ns=%f,i=%d,k=%d\n",s,i,k);
