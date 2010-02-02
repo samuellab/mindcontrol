@@ -1073,6 +1073,11 @@ int HandleKeyStroke(int c, Experiment* exp) {
 		Toggle(&(exp->Params->TemporalOn));
 		break;
 
+	/** Invert Selection **/
+	case 'v':
+		Toggle(&(exp->Params->IllumInvert));
+		break;
+
 	default:
 		return 0;
 		break;
@@ -1137,6 +1142,28 @@ int DoOnTheFlyIllumination(Experiment* exp) {
 	cvClearSeq(montage);
 
 }
+
+/**
+ * Invert the illumination, so white becomes black and vice-versa.
+ */
+void InvertIllumination(Experiment* exp){
+	IplImage* temp= cvCreateImage( cvSize(exp->IlluminationFrame->iplimg->width,exp->IlluminationFrame->iplimg->height),
+			IPL_DEPTH_8U, 1);
+
+	/** Invert Illumination Frame **/
+
+	cvXorS(exp->IlluminationFrame->iplimg,cvScalar(255,255,255),temp);
+	LoadFrameWithImage(temp,exp->IlluminationFrame);
+
+
+
+	/** Invert DLP Frame **/
+	cvXorS(exp->forDLP->iplimg,cvScalar(255,255,255),temp);
+	LoadFrameWithImage(temp,exp->forDLP);
+
+
+}
+
 
 /*********************
  *

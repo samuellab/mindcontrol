@@ -212,8 +212,10 @@ int main (int argc, char** argv){
 						TICTOC::timer().toc("IlluminateFromProtocol()");
 
 					}
-				}
 
+				}
+				/** If InvertIllumination is turned on, then do that now **/
+				if (exp->Params->IllumInvert) InvertIllumination(exp);
 			}
 
 

@@ -27,4 +27,4 @@ shortcutkeys.txt
 - [: decrement threshold
 - ]: increment threshold
 
-- I: invert selection (to be implemented)
+- v: invert selection

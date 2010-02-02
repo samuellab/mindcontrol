@@ -53,6 +53,7 @@ typedef struct WormAnalysisParamStruct{
 	int SegStop; // Deprecated
 
 
+	int IllumInvert;
 	CvPoint IllumSquareOrig;
 	CvSize IllumSquareRad;
 	int IllumFloodEverything;

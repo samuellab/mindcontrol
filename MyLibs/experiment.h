@@ -327,6 +327,10 @@ void PrepareSelectedDisplay(Experiment* exp);
  */
 int DoOnTheFlyIllumination(Experiment* exp);
 
+/**
+ * Invert the illumination, so white becomes black and vice-versa.
+ */
+void InvertIllumination(Experiment* exp);
 
 
 /*
