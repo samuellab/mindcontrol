@@ -297,7 +297,7 @@ int HandleIlluminationTiming(Experiment* exp) {
 
 		/** Turn the DLP On **/
 		exp->Params->DLPOn = 1;
-		printf("Turning on DLP transiently...\n");
+		printf("Turning on DLP transiently for %d tenths of seconds ...\n",exp->Params->IllumDuration);
 		return 1;
 	}
 
@@ -307,7 +307,6 @@ int HandleIlluminationTiming(Experiment* exp) {
 		diff = curr_tv.tv_sec + (curr_tv.tv_usec / 1000000.0) - exp->illumStart;
 
 		tenthsOfSecondsElapsed = (int) (diff * 10.0);
-		printf(" tenthsOfSecondsElapsed=%d\n", tenthsOfSecondsElapsed);
 		if (tenthsOfSecondsElapsed > exp->Params->IllumDuration) {
 			/** The illumination is now finished **/
 			/** Turn the DLP Off **/

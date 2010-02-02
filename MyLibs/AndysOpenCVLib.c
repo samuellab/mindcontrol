@@ -499,7 +499,7 @@ void resampleSeqConstPtsPerArcLength(CvSeq* sequence, CvSeq* ResampledSeq, int N
 	 */
 
 	/** n-1 is the optimum arc length between points**/
-		n = (float) ( curr.sum-1)/ (float) ( Numsegments-1); //Andy: these -1's seem to work. Don't ask me why.**/
+		n = (float) ( curr.sum)/ (float) ( Numsegments-1); //Andy: these -1's make sense. I tested for the case 10 pts equally spaced distance 1 apart.**/
 
 
 		PtAndSum* prevVertex;
@@ -523,17 +523,35 @@ void resampleSeqConstPtsPerArcLength(CvSeq* sequence, CvSeq* ResampledSeq, int N
 
 		/** For each point we are looking for **/
 
-		while (i<Numsegments){
-			s=i*(float) n; // The point should lie a distance s along the arc length
+		while (i<Numsegments){ // while working on the ith point to create (starting with zero)
+			s=(float)i* n; // The point should lie a distance s along the arc length
 
-			/** While the correct pair of vertices do not enclose s **/
+
 			k=0;
-//			printf("New\n");
+
+			/** Loop until we find some vertices that do s **/
 			while (!(  (s>= prevVertex->sum )&& (s <= currVertex->sum) )){
+
+
 
 //				printf("\n\ns=%f,i=%d,k=%d\n",s,i,k);
 //				printf("prevVertex->sum = %f\n",prevVertex->sum );
 //				printf("currVertex->sum = %f\n",currVertex->sum );
+
+
+
+				/** Special case when we are seeking to find the vertices that enclose the last point **/
+				if (i==Numsegments-1){
+					/** select the second-to-last vertex of the sequence **/
+					cvSetSeqReaderPos(&reader,decimated->total-2,0);
+					prevVertex= (PtAndSum*) reader.ptr;
+					/** set the current vertex to the end vertex of the sequence **/
+					CV_NEXT_SEQ_ELEM(sizeof(PtAndSum),reader);
+					currVertex = (PtAndSum*) reader.ptr;
+					k++; // just for kicks increment k
+					break;
+				}
+
 				/** prevVertex=currVertex **/
 				prevVertex=currVertex;
 
@@ -544,20 +562,8 @@ void resampleSeqConstPtsPerArcLength(CvSeq* sequence, CvSeq* ResampledSeq, int N
 
 
 
-				/** If we've gone through all the vertices and still nothing works **/
-				if (k==Numsegments) {
-					printf("Whoops! Killing infinite loop. Something is not right with this boundary for point number %d.\n",i);
-									printf("\n\ns=%f,i=%d,k=%d\n",s,i,k);
-									printf("prevVertex->sum = %f\n",prevVertex->sum );
-									printf("currVertex->sum = %f\n",currVertex->sum );
-					break;
-
-				}
-
 			}
-//			printf("\nSuccess!\ns=%f,i=%d,k=%d\n",s,i,k);
-//			printf("prevVertex->sum = %f\n",prevVertex->sum );
-//			printf("currVertex->sum = %f\n",currVertex->sum );
+
 
 			/** Interpolate & record output 	**/
 			DistBetVertices=(double) currVertex->sum - (double) prevVertex->sum;
@@ -574,6 +580,7 @@ void resampleSeqConstPtsPerArcLength(CvSeq* sequence, CvSeq* ResampledSeq, int N
 				unitVec.x=0;  /** Avoid dividing by zero **/
 				unitVec.y=0;
 			} else {
+				/** Calculate the unit vector that points from prevVertex to currVertex **/
 				unitVec=cvPoint2D32f( (double) (currVertex->x-prevVertex->x) / (double) DistBetVertices  ,
 						(double) (currVertex->y-prevVertex->y) / (double) DistBetVertices);
 			}
@@ -581,9 +588,7 @@ void resampleSeqConstPtsPerArcLength(CvSeq* sequence, CvSeq* ResampledSeq, int N
 			/** Parametric equation **/
 			interpPt=cvPoint((int) ((int) prevVertex->x+unitVec.x * t+0.5),(int) ((int) prevVertex->y +unitVec.y * t+0.5));
 
-
-
-
+			/** Actually write the newly found interpolated point **/
 			CV_WRITE_SEQ_ELEM(interpPt, writer);
 
 			i++;
