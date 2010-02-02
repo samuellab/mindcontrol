@@ -107,12 +107,12 @@ int T2Matlab_GenLookUpTable(CvSeq *CalibSeq, int *CCD2DLPLookUp, int nsizex, int
 	printf("Generating lookup table inside MATLAB.\n");
 	//In MATLAB, generate a lookup table
 	//engEvalString(ep,"	[x y] = ind2sub([nsizex nsizey]', (1:nsizex*nsizey));\n[xm, ym]=tforminv(t,x,y);\n LookUp=reshape([xm ym],nsizex,nsizey,2);\n LookUp=round(LookUp);LookUp=LookUp-1;");
-	engEvalString(ep,"x=1:nsizex;\n y=[1:nsizey]';\n source(:,:,1)= repmat(x,[nsizey 1]); \n  source(:,:,2)=repmat(y,[1 nsizex]); \n  source(:,:,3)=zeros(size(source(:,:,1)));\n  figure; imagesc(source./(max(nsizex,nsizey)));\n title('Graphical representation of x&y coordinates. X is Red. Y is green');\n LookUp = imtransform(source,t,'XData',[1 ccdsizex],'YData',[1 ccdsizey]);\n LookUp=round(LookUp);\n figure; imagesc(LookUp./(max(max(max(LookUp)))));\n title('Destination of x&y coordinates. X is red. Y is grene')\n ");
+	engEvalString(ep,"x=1:nsizex;\n y=[1:nsizey]';\n source(:,:,1)= repmat(x,[nsizey 1]); \n  source(:,:,2)=repmat(y,[1 nsizex]); \n  source(:,:,3)=zeros(size(source(:,:,1)));\n  figure; imagesc(source./(max(nsizex,nsizey)));\n title('Graphical representation of x&y coordinates. X is Red. Y is green');\n pause(5);\n LookUp = imtransform(source,t,'XData',[1 ccdsizex],'YData',[1 ccdsizey]);\n LookUp=round(LookUp);\n figure; imagesc(LookUp./(max(max(max(LookUp)))));\n title('Destination of x&y coordinates. X is red. Y is grene')\n pause(5);\n ");
 
 	printf("\n\n<matlab output>\n");
 		printf(MatlabBuff);
 		printf("\n</matlab output>\n\n");
-		engEvalString(ep,"	figure; imagesc(LookUp(:,:,1)); title('Dimension 1');figure; imagesc(LookUp(:,:,2));title('Dimension 2')");
+		engEvalString(ep,"	figure; imagesc(LookUp(:,:,1)); title('Dimension 1');figure; imagesc(LookUp(:,:,2));title('Dimension 2'); pause(5);\n");
 
 
 	printf("Preparing to pass LookUp table back into C.\n");

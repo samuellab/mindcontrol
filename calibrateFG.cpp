@@ -64,6 +64,8 @@ typedef struct CalibrationSessionStruct {
 	int CircRadius;
 	int gauss_radius;
 	int rel_intensity_thresh;
+	int minIntensityAboveMean; // Number of intensity units that a pt must have above the mean to be valid.
+
 	/** Size of Objects **/
 	CvSize DLPsize;
 	CvSize Camsize;
@@ -109,6 +111,7 @@ CalibrationSession* CreateCalibrationSession(){
 	c->CircRadius=4;
 	c->gauss_radius=10;
 	c->rel_intensity_thresh=4;
+	c->minIntensityAboveMean=2;
 
 	/** Sizing Info **/
 	c->DLPsize=cvSize(0,0);
@@ -197,6 +200,7 @@ void SetupGUI(CalibrationSession* c){
 	cvCreateTrackbar("GaussRad", "FromCamera", &(c->gauss_radius), 30,			NULL);
 	cvCreateTrackbar("RelIntThresh", "FromCamera",
 				&(c->rel_intensity_thresh), 10, NULL);
+	cvCreateTrackbar("MinIntAboveMean","FromCamera", &(c->minIntensityAboveMean),10,NULL);
 	return;
 
 }
@@ -289,8 +293,8 @@ void CalibrateAPoint(CvPoint pt, CalibrationSession* c){
 		cvWaitKey(3);
 
 		/** Is the Point Valid? **/
-		if (c->maxvalue > ((c->rel_intensity_thresh) * c->stdev.val[0])
-					+ c->mean.val[0]) {
+		if ((c->maxvalue > ((c->rel_intensity_thresh) * c->stdev.val[0])
+					+ c->mean.val[0]) &&  c->maxvalue-c->mean.val[0] > c->minIntensityAboveMean   ) {
 				cvSeqPush(Pts, &(c->MaxPoint));
 			} else {
 				printf("Tossing frame. Spot fails relative intensity threshold.\n");
