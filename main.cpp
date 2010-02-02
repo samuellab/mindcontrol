@@ -218,9 +218,9 @@ int main (int argc, char** argv){
 
 
 
-
+			TICTOC::timer().tic("SendFrameToDLP");
 			if (!(exp->e) && exp->Params->DLPOn && !(exp->SimDLP)) T2DLP_SendFrame((unsigned char *) exp->forDLP->binary, exp->myDLP); // Send image to DLP
-
+			TICTOC::timer().toc("SendFrameToDLP");
 
 
 			/*** DIsplay Some Monitoring Output ***/

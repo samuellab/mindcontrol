@@ -499,7 +499,7 @@ void resampleSeqConstPtsPerArcLength(CvSeq* sequence, CvSeq* ResampledSeq, int N
 	 */
 
 	/** n-1 is the optimum arc length between points**/
-		n = (float) ( curr.sum)/ (float) ( Numsegments-1); //Andy: i checked the -1's for and the (while <numseg)for the  case of 10 pts spaced 1 apart on line **/
+		n = (float) ( curr.sum-1)/ (float) ( Numsegments-1); //Andy: these -1's seem to work. Don't ask me why.**/
 
 
 		PtAndSum* prevVertex;
@@ -546,7 +546,10 @@ void resampleSeqConstPtsPerArcLength(CvSeq* sequence, CvSeq* ResampledSeq, int N
 
 				/** If we've gone through all the vertices and still nothing works **/
 				if (k==Numsegments) {
-					printf("Whoops! Something is not right with this boundary for point number %d.\n",i);
+					printf("Whoops! Killing infinite loop. Something is not right with this boundary for point number %d.\n",i);
+									printf("\n\ns=%f,i=%d,k=%d\n",s,i,k);
+									printf("prevVertex->sum = %f\n",prevVertex->sum );
+									printf("currVertex->sum = %f\n",currVertex->sum );
 					break;
 
 				}
