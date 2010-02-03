@@ -343,6 +343,7 @@ UINT Thread(LPVOID lpdwParam) {
 			if (exp->Params->ProtocolUse && (prevProtocolStep!= exp->Params->ProtocolStep))  {
 				cvZero(rectWorm);
 				IllumRectWorm(rectWorm,exp->p,exp->Params->ProtocolStep);
+				prevProtocolStep=exp->Params->ProtocolStep;
 				/** Update the Protocol **/
 				cvShowImage("ProtoIllum",rectWorm);
 

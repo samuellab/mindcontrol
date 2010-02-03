@@ -1,7 +1,7 @@
 % This writes out a protocl to disk in the form of a yaml file
 % It takes in the protocol information as a cell array, protocol
 % Note that as of now it can only handle one polygon per step.
-
+% Note width is NOT radius. 
 function [] = writeProto (filename,description,width,height,protocol)
 assert(ischar(filename),'Error: filename must be a string')
 assert(ischar(description),'Error: description must be a string in writeProto')
@@ -23,7 +23,7 @@ i=0; %indentation starts at zero.
 i=startWriteStruct(fid,'Protocol',i);
 
     i=writeString(fid,'Filename',filename,i);
-    i=writeString(fid,'Description','First protocol generated in MATLAB',i);
+    i=writeString(fid,'Description',description,i);
     i=startWriteStruct(fid,'GridSize',i);
         i=writeInt(fid,'height',height,i);
         i=writeInt(fid,'width',width,i);
@@ -32,20 +32,21 @@ i=startWriteStruct(fid,'Protocol',i);
         %For each montage
         for m=1:length(protocol)
         i=startWriteListItem(fid,'',i);
-            % for each polygon
-            % NOTE! For now we are assuming only one protocol per montage
-            i = writeCVSeqItem(fid,protocol{m},i)
+        % for each polygon
+        % NOTE! For now we are assuming only one protocol per montage
+        i = writeCVSeqItem(fid,protocol{m},i);
         
         
         i=endWriteListItem(fid,i);
         end
         
-    i=endWriteList(fid,i)
+    i=endWriteList(fid,i);
     
     
 
 
 endWriteStruct(fid,i);
+
 end
 
 %%%Protocol Items

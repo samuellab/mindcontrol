@@ -28,3 +28,8 @@ shortcutkeys.txt
 - ]: increment threshold
 
 - v: invert selection
+
+- /: timed pulse illumination
+- <: decrement duration of pulsed illumination
+- >: increment duration of pulsed illumination
+
