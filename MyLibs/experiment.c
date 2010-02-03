@@ -525,7 +525,7 @@ void RollVideoInput(Experiment* exp) {
 		if (exp->UseFrameGrabber) {
 			exp->fg = CreateFrameGrabberObject();
 			InitializeFrameGrabber(exp->fg);
-			FrameGrabberSetRegionOfInterest(exp->fg, 0, 0, 1024, 768);
+			FrameGrabberSetRegionOfInterest(exp->fg, 0, 127, 1024, 768);
 			PrepareFrameGrabberForAcquire(exp->fg);
 
 			printf("Checking frame size of frame grabber..\n");
