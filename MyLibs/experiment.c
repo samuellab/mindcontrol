@@ -322,7 +322,6 @@ int HandleIlluminationTiming(Experiment* exp) {
 			/** We should continue to illuminate **/
 			exp->Params->DLPOn = 1;
 			//printf("diff=%e illumstart=%d current=%d, IllumDuration=%d\n\n",diff,exp->illumStart,current,exp->Params->IllumDuration);
-			printf("#");
 			return 1;
 		}
 

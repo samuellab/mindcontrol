@@ -205,6 +205,7 @@ int main (int argc, char** argv){
 
 						/** Illuminate The worm in Camera Space **/
 						TICTOC::timer().tic("IlluminateFromProtocol()");
+
 						IlluminateFromProtocol(exp->Worm->Segmented,exp->IlluminationFrame,exp->p,exp->Params);
 
 						/** Illuminate the worm in DLP space **/

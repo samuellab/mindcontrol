@@ -54,8 +54,8 @@ mvHEADTAIL=[0,10, 0,10, 0,10, 0,10];
 
 
 protocol{1}= primitive - [0,0,  0,0,   0,10, 0,10  ]
-for j=2:10
-    protocol{j}=min(99,primitive+(j-1).*mvHEADTAIL);
+for j=2:11
+    protocol{j}=min(99,primitive+(j-2).*mvHEADTAIL);
 end
 
 
