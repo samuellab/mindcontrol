@@ -15,7 +15,6 @@
 %             |    |
 %             |    |
 %             |    |
-
 %             |    |
 %             |    |
 %             |    |
@@ -40,34 +39,25 @@
 
 
 %% Header informatoin
-filename='crudeRasterScan.yml';
-description= 'This protocol consists of a crude rasterscan. It divides the worms up into 10 by 4 segmants.';
-gridHeight=99;
-gridWidth=9;
-
+filename='BandsProto.yml';
+description= '20percent Bands incremented by 10percent.';
+gridHeight=100; %Note these are zero indexed, so the largets coordinate should be 99
+gridWidth=21;
 %% Guts
 %Fundamental unit
 
-primitive=[0,0, 1,0, 1,9, 0,9];
+primitive=[-20,0, 20,0, 20,20, -20,20];
 
-mvLATERAL=[1,0, 1,0 ,1,0, 1,0];
+%mvLATERAL=[1,0, 1,0 ,1,0, 1,0];
 mvHEADTAIL=[0,10, 0,10, 0,10, 0,10];
 
-current=primitive-4*mvLATERAL;
-m=1;
 
-for j=1:10
-    protocol{m}=current;
 
-    for k=1:7     
-        m=m+1;
-        current=current+mvLATERAL
-        protocol{m}=current;
-    end
-    current=current-7*mvLATERAL; %reset lateral position
-    current=current+mvHEADTAIL %increment head position
-    m=m+1;
+protocol{1}= primitive - [0,0,  0,0,   0,10, 0,10  ]
+for j=2:10
+    protocol{j}=min(99,primitive+(j-1).*mvHEADTAIL);
 end
+
 
 figure;
 for n=1:length(protocol)
@@ -75,4 +65,4 @@ plotProtocol(protocol{n},gridHeight,gridWidth)
 pause
 end
 
-writeProto('rasterProto.yml','First raster scan',gridWidth,gridHeight,protocol)
+writeProto(filename,description,gridWidth,gridHeight,protocol)

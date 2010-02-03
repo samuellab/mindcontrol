@@ -421,6 +421,13 @@ void SetupGUI(Experiment* exp) {
 	cvCreateTrackbar("yRad", exp->WinCon1,
 			&(exp->Params->IllumSquareRad.height), exp->Params->DefaultGridSize.height,
 			(int) NULL);
+
+	cvCreateTrackbar("IllumDuration", exp->WinCon1,
+			&(exp->Params->IllumDuration), 50, (int) NULL);
+	cvCreateTrackbar("DLPFlashOn", exp->WinCon1,
+			&(exp->Params->DLPOnFlash), 1, (int) NULL);
+
+
 	cvCreateTrackbar("DLPOn", exp->WinCon1, &(exp->Params->DLPOn), 1,
 			(int) NULL);
 
@@ -443,10 +450,6 @@ void SetupGUI(Experiment* exp) {
 		cvCreateTrackbar("ProtoStep", exp->WinCon2,
 				&(exp->Params->ProtocolStep), exp->p->Steps->total - 1,
 				(int) NULL);
-		cvCreateTrackbar("IllumDuration", exp->WinCon2,
-				&(exp->Params->IllumDuration), 50, (int) NULL);
-		cvCreateTrackbar("DLPFlashOn", exp->WinCon2,
-				&(exp->Params->DLPOnFlash), 1, (int) NULL);
 	}
 	printf("Created trackbars and windows\n");
 	return;
@@ -459,7 +462,7 @@ void SetupGUI(Experiment* exp) {
  */
 void UpdateGUI(Experiment* exp) {
 
-		cvSetTrackbarPos("DLPFlashOn", exp->WinCon2, (exp->Params->DLPOnFlash));
+		cvSetTrackbarPos("DLPFlashOn", exp->WinCon1, (exp->Params->DLPOnFlash));
 		cvSetTrackbarPos("DLPOn", exp->WinCon1, (exp->Params->DLPOn));
 
 		/** Illumination Controls **/
@@ -477,16 +480,16 @@ void UpdateGUI(Experiment* exp) {
 		cvSetTrackbarPos("TemporalIQ", exp->WinCon1, (exp->Params->TemporalOn));
 
 
+		cvSetTrackbarPos("IllumDuration", exp->WinCon1,
+				(exp->Params->IllumDuration));
+
+
 		/** Protocol Stuff **/
 		/** If we have loaded a protocol, update protocol specific sliders **/
 		if (exp->pflag) {
 			cvSetTrackbarPos("Protocol", exp->WinCon2, exp->Params->ProtocolUse);
 			cvSetTrackbarPos("ProtoStep", exp->WinCon2,
 					(exp->Params->ProtocolStep));
-			cvSetTrackbarPos("IllumDuration", exp->WinCon2,
-					(exp->Params->IllumDuration));
-			cvSetTrackbarPos("DLPFlashOn", exp->WinCon2,
-					(exp->Params->DLPOnFlash));
 		}
 
 		/** Floodlight **/
@@ -1068,10 +1071,20 @@ int HandleKeyStroke(int c, Experiment* exp) {
 		Toggle(&(exp->Params->DLPOnFlash));
 		break;
 
-	/** Timed DLP on **/
+	case '<':
+		Decrement(&(exp->Params->IllumDuration),0);
+		break;
+
+	case '>':
+		Increment(&(exp->Params->IllumDuration),100);
+		break;
+
+	/** Temporal **/
 	case 't':
 		Toggle(&(exp->Params->TemporalOn));
 		break;
+
+
 
 	/** Invert Selection **/
 	case 'v':
