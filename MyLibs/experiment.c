@@ -472,7 +472,7 @@ void UpdateGUI(Experiment* exp) {
 
 		/** Threshold **/
 		cvSetTrackbarPos("Threshold", exp->WinCon1, (exp->Params->BinThresh));
-
+		cvSetTrackbarPos("Gauss=x*2+1",exp->WinCon1, exp->Params->GaussSize);
 
 		/** Updated Temporal IQ **/
 		/** Temporal Coding **/
@@ -1077,6 +1077,14 @@ int HandleKeyStroke(int c, Experiment* exp) {
 		break;
 	case '[':
 		Decrement(&(exp->Params->BinThresh),0);
+		break;
+
+	/** Gaussian Blur **/
+	case 'G':
+		Increment(&(exp->Params->GaussSize),10);
+		break;
+	case 'g':
+		Decrement(&(exp->Params->GaussSize),0);
 		break;
 
 	/** Timed DLP on **/
