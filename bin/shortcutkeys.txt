@@ -17,10 +17,10 @@ shortcutkeys.txt
 - w: increment radius in y
 - s: decrement radius in y
 
-
+- F: flip head tail (only works if temporal head/tail intellegence is also enabled)
 - t: toggle temporal head/tail inteligence
-- p: toggle protocol
 
+- p: toggle protocol
 - ,: decrement protocol step
 - .: increment protocol step
 
@@ -32,4 +32,5 @@ shortcutkeys.txt
 - /: timed pulse illumination
 - <: decrement duration of pulsed illumination
 - >: increment duration of pulsed illumination
+
 

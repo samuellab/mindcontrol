@@ -930,9 +930,23 @@ void DoSegmentation(Experiment* exp) {
 	/*** Find Worm Head and Tail ***/
 	if (!(exp->e))
 		exp->e = GivenBoundaryFindWormHeadTail(exp->Worm, exp->Params);
+
 	/** If we are doing temporal analysis, improve the WormHeadTail estimate based on prev frame **/
-	if (exp->Params->TemporalOn && !(exp->e))
+	if (exp->Params->TemporalOn && !(exp->e)){
 		PrevFrameImproveWormHeadTail(exp->Worm, exp->Params, exp->PrevWorm);
+	}
+
+	/** if the user is manually inducing a head/tail flip **/
+	if (exp->Params->InduceHeadTailFlip){
+		ReverseWormHeadTail(exp->Worm);
+		/** Turn the flag off **/
+		exp->Params->InduceHeadTailFlip=0;
+		/*
+		 * Note, of course, this function only makes sense if the user is also doing temporal intelligence.
+		 * (Otherwise the flipped head tail would immediately reverse itself in the next frame.)
+		 * But for completeness we allow the use to do the flip here.
+		 */
+	}
 
 	/*** Segment the Worm ***/
 	if (!(exp->e))
@@ -1081,6 +1095,9 @@ int HandleKeyStroke(int c, Experiment* exp) {
 	/** Temporal **/
 	case 't':
 		Toggle(&(exp->Params->TemporalOn));
+		break;
+	case 'F':
+		Toggle(&(exp->Params->InduceHeadTailFlip));
 		break;
 
 

@@ -34,6 +34,8 @@ typedef struct WormAnalysisParamStruct{
 
 	/** Frame to Frame Temporal Analysis**/
 	int TemporalOn;
+	int InduceHeadTailFlip;
+
 	int MaxLocationChange;
 	int MaxPerimChange;
 
