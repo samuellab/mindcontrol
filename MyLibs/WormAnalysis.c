@@ -229,6 +229,8 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 
 	/** Frame-to-Frame Temporal Analysis Parameters **/
 	ParamPtr->TemporalOn=1;
+	ParamPtr->InduceHeadTailFlip=0;
+
 	ParamPtr->MaxLocationChange=70;
 	ParamPtr->MaxPerimChange=10;
 
@@ -1165,8 +1167,7 @@ int PrevFrameImproveWormHeadTail(WormAnalysisData* Worm,
 		if ( (SqDeltaHeadInv < rsquared) || (SqDeltaTailInv < rsquared )){
 			/** The inverse is close, so let's reverse the Head Tail**/
 			ReverseWormHeadTail(Worm);
-			if (DEBUG)
-				printf("ReversedWormHeadTail\n");
+			if (DEBUG) printf("ReversedWormHeadTail\n");
 			return 0;
 
 		} else {

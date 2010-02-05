@@ -322,7 +322,6 @@ int HandleIlluminationTiming(Experiment* exp) {
 			/** We should continue to illuminate **/
 			exp->Params->DLPOn = 1;
 			//printf("diff=%e illumstart=%d current=%d, IllumDuration=%d\n\n",diff,exp->illumStart,current,exp->Params->IllumDuration);
-			printf("#");
 			return 1;
 		}
 
@@ -473,7 +472,7 @@ void UpdateGUI(Experiment* exp) {
 
 		/** Threshold **/
 		cvSetTrackbarPos("Threshold", exp->WinCon1, (exp->Params->BinThresh));
-
+		cvSetTrackbarPos("Gauss=x*2+1",exp->WinCon1, exp->Params->GaussSize);
 
 		/** Updated Temporal IQ **/
 		/** Temporal Coding **/
@@ -928,9 +927,23 @@ void DoSegmentation(Experiment* exp) {
 	/*** Find Worm Head and Tail ***/
 	if (!(exp->e))
 		exp->e = GivenBoundaryFindWormHeadTail(exp->Worm, exp->Params);
+
 	/** If we are doing temporal analysis, improve the WormHeadTail estimate based on prev frame **/
-	if (exp->Params->TemporalOn && !(exp->e))
+	if (exp->Params->TemporalOn && !(exp->e)){
 		PrevFrameImproveWormHeadTail(exp->Worm, exp->Params, exp->PrevWorm);
+	}
+
+	/** if the user is manually inducing a head/tail flip **/
+	if (exp->Params->InduceHeadTailFlip){
+		ReverseWormHeadTail(exp->Worm);
+		/** Turn the flag off **/
+		exp->Params->InduceHeadTailFlip=0;
+		/*
+		 * Note, of course, this function only makes sense if the user is also doing temporal intelligence.
+		 * (Otherwise the flipped head tail would immediately reverse itself in the next frame.)
+		 * But for completeness we allow the use to do the flip here.
+		 */
+	}
 
 	/*** Segment the Worm ***/
 	if (!(exp->e))
@@ -1063,6 +1076,14 @@ int HandleKeyStroke(int c, Experiment* exp) {
 		Decrement(&(exp->Params->BinThresh),0);
 		break;
 
+	/** Gaussian Blur **/
+	case 'G':
+		Increment(&(exp->Params->GaussSize),10);
+		break;
+	case 'g':
+		Decrement(&(exp->Params->GaussSize),0);
+		break;
+
 	/** Timed DLP on **/
 	case '/':
 		Toggle(&(exp->Params->DLPOnFlash));
@@ -1079,6 +1100,9 @@ int HandleKeyStroke(int c, Experiment* exp) {
 	/** Temporal **/
 	case 't':
 		Toggle(&(exp->Params->TemporalOn));
+		break;
+	case 'F':
+		Toggle(&(exp->Params->InduceHeadTailFlip));
 		break;
 
 
