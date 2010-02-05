@@ -54,6 +54,18 @@ typedef struct FrameGrabberStruct {
 
 FrameGrabber* CreateFrameGrabberObject();
 
+
+
+/*
+ * Higher Level Function to Ready the frameGrabber
+ * Creates framegragbber object
+ * Initilizes the frame grabber
+ * sets the region of interest
+ * and prepares the FrameGrabber for Acuisiation
+ *
+ */
+FrameGrabber* TurnOnFrameGrabber();
+
 /*
  * Initializes the frame grabber with a fg object
  * that has already been created using CreateFrameGrabberObject()

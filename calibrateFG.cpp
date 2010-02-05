@@ -184,14 +184,6 @@ void SetHardwareDimensions(CalibrationSession* c, CvSize DLPsize, CvSize Camsize
 
 
 
-FrameGrabber* TurnOnFrameGrabber(){
-	FrameGrabber* fg= CreateFrameGrabberObject();
-	InitializeFrameGrabber(fg);
-	FrameGrabberSetRegionOfInterest(fg,0,0,1024,768);
-	PrepareFrameGrabberForAcquire(fg);
-	return fg;
-}
-
 
 void SetupGUI(CalibrationSession* c){
 	cvNamedWindow("FromCamera", CV_WINDOW_AUTOSIZE);

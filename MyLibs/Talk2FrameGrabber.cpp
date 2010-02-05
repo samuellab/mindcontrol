@@ -14,6 +14,9 @@
 
 
 
+
+
+
 FrameGrabber* CreateFrameGrabberObject(){
 	FrameGrabber* fg;
 
@@ -28,6 +31,23 @@ FrameGrabber* CreateFrameGrabberObject(){
 	fg->ContinuousData= FALSE;
 	return fg;
 
+}
+
+
+/*
+ * Higher Level Function to Ready the frameGrabber
+ * Creates framegragbber object
+ * Initilizes the frame grabber
+ * sets the region of interest
+ * and prepares the FrameGrabber for Acuisiation
+ *
+ */
+FrameGrabber* TurnOnFrameGrabber(){
+	FrameGrabber* fg= CreateFrameGrabberObject();
+	InitializeFrameGrabber(fg);
+	FrameGrabberSetRegionOfInterest(fg,0,127,1024,768);
+	PrepareFrameGrabberForAcquire(fg);
+	return fg;
 }
 
 

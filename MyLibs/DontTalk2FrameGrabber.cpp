@@ -41,6 +41,21 @@ FrameGrabber* CreateFrameGrabberObject(){
 
 }
 
+/*
+ * Higher Level Function to Ready the frameGrabber
+ * Creates framegragbber object
+ * Initilizes the frame grabber
+ * sets the region of interest
+ * and prepares the FrameGrabber for Acuisiation
+ *
+ */
+FrameGrabber* TurnOnFrameGrabber(){
+	T2FrameGrabber_errormsg();
+		assert(0);
+		return 0;
+
+}
+
 
 
 /*

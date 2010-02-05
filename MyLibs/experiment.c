@@ -526,10 +526,7 @@ void RollVideoInput(Experiment* exp) {
 	} else {
 		/** Use source from camera **/
 		if (exp->UseFrameGrabber) {
-			exp->fg = CreateFrameGrabberObject();
-			InitializeFrameGrabber(exp->fg);
-			FrameGrabberSetRegionOfInterest(exp->fg, 0, 127, 1024, 768);
-			PrepareFrameGrabberForAcquire(exp->fg);
+			exp->fg = TurnOnFrameGrabber();
 
 			printf("Checking frame size of frame grabber..\n");
 			/** Check to see that our image sizes are all the same. **/
