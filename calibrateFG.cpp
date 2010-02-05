@@ -384,6 +384,7 @@ int main (int argc, char** argv){
 
 
 
+
 	/*** Build Up a set of calibrated points ***/
 	int calx = 0;
 	int caly = 0;
@@ -402,6 +403,8 @@ int main (int argc, char** argv){
 		}
 		caly = caly + c->StepSize;
 	}
+
+	T2DLP_clear(c->myDLP);
 
 	/** Generate Look Up Table in Matlab **/
 	cvDestroyAllWindows();

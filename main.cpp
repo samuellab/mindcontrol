@@ -262,7 +262,10 @@ int main (int argc, char** argv){
 	FinishRecording(exp);
 	TICTOC::timer().toc("FinishRecording()");
 
-	if (!(exp->SimDLP)) 	T2DLP_off(exp->myDLP);
+	if (!(exp->SimDLP)) 	{
+		T2DLP_clear(exp->myDLP);
+		T2DLP_off(exp->myDLP);
+	}
 
 	if (!(exp->VidFromFile) && !(exp->UseFrameGrabber)){
 		/***** Turn off Camera & DLP ****/
