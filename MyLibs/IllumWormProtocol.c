@@ -494,6 +494,8 @@ int CvtPolyMontage2ContourMontage(CvSeq* PolyMontage, CvSeq* ContourMontage){
 
 			/** Move to the next polygon **/
 			CV_NEXT_SEQ_ELEM(PolyMontage->elem_size,PolyReader);
+			DestroyWormPolygon(&wrappedContour);
+
 
 		}
 		return 1;
@@ -639,8 +641,12 @@ void IllumRectWorm(IplImage* rectWorm,Protocol* p,int step){
 		OffsetPtArray(&currPolyPts,numPtsInCurrPoly, (int) (p->GridSize.width / 2) ,0);
 
 		cvFillConvexPoly(rectWorm,currPolyPts,numPtsInCurrPoly,cvScalar(255,255,255),CV_AA);
+
+
 		free(currPolyPts);
 	}
+	cvClearSeq(montage);
+
 }
 
 
@@ -731,8 +737,8 @@ void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img,CvSize
 				cvCircle(img, polyArr[i], 1, cvScalar(255, 255, 255), 1);
 				cvShowImage("Debug",img);
 				cvWaitKey(10);
-
 			}
+
 		}
 
 
@@ -794,6 +800,7 @@ int IlluminateFromProtocol(SegmentedWorm* SegWorm,Frame* dest, Protocol* p,WormA
 	IllumWorm(SegWorm,montage,TempImage,p->GridSize);
 	LoadFrameWithImage(TempImage,dest);
 
+//	cvClearSeq(montage);
 	cvReleaseImage(&TempImage);
 	return 0;
 }
