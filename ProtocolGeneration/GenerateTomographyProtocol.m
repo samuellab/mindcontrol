@@ -44,7 +44,7 @@ clear all; close all;
 filename='2DTomography.yml';
 gridHeight=100;
 gridWidth=11; %must be odd
-description= sprintf('This protocol consists of a crude rasterscan. It divides the worms up into a %d by %d grid.\n', gridHeight, gridWidth);
+description= sprintf('This protocol consists of a crude rasterscan. It divides the worms up into a %d by %d grid.', gridHeight, gridWidth);
 
 
 
