@@ -31,26 +31,38 @@ DEFINE_GUID(LEP_GUID, // LEP's global, unique identifier
 // Function prototypes
 int UsbScan(char*);
 DWORD GetRxLen(char);
-void PrintVersion(void);
+
 // Global Variables
-HANDLE hUsb; // Handle to the USB pipe
 
 
 
-int main() {
-	printf("Hello world!\n");
+// PrintVersion() - Gets and printf the driver version information.
+void PrintVersion(HANDLE hUsb) {
+	UCHAR Ver[512];
+	ULONG nBytes;
+	BOOLEAN Success;
+	Success = DeviceIoControl(hUsb, IOCTL_LEPUSB_GET_VERSION_INFO, NULL, 0,
+			Ver, sizeof(Ver), &nBytes, NULL);
+	if (!Success)
+		printf("ERROR: Read Driver Version.\n");
+	Ver[nBytes] = NULL; // don't forget the NULL terminator
+	printf("%s", Ver); // printf the Version
+}
+// --------------------------------------------------------------------- //
 
+/*
+ * Initializes the USB stage;
+ */
+HANDLE InitializeUsbStage(){
 	char DeviceName[MAX_PATH];
-	char Buffer[1024];
-	DWORD Length, result;
-	printf("Usb_rcfg - Version 0.02 %s %s\n", __DATE__, __TIME__);
+
 	// Scan for Usb Device
 	if (!UsbScan(DeviceName)) {
 		printf("No devices found!\n");
 		return 0;
 	}
 	printf("Device Found: %s\n", DeviceName);
-	hUsb = CreateFile(DeviceName, GENERIC_READ | GENERIC_WRITE,
+	HANDLE hUsb = CreateFile(DeviceName, GENERIC_READ | GENERIC_WRITE,
 			FILE_SHARE_WRITE | FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 	if (hUsb == INVALID_HANDLE_VALUE) {
 		printf("Error %d: Failed to open USB file handle.\n", GetLastError());
@@ -58,68 +70,97 @@ int main() {
 	} else
 		printf("Device Opened: ");
 	// Print driver version
-	PrintVersion();
-//	printf("Put MAC2002 into High Level Mode\n");
-//	// Put MAC2002 into High Level Mode
-//	sprintf(Buffer, "%c%c", 0xFF, 0x41);
-//	WriteFile(hUsb, Buffer, 2, &Length, NULL);
-	sprintf(Buffer,"SPIN X=500 Y=500\r");
-	printf("Telling the device to %s\n",Buffer);
-	WriteFile(hUsb, Buffer, strlen(Buffer), &Length, NULL);
-	printf("Hit a key when done...\n");
+	PrintVersion(hUsb);
+	return hUsb;
+}
 
-	int a;
-	do
-	{
-	  a=kbhit();
-	}while(a!=1);
-
-	sprintf(Buffer,"HALT\r");
-	printf("Telling the device to %s\n",Buffer);
-	WriteFile(hUsb, Buffer, strlen(Buffer), &Length, NULL);
-	printf("Hit a key when done...\n");
-
-	CloseHandle(hUsb);
-	printf("Device Closed.\n");
+int spinStage(HANDLE s, int xspeed,int yspeed){
+	DWORD Length;
+	char* buff=(char*) malloc(sizeof(char)*1024);
+	sprintf(buff,"SPIN X=%d Y=%d\r",xspeed,yspeed);
+	WriteFile(s, buff, strlen(buff), &Length, NULL);
+	free(buff);
 	return 0;
 
+}
+
+int haltStage(HANDLE s){
+		DWORD Length;
+		WriteFile(s, "HALT\r", strlen("HALT\r"), &Length, NULL);
+		return 0;
+
+}
+
+void handleKeyboardSteering(HANDLE s, int speed, int input){
+	  switch (input) {
+	  /** Cardinal Directions **/
+		case 6:
+			printf("Right!\n");
+			spinStage(s,speed,0);
+			break;
+		case 8:
+			printf("Up!\n");
+			spinStage(s,0,speed);
+			break;
+		case 4:
+			printf("Left!\n");
+			spinStage(s,-speed,0);
+			break;
+		case 2:
+			printf("Down!\n");
+			spinStage(s,0,-speed);
+			break;
+		/** Multiples of 45 **/
+		case 9:
+			printf("Up-Right!\n");
+			spinStage(s,speed,speed);
+			break;
+		case 7:
+			printf("Up-Left!\n");
+			spinStage(s,-speed,speed);
+			break;
+		case 1:
+			printf("Down-Left!\n");
+			spinStage(s,-speed,-speed);
+			break;
+		case 3:
+			printf("Down-Right!\n");
+			spinStage(s,speed,-speed);
+			break;
+		case 5:
+			printf("HALT!\n");
+			haltStage(s);
+			break;
+		default:
+			break;
+	  }
+	  return;
+}
 
 
-	// Send a 'ver' command
-//	printf("send a ver command\n");
-//	sprintf(Buffer, "ver\n\r");
-//	if (!WriteFile(hUsb, Buffer, strlen(Buffer), &result, NULL))
-//		printf("ERROR writing to USB.\n");
-//	Length = GetRxLen(':'); // wait for ':'
-//
-//	if (Length) {
-//		Length = GetRxLen(0); // get total length
-//		ReadFile(hUsb, Buffer, Length, &result, NULL);
-//		Buffer[Length] = NULL; // add the NULL terminator
-//		printf("%s", Buffer);
-//	}
-//
-//
-//	printf("Sending a rconfig command...\n");
-//	// Send a 'rconfig' command
-//	sprintf(Buffer, "rconfig\n\r");
-//	if (!WriteFile(hUsb, Buffer, strlen(Buffer), &result, NULL))
-//		printf("ERROR writing to USB.\n");
-//	Length = GetRxLen(':'); // wait for ':'
-//	if (Length) {
-//		Length = GetRxLen(0); // get total length
-//		ReadFile(hUsb, Buffer, Length, &result, NULL);
-//		Buffer[Length] = NULL; // add NULL terminator
-//		printf("%s", Buffer);
-//	}
-//	CloseHandle(hUsb);
-//	printf("Device Closed.\n");
-//	return 0;
+int main() {
+	HANDLE hUsb= InitializeUsbStage();
+	char Buffer[1024];
+	DWORD Length, result;
+
+	int input;
+
+
+	printf("Uses number pad arrow keys. Hit <enter> to invoke.\n Hit 5 <enter> to stop. Hit 0 <enter> to quit.\n");
+
+	int speed=500;
+	do
+	{
+	  scanf("%d",&input);
+	  handleKeyboardSteering(hUsb,speed,input);
+	}while(input!=0);
+		Sleep(1000);
+		printf("GoodBye!");
 } // end of main()
 
 
 
-
+/*
 // ------------------------------------------------------------------------ //
 // GetRxLen() - If the parameter passed is zero this function simply returns
 // the available data in the USB IN buffer. Else this function waits for the
@@ -158,6 +199,9 @@ DWORD GetRxLen(char c) {
 	else
 		return (ReadLen.DataLength);
 }
+*/
+
+
 // ------------------------------------------------------------------------ //
 // UsbScan() - Scan for first USB device with a GUID that matches the one
 // passed. Return 1 if device found, else 0.
@@ -166,6 +210,9 @@ DWORD GetRxLen(char c) {
 // scan for the device more than once. See the MFC windows
 // example. You can also get the devicename from the registry.
 int UsbScan(char* DeviceName) {
+
+
+
 	// Get handle to the devices
 	HDEVINFO hInfo = SetupDiGetClassDevs((LPGUID) & LEP_GUID, NULL, NULL,
 			DIGCF_PRESENT | DIGCF_INTERFACEDEVICE);
@@ -201,16 +248,4 @@ int UsbScan(char* DeviceName) {
 	return (1); // return true, USB device found
 }
 // ---------------------------------------------------------------------- //
-// PrintVersion() - Gets and printf the driver version information.
-void PrintVersion(void) {
-	UCHAR Ver[512];
-	ULONG nBytes;
-	BOOLEAN Success;
-	Success = DeviceIoControl(hUsb, IOCTL_LEPUSB_GET_VERSION_INFO, NULL, 0,
-			Ver, sizeof(Ver), &nBytes, NULL);
-	if (!Success)
-		printf("ERROR: Read Driver Version.\n");
-	Ver[nBytes] = NULL; // don't forget the NULL terminator
-	printf("%s", Ver); // printf the Version
-}
-// --------------------------------------------------------------------- //
+
