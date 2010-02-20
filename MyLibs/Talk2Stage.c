@@ -30,7 +30,6 @@ DEFINE_GUID(LEP_GUID, // LEP's global, unique identifier
 #define IOCTL_LEPUSB_GET_VERSION_INFO CTL_CODE(FILE_DEVICE_UNKNOWN, LEPUSB_IOCTL_VENDOR_INDEX+2,METHOD_BUFFERED, FILE_ANY_ACCESS)
 // Function prototypes
 int UsbScan(char*);
-DWORD GetRxLen(char);
 
 // Global Variables
 
@@ -91,7 +90,36 @@ int haltStage(HANDLE s){
 
 }
 
-void handleKeyboardSteering(HANDLE s, int speed, int input){
+int moveStageRel(HANDLE s, int xpos, int ypos){
+	DWORD Length;
+	char* buff=(char*) malloc(sizeof(char)*1024);
+	sprintf(buff,"MOVEI X=%d Y=%d\r",xpos,ypos);
+	WriteFile(s, buff, strlen(buff), &Length, NULL);
+	free(buff);
+	return 0;
+}
+
+
+int zeroStage(HANDLE s){
+	DWORD Length;
+	WriteFile(s, "HERE X=0 Y=0\r", strlen("HERE X=0 Y=0\r"), &Length, NULL);
+	return 0;
+
+}
+
+int centerStage(HANDLE s){
+	DWORD Length;
+	WriteFile(s, "CENTER X=30000 Y=30000\r", strlen("CENTER X=30000 Y=30000\r"), &Length, NULL);
+	printf("Centering stage.\n This takes a really really long time.\n");
+	printf("Hit enter when done. This will zero the stage.\n");
+	scanf("");
+	zeroStage(s);
+	return 0;
+
+}
+
+
+void steerStageFromNumberPad(HANDLE s, int speed, int input){
 	  switch (input) {
 	  /** Cardinal Directions **/
 		case 6:
@@ -139,7 +167,7 @@ void handleKeyboardSteering(HANDLE s, int speed, int input){
 
 
 int main() {
-	HANDLE hUsb= InitializeUsbStage();
+	HANDLE hUSB= InitializeUsbStage();
 	char Buffer[1024];
 	DWORD Length, result;
 
@@ -149,11 +177,16 @@ int main() {
 	printf("Uses number pad arrow keys. Hit <enter> to invoke.\n Hit 5 <enter> to stop. Hit 0 <enter> to quit.\n");
 
 	int speed=500;
-	do
-	{
+
+	while(1){
 	  scanf("%d",&input);
-	  handleKeyboardSteering(hUsb,speed,input);
-	}while(input!=0);
+	  if (input <10 && input >0){
+
+		  steerStageFromNumberPad(hUSB,speed,input);
+	  } else {
+		  break;
+	  }
+	}
 		Sleep(1000);
 		printf("GoodBye!");
 } // end of main()
