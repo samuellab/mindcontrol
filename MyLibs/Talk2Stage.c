@@ -1,7 +1,8 @@
-// usb_rcfg.cpp : A simple USB DOS console application.
+// Inspired by:
+// usb_rcfg.cpp : A simple USB DOS console application. Sample code.
 // Author: Doug Lovett
 // Birth: 02/07/2000
-// Ludl Electronic Products Copyright 2000
+// Written by Andrew Leifer
 
 /*
  * Compile by running:
@@ -65,7 +66,7 @@ HANDLE InitializeUsbStage(){
 			FILE_SHARE_WRITE | FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 	if (hUsb == INVALID_HANDLE_VALUE) {
 		printf("Error %d: Failed to open USB file handle.\n", GetLastError());
-		return 0;
+		return NULL;
 	} else
 		printf("Device Opened: ");
 	// Print driver version
@@ -73,6 +74,10 @@ HANDLE InitializeUsbStage(){
 	return hUsb;
 }
 
+/*
+ * Set the velocity of the stage
+ *
+ */
 int spinStage(HANDLE s, int xspeed,int yspeed){
 	DWORD Length;
 	char* buff=(char*) malloc(sizeof(char)*1024);
@@ -166,30 +171,7 @@ void steerStageFromNumberPad(HANDLE s, int speed, int input){
 }
 
 
-int main() {
-	HANDLE hUSB= InitializeUsbStage();
-	char Buffer[1024];
-	DWORD Length, result;
-
-	int input;
-
-
-	printf("Uses number pad arrow keys. Hit <enter> to invoke.\n Hit 5 <enter> to stop. Hit 0 <enter> to quit.\n");
-
-	int speed=500;
-
-	while(1){
-	  scanf("%d",&input);
-	  if (input <10 && input >0){
-
-		  steerStageFromNumberPad(hUSB,speed,input);
-	  } else {
-		  break;
-	  }
-	}
-		Sleep(1000);
-		printf("GoodBye!");
-} // end of main()
+ // end of main()
 
 
 

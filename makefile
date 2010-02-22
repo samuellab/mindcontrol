@@ -15,6 +15,7 @@ CXXFLAGS= -c -v -Wall -mwindows
 
 #TailOpts =-pg # This generates output for a profiler such as gprof
 TailOpts= -O2 #optimize the code	
+LinkerOpts= -lsetupapi
 
 #Location of directories
 MyLibs=MyLibs
@@ -133,6 +134,11 @@ timer.o: $(3rdPartyLibs)/Timer.cpp $(3rdPartyLibs)/Timer.h
 IllumWormProtocol.o : $(MyLibs)/IllumWormProtocol.h $(MyLibs)/IllumWormProtocol.c
 	$(CXX) $(CXXFLAGS) $(MyLibs)/IllumWormProtocol.c -I$(MyLibs) $(openCVincludes) $(TailOpts)
 
+# if talk to stage causes trouble try compiling without -mwindows flag.
+Talk2STage.o: $(MyLibs)/Talk2Stage.c $(MyLibs)/Talk2Stage.h
+	$(CXX) $(CXXFLAGS) $(MyLibs)/Talk2Stage.c -I$(MyLibs)
+
+
 
 ###### version.c & version.h
 # note that version.c is generated at the very top. under "timestamp"
@@ -171,7 +177,7 @@ $(MyLibs)/WriteOutWorm.c :  $(MyLibs)/version.h
 
 #FG_DLP.exe
 $(targetDir)/FG_DLP.exe : FG_DLP.o FGMindControl.o Talk2FrameGrabber.o $(BFObj)  Talk2DLP.o   DontTalk2Camera.o $(3rdPartyLibs)/alp4basic.lib $(hw_ind)  
-	$(CXX) -o $(targetDir)/FG_DLP.exe FGMindControl.o Talk2FrameGrabber.o $(BFObj)  Talk2DLP.o   DontTalk2Camera.o $(3rdPartyLibs)/alp4basic.lib $(hw_ind)  $(TailOpts) 
+	$(CXX) -o $(targetDir)/FG_DLP.exe FGMindControl.o Talk2FrameGrabber.o $(BFObj)  Talk2DLP.o   DontTalk2Camera.o $(3rdPartyLibs)/alp4basic.lib $(hw_ind) $(LinkerOpts) $(TailOpts) 
 
 FG_DLP.o : main.cpp  
 	$(CXX) $(CXXFLAGS) main.cpp -oFG_DLP.o -I$(MyLibs) -I$(bfIncDir) $(openCVincludes) $(TailOpts)
@@ -186,7 +192,7 @@ calibrateFG_DLP.o : calibrateFG.cpp
 
 ## framegrabberonly FGMindControl.exe
 $(targetDir)/FGMindControl.exe : FGMindControl.o DontTalk2DLP.o DontTalk2Camera.o $(hw_ind) 
-	$(CXX) -o $(targetDir)/FGMindControl.exe FGMindControl.o Talk2FrameGrabber.o $(BFObj)    DontTalk2DLP.o DontTalk2Camera.o $(hw_ind)  $(TailOpts) 
+	$(CXX) -o $(targetDir)/FGMindControl.exe FGMindControl.o Talk2FrameGrabber.o $(BFObj)    DontTalk2DLP.o DontTalk2Camera.o $(hw_ind) $(LinkerOpts) $(TailOpts) 
 
 FGMindControl.o : main.cpp $(myOpenCVlibraries) $(WormSpecificLibs) 
 	$(CXX) $(CXXFLAGS) main.cpp -oFGMindControl.o -I$(MyLibs) -I$(bfIncDir) $(openCVincludes) $(TailOpts)
