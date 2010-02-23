@@ -45,7 +45,8 @@ FrameGrabber* CreateFrameGrabberObject(){
 FrameGrabber* TurnOnFrameGrabber(){
 	FrameGrabber* fg= CreateFrameGrabberObject();
 	InitializeFrameGrabber(fg);
-	FrameGrabberSetRegionOfInterest(fg,0,127,1024,768);
+	//FrameGrabberSetRegionOfInterest(fg,0,127,1024,768);
+	FrameGrabberSetRegionOfInterest(fg,0,0,1024,768);
 	PrepareFrameGrabberForAcquire(fg);
 	return fg;
 }
@@ -212,7 +213,7 @@ int AcquireFrame(FrameGrabber* fg){
 
 
 				if (Overflow) {
-						printf("Overflow occurred.\n");
+						printf("Framgrabber overflow occurred.\n");
 					if (CiAqCommand(fg->hBoard, CiConReset, CiConWait, CiQTabBank0,
 							AqEngJ)) {
 							printf("Board reset failed.\n");

@@ -227,8 +227,7 @@ void AnalyzePointInFrame(CalibrationSession* c){
 
 void CheckFGSizeMatch(IplImage* img, FrameGrabber* fg){
 	if ((int) fg->xsize != img->width   ||  (int) fg->ysize != img->height){
-		printf("Error in RollVideoInput!\n");
-		printf("Size from framegrabber does not match size in IplImage fromCCD!\n");
+		printf("In CheckFGSizeMAtch, size from framegrabber does not match size in IplImage fromCCD!\n");
 		printf(" fg->xsize=%d\n",(int) fg->xsize);
 		printf(" img->width=%d\n",img->width);
 		printf(" fg->ysize=%d\n",(int)  fg->ysize);
@@ -354,7 +353,7 @@ int main (int argc, char** argv){
 	c->StepSize=100; //pixels
 	c->LoopsPerPt=20; // Number of frames we use to calibrate a given point
 
-	/** Start Camera or Vid Input **/
+	/** Start Camera **/
 	c->fg= TurnOnFrameGrabber();
 
 	/** Prepare DLP ***/

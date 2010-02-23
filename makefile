@@ -15,7 +15,7 @@ CXXFLAGS= -c -v -Wall -mwindows
 
 #TailOpts =-pg # This generates output for a profiler such as gprof
 TailOpts= -O2 #optimize the code	
-LinkerOpts= -lsetupapi
+LinkerWinAPILibObj= -lsetupapi
 
 #Location of directories
 MyLibs=MyLibs
@@ -56,7 +56,7 @@ BFObj = $(BFLibDir)/BFD.lib   $(BFLibDir)/BFDiskIO.lib $(BFLibDir)/BFDrv.lib $(B
 
 
 
-#All Library Objects
+#All Library Objects 
 objects= $(mylibraries) $(WormSpecificLibs) $(3rdpartyobjects) $(BFObj) $(CVlibs)  $(MatlabLibs)
 calib_objects= calibrate.o $(objects)
 
@@ -177,7 +177,7 @@ $(MyLibs)/WriteOutWorm.c :  $(MyLibs)/version.h
 
 #FG_DLP.exe
 $(targetDir)/FG_DLP.exe : FG_DLP.o FGMindControl.o Talk2FrameGrabber.o $(BFObj)  Talk2DLP.o   DontTalk2Camera.o $(3rdPartyLibs)/alp4basic.lib $(hw_ind)  
-	$(CXX) -o $(targetDir)/FG_DLP.exe FGMindControl.o Talk2FrameGrabber.o $(BFObj)  Talk2DLP.o   DontTalk2Camera.o $(3rdPartyLibs)/alp4basic.lib $(hw_ind) $(LinkerOpts) $(TailOpts) 
+	$(CXX) -o $(targetDir)/FG_DLP.exe FGMindControl.o Talk2FrameGrabber.o $(BFObj)  Talk2DLP.o   DontTalk2Camera.o $(3rdPartyLibs)/alp4basic.lib $(hw_ind) $(LinkerWinAPILibObj) $(TailOpts) 
 
 FG_DLP.o : main.cpp  
 	$(CXX) $(CXXFLAGS) main.cpp -oFG_DLP.o -I$(MyLibs) -I$(bfIncDir) $(openCVincludes) $(TailOpts)
@@ -192,7 +192,7 @@ calibrateFG_DLP.o : calibrateFG.cpp
 
 ## framegrabberonly FGMindControl.exe
 $(targetDir)/FGMindControl.exe : FGMindControl.o DontTalk2DLP.o DontTalk2Camera.o $(hw_ind) 
-	$(CXX) -o $(targetDir)/FGMindControl.exe FGMindControl.o Talk2FrameGrabber.o $(BFObj)    DontTalk2DLP.o DontTalk2Camera.o $(hw_ind) $(LinkerOpts) $(TailOpts) 
+	$(CXX) -o $(targetDir)/FGMindControl.exe FGMindControl.o Talk2FrameGrabber.o $(BFObj)    DontTalk2DLP.o DontTalk2Camera.o $(hw_ind) $(LinkerWinAPILibObj) $(TailOpts) 
 
 FGMindControl.o : main.cpp $(myOpenCVlibraries) $(WormSpecificLibs) 
 	$(CXX) $(CXXFLAGS) main.cpp -oFGMindControl.o -I$(MyLibs) -I$(bfIncDir) $(openCVincludes) $(TailOpts)
