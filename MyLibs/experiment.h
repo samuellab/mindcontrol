@@ -259,7 +259,7 @@ void DestroyExperiment(Experiment** exp);
  * and record data if exp->RECORDDATA is 1
  *
  */
-void SetupRecording(Experiment* exp);
+int SetupRecording(Experiment* exp);
 
 
 /*

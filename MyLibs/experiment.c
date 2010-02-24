@@ -786,7 +786,7 @@ int isFrameReady(Experiment* exp) {
  * and record data if exp->RECORDDATA is 1
  *
  */
-void SetupRecording(Experiment* exp) {
+int SetupRecording(Experiment* exp) {
 
 	printf("About to setup recording\n");
 	;
@@ -794,9 +794,12 @@ void SetupRecording(Experiment* exp) {
 	if (exp->RECORDDATA) {
 		if (exp->dirname == NULL || exp->outfname == NULL)
 			printf("exp->dirname or exp->outfname is NULL!\n");
-		DataFileName = CreateFileName(exp->dirname, exp->outfname, ".yaml");
+
 		/** Setup Writing and Write Out Comments **/
-		exp->DataWriter = SetUpWriteToDisk(DataFileName, exp->Worm->MemStorage);
+		exp->DataWriter = SetUpWriteToDisk(exp->dirname,exp->outfname, exp->Worm->MemStorage);
+
+		/** We should Quit Now if any of the data Writing is not working **/
+		if (exp->DataWriter->error < 0 ) return -1;
 
 		/** Write the Command Line argument Out for reference **/
 		WriteOutCommandLineArguments(exp->DataWriter, exp->argc, exp->argv);
@@ -813,6 +816,7 @@ void SetupRecording(Experiment* exp) {
 
 		printf("Initialized data recording\n");
 		DestroyFilename(&DataFileName);
+		return 0;
 	}
 
 	/** Set Up Video Recording **/
@@ -836,6 +840,7 @@ void SetupRecording(Experiment* exp) {
 		DestroyFilename(&HUDSFileName);
 		printf("Initialized video recording\n");
 	}
+	return 0;
 
 }
 

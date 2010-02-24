@@ -72,6 +72,7 @@ int main (int argc, char** argv){
 
 	/** Create memory and objects **/
 	InitializeExperiment(exp);
+	exp->e=0; //set errors to zero.
 
 
 	/** Deal with CommandLineArguments **/
@@ -119,10 +120,13 @@ int main (int argc, char** argv){
 
 
 	/** SetUp Data Recording **/
-	SetupRecording(exp);
+	exp->e = SetupRecording(exp);
 
 	/*Start the frame rate timer */
 	StartFrameRateTimer(exp);
+
+	/** Quit now if we have some errors **/
+	if(exp->e != 0) return -1;
 
 	/** Giant While Loop Where Everything Happens **/
 	TICTOC::timer().tic("WholeLoop");
@@ -164,8 +168,8 @@ int main (int argc, char** argv){
 
 			/** Load Image into Our Worm Objects **/
 
-			if (!(exp->e)) exp->e=RefreshWormMemStorage(exp->Worm);
-			if (!(exp->e)) exp->e=LoadWormImg(exp->Worm,exp->fromCCD->iplimg);
+			if (exp->e == 0) exp->e=RefreshWormMemStorage(exp->Worm);
+			if (exp->e == 0) exp->e=LoadWormImg(exp->Worm,exp->fromCCD->iplimg);
 
 			TICTOC::timer().tic("EntireSegmentation");
 			/** Do Segmentation **/
@@ -173,14 +177,14 @@ int main (int argc, char** argv){
 			TICTOC::timer().toc("EntireSegmentation");
 
 			TICTOC::timer().tic("TransformSegWormCam2DLP");
-			if (!(exp->e)){
+			if (exp->e == 0){
 				TransformSegWormCam2DLP(exp->Worm->Segmented, exp->segWormDLP,exp->Calib);
 			}
 			TICTOC::timer().toc("TransformSegWormCam2DLP");
 
 			/*** Do Some Illumination ***/
 
-			if (!(exp->e)) {
+			if (exp->e == 0) {
 				/** Clear the illumination pattern **/
 				SetFrame(exp->forDLP,0);
 				SetFrame(exp->IlluminationFrame,0);
@@ -222,14 +226,14 @@ int main (int argc, char** argv){
 
 
 			TICTOC::timer().tic("SendFrameToDLP");
-			if (!(exp->e) && exp->Params->DLPOn && !(exp->SimDLP)) T2DLP_SendFrame((unsigned char *) exp->forDLP->binary, exp->myDLP); // Send image to DLP
+			if (exp->e == 0 && exp->Params->DLPOn && !(exp->SimDLP)) T2DLP_SendFrame((unsigned char *) exp->forDLP->binary, exp->myDLP); // Send image to DLP
 			TICTOC::timer().toc("SendFrameToDLP");
 
 
 			/*** DIsplay Some Monitoring Output ***/
-			if (!(exp->e)) CreateWormHUDS(exp->HUDS,exp->Worm,exp->Params,exp->IlluminationFrame);
+			if (exp->e == 0) CreateWormHUDS(exp->HUDS,exp->Worm,exp->Params,exp->IlluminationFrame);
 
-			if (!(exp->e) &&  EverySoOften(exp->Worm->frameNum,exp->Params->DispRate) ){
+			if (exp->e == 0 &&  EverySoOften(exp->Worm->frameNum,exp->Params->DispRate) ){
 				TICTOC::timer().tic("DisplayOnScreen");
 				/** Setup Display but don't actually send to screen **/
 				PrepareSelectedDisplay(exp);
@@ -240,14 +244,14 @@ int main (int argc, char** argv){
 
 
 
-			if (!(exp->e)) {
+			if (exp->e == 0) {
 				TICTOC::timer().tic("DoWriteToDisk()");
 				DoWriteToDisk(exp);
 				TICTOC::timer().toc("DoWriteToDisk()");
 			}
 
 
-			if (exp->e) printf("\nError in main loop. :(\n");
+			if (exp->e != 0) printf("\nError in main loop. :(\n");
 
 		}
 		if (UserWantsToStop) break;

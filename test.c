@@ -5,6 +5,7 @@
 #include <conio.h>
 #include <math.h>
 #include <string.h>
+#include <stdlib.h>
 
 
 //C++ header
@@ -128,6 +129,17 @@ int main(){
 
 
 	printf(copyString("Hello you World\n"));
+
+	CvMemStorage* MyMem= cvCreateMemStorage();
+	CvFileStorage*=cvOpenFileStorage("appendTest.yaml",MyMem,CV_STORAGE_APPEND);
+	cvStartWriteStruct(DataWriter->fs,"Experiment",CV_NODE_MAP,NULL);
+		cvWriteInt(DataWriter->fs,"x",rand());
+	cvEndWriteStruct(DataWriter->fs);
+
+
+	return 0;
+
+
 	Protocol* myP=CreateTestProtocol("protocol.yml");
 	VerifyProtocol(myP);
 

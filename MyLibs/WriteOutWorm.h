@@ -10,11 +10,12 @@
 
 
 typedef struct WriteOutStruct{
-	/** Current Frame **/
-	CvFileStorage* fs;
-	// Whatever the video file id thingie is.
 
-	/** Experiment Time **/
+	CvFileStorage* fs; //Experiment data in YAML format
+	CvFileStorage* annotationWriter; //Annotations
+	CvFileStorage* experimentIndex;
+	int error;
+
 
 } WriteOut;
 
@@ -42,7 +43,7 @@ void DestroyFilename(char**);
  * pass in the string "myexperiment"
  *
  */
-WriteOut* SetUpWriteToDisk(const char* filename, CvMemStorage* Mem);
+WriteOut* SetUpWriteToDisk(const char* dirfilename, const char* outfilename,  CvMemStorage* Mem)
 
 /*
  * Start the process of writing out frames. (Formerly this was contained in SetUpWriteToDisk)

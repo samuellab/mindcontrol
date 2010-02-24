@@ -67,6 +67,18 @@ void DestroyFilename(char** filename){
 
 
 /*
+ * Allocates memory for and creates a DataWriter object and sets all values to zero or NULL;
+ */
+WriteOut* CreateDataWriter(){
+	WriteOut* DataWriter =(WriteOut*) malloc(sizeof(WriteOut));
+	DataWriter->error=0;
+	DataWriter->fs=NULL;
+	DataWriter->annotationWriter=NULL;
+	DataWriter->experimentIndex=NULL;
+	return DataWriter;
+}
+
+/*
  * Sets up the WriteToDisk  given the base of a filname.
  * Creates a WriteOut Object.
  *
@@ -74,14 +86,43 @@ void DestroyFilename(char** filename){
  * pass in the string "myexperiment"
  *
  */
-WriteOut* SetUpWriteToDisk(const char* filename, CvMemStorage* Mem){
+WriteOut* SetUpWriteToDisk(const char* dirfilename, const char* outfilename,  CvMemStorage* Mem){
 	/** Create new instance of WriteOut object **/
-	WriteOut* DataWriter =(WriteOut*) malloc(sizeof(WriteOut));
+	WriteOut* DataWriter = CreateDataWriter();
 
-	/** Append .yaml to the end of filename **/
-	DataWriter->fs=cvOpenFileStorage(filename,Mem,CV_STORAGE_WRITE);
-	if (DataWriter->fs==0) printf("DataWriter->fs is zero! Could you have specified the wrong directory?\n");
-	// <--- ANDY ADD in something here so that this fails more gracefully if the folder does not exist!!!!
+	/** Create Filenames **/
+	char* YAMLDataFileName = CreateFileName(exp->dirname, exp->outfname, ".yaml");
+	char* YAMLIndexFileName = CreateFileName(exp->dirname, "index", ".yaml");
+	char* YAMLAnnotationsFileName = CreateFileName(exp->dirname, exp->outfname, "_annotations.yaml");
+
+	/** Open YAML Data File for writing**/
+	DataWriter->fs=cvOpenFileStorage(YAMLDataFileName,Mem,CV_STORAGE_WRITE);
+	if (DataWriter->fs==0) {
+		printf("DataWriter->fs is zero! Could you have specified the wrong directory?\n");
+		--(DataWriter->error);
+	}
+
+	/** Open YAML Data File for writing**/
+	DataWriter->fs=cvOpenFileStorage(YAMLIndexFileName,Mem,CV_STORAGE_APPEND);
+	if (DataWriter->annotationWriter==0) {
+		printf("DataWriter->fs is zero! Could you have specified the wrong directory?\n");
+		--(DataWriter->error);
+	}
+
+	/** Open YAML Data File for writing**/
+	DataWriter->fs=cvOpenFileStorage(YAMLANNOTATIONSFileName,Mem,CV_STORAGE_WRITE);
+	if (DataWriter->annotationWriter==0) {
+		printf("DataWriter->fs is zero! Could you have specified the wrong directory?\n");
+		--(DataWriter->error);
+	}
+
+
+
+	/** If there were errors, return immediately **/
+	if (DataWriter->error < 0) return DataWriter;
+
+
+	/** Write the header for the YAML data file **/
 	cvWriteComment(DataWriter->fs, "Remote Control Worm Experiment Data Log\nMade by OpticalMindControl software\nleifer@fas.harvard.edu\n",0);
 	cvWriteString(DataWriter->fs, "gitHash", build_git_sha,0);
 	cvWriteString(DataWriter->fs, "gitBuildTime",build_git_time,0);
@@ -96,7 +137,9 @@ WriteOut* SetUpWriteToDisk(const char* filename, CvMemStorage* Mem){
 	cvWriteString(DataWriter->fs, "ExperimentTime",asctime(local),0);
 
 
-
+	free(YAMLDataFileName);
+	free(YAMLAnnotationsFileName);
+	free(YAMLIndexFileName);
 	return DataWriter;
 }
 
