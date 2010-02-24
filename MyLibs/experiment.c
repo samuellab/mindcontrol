@@ -37,6 +37,7 @@
 #include "IllumWormProtocol.h"
 #include "TransformLib.h"
 #include "WriteOutWorm.h"
+#include "version.h"
 
 #include "experiment.h"
 
@@ -1233,3 +1234,13 @@ void ReleaseProtocolFromExperiment(Experiment* exp) {
 	return;
 }
 
+
+/*
+ * Writes a recent frame number to file
+ */
+int WriteRecentFrameNumberToFile(Experiment* exp){
+	FILE* pFile;
+	pFile = fopen("recentFrameNum.txt","w");
+	fprintf(pFile,"%d\n%s\n%s",exp->Worm->frameNum,exp->outfname,build_git_sha);
+	fclose(pFile);
+}

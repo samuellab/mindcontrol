@@ -368,5 +368,10 @@ void LoadProtocol(Experiment* exp);
 void ReleaseProtocolFromExperiment(Experiment* exp);
 
 
+/*
+ * Writes a recent frame number to file
+ */
+int WriteRecentFrameNumberToFile(Experiment* exp);
+
 
 #endif /* EXPERIMENT_H_ */

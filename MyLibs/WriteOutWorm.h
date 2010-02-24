@@ -12,8 +12,6 @@
 typedef struct WriteOutStruct{
 
 	CvFileStorage* fs; //Experiment data in YAML format
-	CvFileStorage* annotationWriter; //Annotations
-	CvFileStorage* experimentIndex;
 	int error;
 
 
@@ -43,7 +41,7 @@ void DestroyFilename(char**);
  * pass in the string "myexperiment"
  *
  */
-WriteOut* SetUpWriteToDisk(const char* dirfilename, const char* outfilename,  CvMemStorage* Mem)
+WriteOut* SetUpWriteToDisk(const char* dirfilename, const char* outfilename,  CvMemStorage* Mem);
 
 /*
  * Start the process of writing out frames. (Formerly this was contained in SetUpWriteToDisk)

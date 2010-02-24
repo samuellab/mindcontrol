@@ -367,6 +367,11 @@ UINT Thread(LPVOID lpdwParam) {
 			}
 			UpdateGUI(exp);
 
+			TICTOC::timer().tic("WriteRecentFrameNumberToFile()");
+			WriteRecentFrameNumberToFile(exp);
+			TICTOC::timer().toc("WriteRecentFrameNumberToFile)");
+
+
 
 	}
 
