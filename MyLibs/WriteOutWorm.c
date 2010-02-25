@@ -72,6 +72,7 @@ void DestroyFilename(char** filename){
 WriteOut* CreateDataWriter(){
 	WriteOut* DataWriter =(WriteOut*) malloc(sizeof(WriteOut));
 	DataWriter->error=0;
+	DataWriter->filename=NULL;
 	DataWriter->fs=NULL;
 	return DataWriter;
 }
@@ -119,7 +120,8 @@ WriteOut* SetUpWriteToDisk(const char* dirfilename, const char* outfilename,  Cv
 
 	cvWriteString(DataWriter->fs, "ExperimentTime",asctime(local),0);
 
-	free(YAMLDataFileName);
+	DataWriter->filename=YAMLDataFileName;
+
 	return DataWriter;
 }
 
@@ -238,6 +240,14 @@ int AppendWormFrameToDisk(WormAnalysisData* Worm, WormAnalysisParam* Params, Wri
 	return 0;
 }
 
+int DestroyDataWriter(WriteOut** DataWriter){
+	cvReleaseFileStorage(&((*DataWriter)->fs));
+	free((*DataWriter)->filename);
+	free(*DataWriter);
+	*DataWriter=NULL;
+	return 0;
+}
+
 /*
  * Finish writing to disk and close the file and such.
  * Destroys the Data Writer
@@ -249,8 +259,6 @@ int FinishWriteToDisk(WriteOut** DataWriter){
 	cvEndWriteStruct(fs);
 
 	/** Close File Storage and Finish Writing Out to File **/
-	cvReleaseFileStorage(&fs);
-	free(*DataWriter);
-	*DataWriter=NULL;
+	DestroyDataWriter(DataWriter);
 	return 0;
 }
