@@ -13,8 +13,6 @@ if len(sys.argv)!=3:
 recentframefile=sys.argv[1]
 outfile=sys.argv[2]
 
-#Actually record the output	
-out= open(outfile,'a')
 
 s =''
 prevExperiment=''
@@ -27,6 +25,7 @@ while (s!='q'): #While the user doesn't quit
 		continue
 	
 	newExperiment=False
+	
 
 	#Open the the recent frame file
 	try:
@@ -37,6 +36,8 @@ while (s!='q'): #While the user doesn't quit
 
 
 	frameInfo=r.readlines()
+	r.close()
+	
 	# We expect there to be exactly three lines.
 	# The first line is the frame number
 	# The second line is the filename
@@ -45,11 +46,17 @@ while (s!='q'): #While the user doesn't quit
 		print '\tError! ' +recentframefile + ' does not have expected format!\n'
 		continue
 
+	if ( (prevFrame!=frameInfo[0].strip()) ):
+		newFrame=True
+	else:
+		newFrame=False
 
+	prevFrame=frameInfo[0].strip()
+	
 	#If the user just hit enter, don't do anything.
 	if (s==''):
 		continue
-	
+	out= open(outfile,'a')
 	#If this is a new experiment, set up the new experiment
 	if prevExperiment!=frameInfo[1].strip():
 		out.write('---\nExperiment:\n\tFile: "'+frameInfo[1].strip()+'"\n\tVersion: "'+frameInfo[2].strip()+'"\n')
@@ -59,11 +66,9 @@ while (s!='q'): #While the user doesn't quit
 		firstGenAnnote=True
 
 
-	#If the frame number has incremented since last time and this is not a new expriment
-	if ( (prevFrame!=frameInfo[0].strip()) ):
+	#If the frame number has incremented since last time 
+	if ( newFrame==True ):
 		out.write('\t\t- Frame: ' + frameInfo[0].strip()+ '\n\t\t  Description: "'+s+'"\n')
-
-		prevFrame=frameInfo[0].strip()
 		print '\tFrame ' +frameInfo[0].strip() +  ' recorded.'
 
 	else:
@@ -71,7 +76,8 @@ while (s!='q'): #While the user doesn't quit
 			out.write('\tOverview:"\n')
 			firstGenAnnote=False
 		out.write('\t\t- Description: "'+s+'"\n')
-
+		print 'Experiment overview recorded.'
+	out.close()
 
 
 print "Good bye!"
