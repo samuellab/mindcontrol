@@ -1241,6 +1241,6 @@ void ReleaseProtocolFromExperiment(Experiment* exp) {
 int WriteRecentFrameNumberToFile(Experiment* exp){
 	FILE* pFile;
 	pFile = fopen("recentFrameNum.txt","w");
-	fprintf(pFile,"%d\n%s\n%s",exp->Worm->frameNum,exp->outfname,build_git_sha);
+	fprintf(pFile,"%d\n%s\n%s",exp->Worm->frameNum,exp->DataWriter->filename,build_git_sha);
 	fclose(pFile);
 }
