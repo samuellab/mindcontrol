@@ -266,6 +266,16 @@ int main (int argc, char** argv){
 	FinishRecording(exp);
 	TICTOC::timer().toc("FinishRecording()");
 
+	printf("%s",TICTOC::timer().generateReportCstr());
+
+	printf("Waiting for DisplayThread to Stop...");
+	while (!DispThreadHasStopped){
+		printf(".");
+		Sleep(500);
+		cvWaitKey(10);
+	}
+
+
 	if (!(exp->SimDLP)) 	{
 		T2DLP_clear(exp->myDLP);
 		T2DLP_off(exp->myDLP);
@@ -286,14 +296,7 @@ int main (int argc, char** argv){
 	DestroyExperiment(&exp);
 
 
-	printf("%s",TICTOC::timer().generateReportCstr());
 
-	printf("Waiting for DisplayThread to Stop...");
-	while (!DispThreadHasStopped){
-		printf(".");
-		Sleep(500);
-		cvWaitKey(10);
-	}
 	printf("\nMain Thread: Good bye.\n");
 	return 0;
 }
@@ -346,6 +349,8 @@ UINT Thread(LPVOID lpdwParam) {
 			}
 			TICTOC::timer().toc("cvShowImage");
 
+			if (MainThreadHasStopped==1) continue;
+
 
 			/** If we are using protocols and we havec chosen a new protocol step **/
 			if (exp->Params->ProtocolUse && (prevProtocolStep!= exp->Params->ProtocolStep))  {
@@ -360,6 +365,10 @@ UINT Thread(LPVOID lpdwParam) {
 			TICTOC::timer().toc("DisplayThreadGuts");
 			UpdateGUI(exp);
 			key=cvWaitKey(100);
+
+
+			if (MainThreadHasStopped==1) continue;
+
 			if (HandleKeyStroke(key,exp)) {
 				printf("\n\nEscape key pressed!\n\n");
 				UserWantsToStop=1;
