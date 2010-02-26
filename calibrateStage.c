@@ -9,7 +9,13 @@
 #include <stdio.h>
 #include "MyLibs/Talk2Stage.h"
 
-int main() {
+//OpenCV Headers
+#include <highgui.h>
+#include <cv.h>
+#include <cxcore.h>
+
+
+int KeyboardNumPadControl() {
 	HANDLE hUSB= InitializeUsbStage();
 	if (hUSB==NULL) {
 		printf("No stage found. Goodbye!\n");
@@ -35,4 +41,13 @@ int main() {
 	}
 		Sleep(1000);
 		printf("GoodBye!");
+}
+
+
+int main(){
+	/** Display Stream from Camera Until user hits escape Key **/
+	char c='';
+	printf("Hit escape when ready for stage calibrationl.\n");
+	while (c!='27')
+
 }

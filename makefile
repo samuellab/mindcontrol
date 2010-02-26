@@ -191,13 +191,15 @@ $(targetDir)/calibrateFG_DLP.exe : calibrateFG_DLP.o Talk2FrameGrabber.o $(BFObj
 calibrateFG_DLP.o : calibrateFG.cpp 
 	$(CXX) $(CXXFLAGS) calibrateFG.cpp -ocalibrateFG_DLP.o -I$(MyLibs) -I$(bfIncDir) -I$(MatlabIncDir) $(openCVincludes) $(TailOpts)
 
-#Calibrate FG and Stage
-calibrateStageObjs= calibratestage.o Talk2Stage.o Talk2FrameGrabber.o $(BFObj) AndysOpenCVLib.o AndysComputations.o $(LinkerWinAPILibObj)
-$(targetDir)/calibrateStage.exe : $(calibrateStageObjs)
-	$(CXX) -o $(targetDir)/calibrateStage.exe $(calibrateStageObjs)
-	
-calibrateStage.o : calibrateStage.c 
-	$(CXX) $(CXXFLAGS) calibrateStage.c -ocalibrateFG_DLP.o -I$(MyLibs) -I$(bfIncDir)  $(openCVincludes) $(TailOpts)
+#
+##Calibrate FG and Stage
+#calibrateStageObjs= calibratestage.o Talk2Stage.o Talk2FrameGrabber.o $(BFObj) AndysOpenCVLib.o AndysComputations.o $(LinkerWinAPILibObj)
+#
+#$(targetDir)/calibrateStage.exe : $(calibrateStageObjs)
+#	$(CXX) -o $(targetDir)/calibrateStage.exe $(calibrateStageObjs)
+#	
+#calibrateStage.o : calibrateStage.c 
+#	$(CXX) $(CXXFLAGS) calibrateStage.c -ocalibrateFG_DLP.o -I$(MyLibs) -I$(bfIncDir)  $(openCVincludes) $(TailOpts)
 
 ## framegrabberonly FGMindControl.exe
 $(targetDir)/FGMindControl.exe : FGMindControl.o DontTalk2DLP.o DontTalk2Camera.o $(hw_ind) 

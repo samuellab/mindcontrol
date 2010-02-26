@@ -69,6 +69,10 @@ typedef struct WormAnalysisParamStruct{
 	int ProtocolStep;
 	int ProtocolTotalSteps;
 
+	/** Stage Control Parameters **/
+	int stageOn;
+	int stageSpeedFactor;
+
 	/** Record Data Parameters **/
 	int Record;
 

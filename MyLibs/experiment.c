@@ -32,12 +32,14 @@
 #include "Talk2FrameGrabber.h"
 #include "Talk2DLP.h"
 #include "Talk2Matlab.h"
+#include "Talk2Stage.h"
 #include "AndysComputations.h"
 #include "WormAnalysis.h"
 #include "IllumWormProtocol.h"
 #include "TransformLib.h"
 #include "WriteOutWorm.h"
 #include "version.h"
+
 
 #include "experiment.h"
 
@@ -139,6 +141,10 @@ Experiment* CreateExperimentStruct() {
 	exp->prevFrames = 0;
 	exp->prevTime = 0;
 
+	/** Stage Control **/
+	exp->stage=NULL;
+	exp->stageVel=cvPoint(0,0);
+
 	/** Macros **/
 	exp->RECORDVID = 0;
 	exp->RECORDDATA = 0;
@@ -174,6 +180,7 @@ void displayHelp() {
 	printf(
 			"\t-s\n\t\tSimulate the existence of DLP. (No physical DLP required.)\n\n");
 	printf("\t-g\n\t\tUse camera attached to FrameGrabber.\n\n");
+	printf("\t-t\n\t\tUse USB stage tracker.\n\n");
 	printf(
 			"\t-p  protocol.yml\n\t\tIlluminate according to a YAML protocol file.\n\n");
 	printf("\t-?\n\t\tDisplay this help.\n\n");
@@ -190,7 +197,7 @@ int HandleCommandLineArguments(Experiment* exp) {
 	opterr = 0;
 
 	int c;
-	while ((c = getopt(exp->argc, exp->argv, "si:d:o:p:g?")) != -1) {
+	while ((c = getopt(exp->argc, exp->argv, "si:d:o:p:gt?")) != -1) {
 		switch (c) {
 		case 'i': /** specify input video file **/
 			exp->VidFromFile = 1;
@@ -246,12 +253,15 @@ int HandleCommandLineArguments(Experiment* exp) {
 				exp->UseFrameGrabber = TRUE;
 			}
 			break;
-
+		case 't': /** Use the stage tracking software **/
+			exp->Params->stageOn=1;
+			break;
 		case '?':
 			if (optopt == '?') {
 				displayHelp();
 				return -1;
 			}
+			/** What is this? This looks bening but wrong to me.. -andy 26 Feb 2010 **/
 			if (optopt == 'i' || optopt == 'c' || optopt == 'd' || optopt
 					== 's') {
 				fprintf(stderr, "Option -%c requires an argument.\n", optopt);
@@ -1251,3 +1261,33 @@ int WriteRecentFrameNumberToFile(Experiment* exp){
 	fclose(pFile);
 	return 0;
 }
+
+
+/**************************************************
+ * Stage Tracking and FEedback System
+ *
+ * This should really probably go in a special library called Stage Tracking
+ * that depends on both OpenCV AND Talk2STage.c, but its a huge pain to modify the makefile
+ * to create a new library that has only one function in it.
+ *
+ * Alternatively this could conceivably go in Talk2Stage.c, but then I find it weird
+ * that Talk2Stage.c should depend on OpenCV, because ultimatley it should be more general.
+ *
+ * It doesn't really belong in experiment.c either because it is not a method of experiment.c
+ * But for now that is where it will sit.
+ *
+ */
+
+CvPoint AdjustStageToKeepObjectAtTarget(HANDLE stage, CvPoint obj,CvPoint target, int speed){
+	CvPoint diff;
+	CvPoint vel;
+	/** (sage-obj)*speed **/
+	cvSub(&obj,&target,&diff,NULL);
+
+	CvPoint scaleVec=cvPoint(speed,speed);
+	cvMul(&diff,&scaleVec,&vel,1);
+	spinStage(stage,vel.x,vel.y);
+	return vel;
+
+}
+

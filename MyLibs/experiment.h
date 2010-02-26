@@ -126,6 +126,10 @@ typedef struct ExperimentStruct{
 	int RECORDVID;
 	int RECORDDATA;
 
+	/** Stage Control **/
+	HANDLE stage; // Handle to USB stage object
+	CvPoint stageVel; //Current velocity of stage
+
 	/** Error Handling **/
 	int e;
 

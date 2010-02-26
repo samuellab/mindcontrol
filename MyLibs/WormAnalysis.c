@@ -260,6 +260,9 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 	ParamPtr->ProtocolStep=0;
 	ParamPtr->ProtocolTotalSteps=0;
 
+	/** Stage Control Parameters **/
+	ParamPtr->stageOn=0;
+	ParamPtr->stageSpeedFactor=10;
 
 	/**Record Parameters **/
 	ParamPtr->Record=0;

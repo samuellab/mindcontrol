@@ -36,6 +36,7 @@ int UsbScan(char*);
 
 
 
+
 // PrintVersion() - Gets and printf the driver version information.
 void PrintVersion(HANDLE hUsb) {
 	UCHAR Ver[512];
@@ -122,6 +123,8 @@ int centerStage(HANDLE s){
 	return 0;
 
 }
+
+
 
 
 void steerStageFromNumberPad(HANDLE s, int speed, int input){
