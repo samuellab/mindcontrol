@@ -12,8 +12,7 @@
 typedef struct WriteOutStruct{
 
 	CvFileStorage* fs; //Experiment data in YAML format
-	CvFileStorage* annotationWriter; //Annotations
-	CvFileStorage* experimentIndex;
+	char* filename;
 	int error;
 
 

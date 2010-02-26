@@ -37,6 +37,7 @@
 #include "IllumWormProtocol.h"
 #include "TransformLib.h"
 #include "WriteOutWorm.h"
+#include "version.h"
 
 #include "experiment.h"
 
@@ -789,7 +790,6 @@ int isFrameReady(Experiment* exp) {
 int SetupRecording(Experiment* exp) {
 
 	printf("About to setup recording\n");
-	;
 	char* DataFileName;
 	if (exp->RECORDDATA) {
 		if (exp->dirname == NULL || exp->outfname == NULL)
@@ -816,7 +816,6 @@ int SetupRecording(Experiment* exp) {
 
 		printf("Initialized data recording\n");
 		DestroyFilename(&DataFileName);
-		return 0;
 	}
 
 	/** Set Up Video Recording **/
@@ -836,6 +835,8 @@ int SetupRecording(Experiment* exp) {
 		exp->VidHUDS = cvCreateVideoWriter(HUDSFileName,
 				CV_FOURCC('M','J','P','G'), 30, cvSize(NSIZEX / 2, NSIZEY / 2),
 				0);
+		if (exp->Vid ==NULL ) printf("\tERROR in SetupRecording! exp->Vid is NULL\n");
+		if (exp->VidHUDS ==NULL ) printf("\tERROR in SetupRecording! exp->VidHUDS is NULL\n");
 		DestroyFilename(&MovieFileName);
 		DestroyFilename(&HUDSFileName);
 		printf("Initialized video recording\n");
@@ -1138,9 +1139,14 @@ void DoWriteToDisk(Experiment* exp) {
 
 		TICTOC::timer().tic("cvWriteFrame");
 		cvWriteFrame(exp->Vid, exp->SubSampled);
+		if (exp->Vid==NULL ) printf("\tERROR in DoWriteToDisk!\n\texp->Vid is NULL\n");
+		if (exp->SubSampled ==NULL ) printf("\tERROR in DoWriteToDisk!\n\texp->exp->Subsampled==NULL\n");
+
 		TICTOC::timer().toc("cvWriteFrame");
 
 		cvResize(exp->HUDS, exp->SubSampled, CV_INTER_LINEAR);
+		if (exp->VidHUDS==NULL ) printf("\tERROR in DoWriteToDisk!\n\texp->VidHUDS is NULL\n");
+		if (exp->SubSampled ==NULL ) printf("\tERROR in DoWriteToDisk!\n\texp->exp->Subsampled==NULL\n");
 
 		cvWriteFrame(exp->VidHUDS, exp->SubSampled);
 	}
@@ -1233,3 +1239,15 @@ void ReleaseProtocolFromExperiment(Experiment* exp) {
 	return;
 }
 
+
+/*
+ * Writes a recent frame number to file
+ */
+int WriteRecentFrameNumberToFile(Experiment* exp){
+	if (exp->Worm->frameNum < 0 || exp->DataWriter->filename == NULL  || build_git_sha == NULL) return -1;
+	FILE* pFile;
+	pFile = fopen("recentFrameNum.txt","w");
+	fprintf(pFile,"%d\n%s\n%s",exp->Worm->frameNum,exp->DataWriter->filename,build_git_sha);
+	fclose(pFile);
+	return 0;
+}

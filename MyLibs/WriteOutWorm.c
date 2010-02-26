@@ -72,9 +72,8 @@ void DestroyFilename(char** filename){
 WriteOut* CreateDataWriter(){
 	WriteOut* DataWriter =(WriteOut*) malloc(sizeof(WriteOut));
 	DataWriter->error=0;
+	DataWriter->filename=NULL;
 	DataWriter->fs=NULL;
-	DataWriter->annotationWriter=NULL;
-	DataWriter->experimentIndex=NULL;
 	return DataWriter;
 }
 
@@ -91,9 +90,7 @@ WriteOut* SetUpWriteToDisk(const char* dirfilename, const char* outfilename,  Cv
 	WriteOut* DataWriter = CreateDataWriter();
 
 	/** Create Filenames **/
-	char* YAMLDataFileName = CreateFileName(exp->dirname, exp->outfname, ".yaml");
-	char* YAMLIndexFileName = CreateFileName(exp->dirname, "index", ".yaml");
-	char* YAMLAnnotationsFileName = CreateFileName(exp->dirname, exp->outfname, "_annotations.yaml");
+	char* YAMLDataFileName = CreateFileName(dirfilename, outfilename, ".yaml");
 
 	/** Open YAML Data File for writing**/
 	DataWriter->fs=cvOpenFileStorage(YAMLDataFileName,Mem,CV_STORAGE_WRITE);
@@ -102,19 +99,6 @@ WriteOut* SetUpWriteToDisk(const char* dirfilename, const char* outfilename,  Cv
 		--(DataWriter->error);
 	}
 
-	/** Open YAML Data File for writing**/
-	DataWriter->fs=cvOpenFileStorage(YAMLIndexFileName,Mem,CV_STORAGE_APPEND);
-	if (DataWriter->annotationWriter==0) {
-		printf("DataWriter->fs is zero! Could you have specified the wrong directory?\n");
-		--(DataWriter->error);
-	}
-
-	/** Open YAML Data File for writing**/
-	DataWriter->fs=cvOpenFileStorage(YAMLANNOTATIONSFileName,Mem,CV_STORAGE_WRITE);
-	if (DataWriter->annotationWriter==0) {
-		printf("DataWriter->fs is zero! Could you have specified the wrong directory?\n");
-		--(DataWriter->error);
-	}
 
 
 
@@ -136,10 +120,8 @@ WriteOut* SetUpWriteToDisk(const char* dirfilename, const char* outfilename,  Cv
 
 	cvWriteString(DataWriter->fs, "ExperimentTime",asctime(local),0);
 
+	DataWriter->filename=YAMLDataFileName;
 
-	free(YAMLDataFileName);
-	free(YAMLAnnotationsFileName);
-	free(YAMLIndexFileName);
 	return DataWriter;
 }
 
@@ -258,6 +240,14 @@ int AppendWormFrameToDisk(WormAnalysisData* Worm, WormAnalysisParam* Params, Wri
 	return 0;
 }
 
+int DestroyDataWriter(WriteOut** DataWriter){
+	cvReleaseFileStorage(&((*DataWriter)->fs));
+	free((*DataWriter)->filename);
+	free(*DataWriter);
+	*DataWriter=NULL;
+	return 0;
+}
+
 /*
  * Finish writing to disk and close the file and such.
  * Destroys the Data Writer
@@ -267,9 +257,8 @@ int FinishWriteToDisk(WriteOut** DataWriter){
 	CvFileStorage* fs=(*DataWriter)->fs;
 	/** Finish writing this structure **/
 	cvEndWriteStruct(fs);
+
 	/** Close File Storage and Finish Writing Out to File **/
-	cvReleaseFileStorage(&fs);
-	free(*DataWriter);
-	*DataWriter=NULL;
+	DestroyDataWriter(DataWriter);
 	return 0;
 }

@@ -131,11 +131,12 @@ int main(){
 	printf(copyString("Hello you World\n"));
 
 	CvMemStorage* MyMem= cvCreateMemStorage();
-	CvFileStorage*=cvOpenFileStorage("appendTest.yaml",MyMem,CV_STORAGE_APPEND);
-	cvStartWriteStruct(DataWriter->fs,"Experiment",CV_NODE_MAP,NULL);
-		cvWriteInt(DataWriter->fs,"x",rand());
-	cvEndWriteStruct(DataWriter->fs);
-
+	CvFileStorage* fs=cvOpenFileStorage("appendTest.yaml",MyMem,CV_STORAGE_APPEND);
+	cvStartWriteStruct(fs,"Experiment",CV_NODE_MAP,NULL);
+		cvWriteInt(fs,"x",10);
+		cvWriteString(fs,"string","calvin And Hobbes");
+	cvEndWriteStruct(fs);
+	cvReleaseFileStorage(&fs);
 
 	return 0;
 
