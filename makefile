@@ -153,6 +153,8 @@ $(MyLibs)/version.c: FORCE
 FORCE:
 
 
+
+
 ###### Test.exe
 $(targetDir)/Test.exe : test.o $(CVlibs) IllumWormProtocol.o AndysOpenCvLib.o version.o $(TimerLibrary)
 	$(CXX) -o $(targetDir)/Test.exe Test.o IllumWormProtocol.o AndysOpenCvLib.o version.o $(TimerLibrary) $(CVlibs) $(TailOpts)
@@ -183,12 +185,19 @@ FG_DLP.o : main.cpp
 	$(CXX) $(CXXFLAGS) main.cpp -oFG_DLP.o -I$(MyLibs) -I$(bfIncDir) $(openCVincludes) $(TailOpts)
 
 #Calibrate FG and DLP
-$(targetDir)/calibrateFG_DLP.exe : calibrateFG_DLP.o Talk2FrameGrabber.o $(BFObj)  Talk2DLP.o   DontTalk2Camera.o $(3rdPartyLibs)/alp4basic.lib  Talk2Matlab.o $(MatlabLibs) $(hw_ind)
-	$(CXX) -o $(targetDir)/calibrateFG_DLP.exe  calibrateFG_DLP.o Talk2FrameGrabber.o $(BFObj)  Talk2DLP.o   DontTalk2Camera.o $(3rdPartyLibs)/alp4basic.lib  Talk2Matlab.o  $(MatlabLibs) $(hw_ind)
+$(targetDir)/calibrateFG_DLP.exe : calibrateFG_DLP.o Talk2FrameGrabber.o $(BFObj)  Talk2DLP.o  $(3rdPartyLibs)/alp4basic.lib  Talk2Matlab.o $(MatlabLibs) $(hw_ind)
+	$(CXX) -o $(targetDir)/calibrateFG_DLP.exe  calibrateFG_DLP.o Talk2FrameGrabber.o $(BFObj)  Talk2DLP.o   $(3rdPartyLibs)/alp4basic.lib  Talk2Matlab.o  $(MatlabLibs) $(hw_ind) $(TailOpts)
 
 calibrateFG_DLP.o : calibrateFG.cpp 
 	$(CXX) $(CXXFLAGS) calibrateFG.cpp -ocalibrateFG_DLP.o -I$(MyLibs) -I$(bfIncDir) -I$(MatlabIncDir) $(openCVincludes) $(TailOpts)
 
+#Calibrate FG and Stage
+calibrateStageObjs= calibratestage.o Talk2Stage.o Talk2FrameGrabber.o $(BFObj) AndysOpenCVLib.o AndysComputations.o $(LinkerWinAPILibObj)
+$(targetDir)/calibrateStage.exe : $(calibrateStageObjs)
+	$(CXX) -o $(targetDir)/calibrateStage.exe $(calibrateStageObjs)
+	
+calibrateStage.o : calibrateStage.c 
+	$(CXX) $(CXXFLAGS) calibrateStage.c -ocalibrateFG_DLP.o -I$(MyLibs) -I$(bfIncDir)  $(openCVincludes) $(TailOpts)
 
 ## framegrabberonly FGMindControl.exe
 $(targetDir)/FGMindControl.exe : FGMindControl.o DontTalk2DLP.o DontTalk2Camera.o $(hw_ind) 
