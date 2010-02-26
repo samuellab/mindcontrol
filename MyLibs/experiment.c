@@ -142,8 +142,10 @@ Experiment* CreateExperimentStruct() {
 	exp->prevTime = 0;
 
 	/** Stage Control **/
+	exp->stageIsPresent=0;
 	exp->stage=NULL;
 	exp->stageVel=cvPoint(0,0);
+	exp->stageCenter=cvPoint(0,0);
 
 	/** Macros **/
 	exp->RECORDVID = 0;
@@ -254,7 +256,7 @@ int HandleCommandLineArguments(Experiment* exp) {
 			}
 			break;
 		case 't': /** Use the stage tracking software **/
-			exp->Params->stageOn=1;
+			exp->stageIsPresent=1;
 			break;
 		case '?':
 			if (optopt == '?') {
@@ -1263,6 +1265,8 @@ int WriteRecentFrameNumberToFile(Experiment* exp){
 }
 
 
+
+
 /**************************************************
  * Stage Tracking and FEedback System
  *
@@ -1278,15 +1282,41 @@ int WriteRecentFrameNumberToFile(Experiment* exp){
  *
  */
 
-CvPoint AdjustStageToKeepObjectAtTarget(HANDLE stage, CvPoint obj,CvPoint target, int speed){
+
+/*
+ * Scan for the USB device.
+ */
+int InvokeStage(Experiment* exp){
+	exp->stageCenter=cvPoint(NSIZEX/2, NSIZEY/2);
+	exp->stage=InitializeUsbStage();
+	if (exp->stage==NULL){
+		printf("ERROR! Invoking the stage failed.\nTurning tracking off.\n");
+		exp->Params->stageTrackingOn=0;
+		return 0;
+	}
+}
+
+CvPoint AdjustStageToKeepObjectAtTarget(HANDLE stage, CvPoint* obj,CvPoint* target, int speed){
+	if (obj==NULL){
+		printf("Error! obj is NULL in AdjustStageToKeepObjectAtTarget()\n");
+		return cvPoint(0,0);
+	}
+
+	if (obj==NULL){
+		printf("Error! target is NULL in AdjustStageToKeepObjectAtTarget()\n");
+		return cvPoint(0,0);
+	}
+
+
 	CvPoint diff;
 	CvPoint vel;
 	/** (sage-obj)*speed **/
-	cvSub(&obj,&target,&diff,NULL);
+	cvSub(obj,target,&diff,NULL);
 
 	CvPoint scaleVec=cvPoint(speed,speed);
 	cvMul(&diff,&scaleVec,&vel,1);
 	spinStage(stage,vel.x,vel.y);
+
 	return vel;
 
 }

@@ -261,7 +261,7 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 	ParamPtr->ProtocolTotalSteps=0;
 
 	/** Stage Control Parameters **/
-	ParamPtr->stageOn=0;
+	ParamPtr->stageTrackingOn=0;
 	ParamPtr->stageSpeedFactor=10;
 
 	/**Record Parameters **/
@@ -295,6 +295,8 @@ SegWorm= (SegmentedWorm*) malloc(sizeof(SegmentedWorm));
 
 SegWorm->Head=(CvPoint*) malloc (sizeof(CvPoint));
 SegWorm->Tail=(CvPoint*) malloc (sizeof(CvPoint));
+
+SegWorm->centerOfWorm=(CvPoint*) malloc (sizeof(CvPoint));
 SegWorm->NumSegments=0;
 
 /*** Setup Memory storage ***/
@@ -321,6 +323,7 @@ SegWorm= (SegmentedWorm*) malloc(sizeof(SegmentedWorm));
 
 SegWorm->Head=NULL;
 SegWorm->Tail=NULL;
+SegWorm->centerOfWorm=NULL;
 SegWorm->NumSegments=0;
 
 /*** Setup Memory storage ***/
@@ -338,6 +341,11 @@ return SegWorm;
 
 void DestroySegmentedWormStruct(SegmentedWorm* SegWorm){
 cvReleaseMemStorage(&(SegWorm->MemSegStorage));
+free((SegWorm->Head));
+free((SegWorm->Tail));
+free((SegWorm->centerOfWorm));
+
+
 free(SegWorm);
 }
 
@@ -847,7 +855,8 @@ int SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
 
 	resampleSeqConstPtsPerArcLength(SmoothUnresampledCenterline,Worm->Segmented->Centerline,Params->NumSegments);
 
-
+	/** Save the location of the centerOfWorm as the point halfway down the segmented centerline **/
+	Worm->Segmented->centerOfWorm= CV_GET_SEQ_ELEM( CvPoint , Worm->Segmented->Centerline, Worm->Segmented->NumSegments / 2 );
 
 	/*** Remove Repeat Points***/
 	//RemoveSequentialDuplicatePoints (Worm->Segmented->Centerline);

@@ -329,7 +329,7 @@ UINT Thread(LPVOID lpdwParam) {
 	printf("Starting DispThread loop\n");
 
 	int key;
-
+	int k=0;
 	while (!MainThreadHasStopped) {
 
 		//needed for display window
@@ -366,12 +366,17 @@ UINT Thread(LPVOID lpdwParam) {
 
 			}
 			UpdateGUI(exp);
+			if(EverySoOften(k,4)){
+				/** Move the stage to keep the worm centered in the field of view **/
 
-			TICTOC::timer().tic("WriteRecentFrameNumberToFile()");
-			WriteRecentFrameNumberToFile(exp);
-			TICTOC::timer().toc("WriteRecentFrameNumberToFile()");
+				AdjustStageToKeepObjectAtTarget(exp->stage,exp->Worm->Segmented->centerOfWorm,)
 
-
+				/** Write the Recent Frame Number to File to be accessed by the Annotation System **/
+				TICTOC::timer().tic("WriteRecentFrameNumberToFile()");
+				WriteRecentFrameNumberToFile(exp);
+				TICTOC::timer().toc("WriteRecentFrameNumberToFile()");
+			}
+			k++;
 
 	}
 

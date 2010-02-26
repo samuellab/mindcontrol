@@ -60,7 +60,7 @@ HANDLE InitializeUsbStage(){
 	// Scan for Usb Device
 	if (!UsbScan(DeviceName)) {
 		printf("No devices found!\n");
-		return 0;
+		return NULL;
 	}
 	printf("Device Found: %s\n", DeviceName);
 	HANDLE hUsb = CreateFile(DeviceName, GENERIC_READ | GENERIC_WRITE,

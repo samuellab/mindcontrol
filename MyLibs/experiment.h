@@ -27,6 +27,9 @@
 #ifndef TALK2CAMERA_H_
  #error "#include Talk2Camera.h" must appear in source files before "#include experiment.h"
 #endif
+#ifndef TALK2CAMERA_H_
+ #error "#include Talk2Stage.h" must appear in source files before "#include experiment.h"
+#endif
 #ifndef TALK2FRAMEGRABBER_H_
  #error "#include Talk2FrameGrabber.h" must appear in source files before "#include experiment.h"
 #endif
@@ -127,8 +130,10 @@ typedef struct ExperimentStruct{
 	int RECORDDATA;
 
 	/** Stage Control **/
+	int stageIsPresent;
 	HANDLE stage; // Handle to USB stage object
 	CvPoint stageVel; //Current velocity of stage
+	CvPoint stageCenter; // Point indicating center of stage.
 
 	/** Error Handling **/
 	int e;
@@ -377,5 +382,23 @@ void ReleaseProtocolFromExperiment(Experiment* exp);
  */
 int WriteRecentFrameNumberToFile(Experiment* exp);
 
+
+/**************************************************
+ * Stage Tracking and FEedback System
+ *
+ * This should really probably go in a special library called Stage Tracking
+ * that depends on both OpenCV AND Talk2STage.c, but its a huge pain to modify the makefile
+ * to create a new library that has only one function in it.
+ *
+ * Alternatively this could conceivably go in Talk2Stage.c, but then I find it weird
+ * that Talk2Stage.c should depend on OpenCV, because ultimatley it should be more general.
+ *
+ * It doesn't really belong in experiment.c either because it is not a method of experiment.c
+ * But for now that is where it will sit.
+ *
+ */
+
+
+CvPoint AdjustStageToKeepObjectAtTarget(HANDLE stage, CvPoint* obj,CvPoint* target, int speed);
 
 #endif /* EXPERIMENT_H_ */

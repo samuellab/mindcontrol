@@ -70,7 +70,7 @@ typedef struct WormAnalysisParamStruct{
 	int ProtocolTotalSteps;
 
 	/** Stage Control Parameters **/
-	int stageOn;
+	int stageTrackingOn;
 	int stageSpeedFactor;
 
 	/** Record Data Parameters **/
@@ -86,6 +86,7 @@ typedef struct SegmentedWormStruct{
 	CvPoint* Tail;
 	CvMemStorage* MemSegStorage;
 	int NumSegments;
+	CvPoint* centerOfWorm;
 } SegmentedWorm;
 
 
