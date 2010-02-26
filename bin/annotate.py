@@ -73,7 +73,7 @@ while (s!='q'): #While the user doesn't quit
 
 	else:
 		if (firstGenAnnote==True):
-			out.write('\tOverview:"\n')
+			out.write('\tOverview:\n')
 			firstGenAnnote=False
 		out.write('\t\t- Description: "'+s+'"\n')
 		print 'Experiment overview recorded.'
