@@ -246,7 +246,7 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 	ParamPtr->IllumInvert=0;
 	ParamPtr->IllumSquareOrig=cvPoint(ParamPtr->DefaultGridSize.width/2,ParamPtr->DefaultGridSize.height/2);
 	ParamPtr->IllumSquareRad=cvSize(ParamPtr->DefaultGridSize.width/4,ParamPtr->DefaultGridSize.height/4);
-	ParamPtr->IllumDuration=1;
+	ParamPtr->IllumDuration=15;
 	ParamPtr->DLPOnFlash=0;
 
 
