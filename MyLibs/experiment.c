@@ -816,7 +816,6 @@ int SetupRecording(Experiment* exp) {
 
 		printf("Initialized data recording\n");
 		DestroyFilename(&DataFileName);
-		return 0;
 	}
 
 	/** Set Up Video Recording **/
