@@ -134,6 +134,7 @@ typedef struct ExperimentStruct{
 	HANDLE stage; // Handle to USB stage object
 	CvPoint stageVel; //Current velocity of stage
 	CvPoint stageCenter; // Point indicating center of stage.
+	int stageIsTurningOff; //1 indicates stage is turning off. 0 indicates stage is on or off.
 
 	/** Error Handling **/
 	int e;
@@ -398,7 +399,20 @@ int WriteRecentFrameNumberToFile(Experiment* exp);
  *
  */
 
+/*
+ * Scan for the USB device.
+ */
+int InvokeStage(Experiment* exp);
 
-CvPoint AdjustStageToKeepObjectAtTarget(HANDLE stage, CvPoint* obj,CvPoint* target, int speed);
+/*
+ * Update the Stage Tracker.
+ * If the Stage tracker is not initialized, don't do anything.
+ * If the stage tracker is initialized then either do the tracking,
+ * or if we are in the process of turning off tracking off, then tell
+ * the stage to halt and update flags.
+ */
+int HandleStageTracker(Experiment* exp);
+
+
 
 #endif /* EXPERIMENT_H_ */

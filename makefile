@@ -61,10 +61,10 @@ objects= $(mylibraries) $(WormSpecificLibs) $(3rdpartyobjects) $(BFObj) $(CVlibs
 calib_objects= calibrate.o $(objects)
 
 #Hardware Independent objects
-hw_ind= version.o AndysComputations.o AndysOpenCVLib.o TransformLib.o IllumWormProtocol.o $(WormSpecificLibs) $(TimerLibrary) $(CVlibs)
+hw_ind= version.o AndysComputations.o AndysOpenCVLib.o TransformLib.o IllumWormProtocol.o  $(WormSpecificLibs) $(TimerLibrary) $(CVlibs)
 
 #Virtual HArdware Libraries
-virtual_hardware =DontTalk2DLP.o DontTalk2Camera.o DontTalk2FrameGrabber.o 
+virtual_hardware =DontTalk2DLP.o DontTalk2Camera.o DontTalk2FrameGrabber.o Talk2Stage.o
 
 
 ############DIFFERENT TARGETS
@@ -135,7 +135,7 @@ IllumWormProtocol.o : $(MyLibs)/IllumWormProtocol.h $(MyLibs)/IllumWormProtocol.
 	$(CXX) $(CXXFLAGS) $(MyLibs)/IllumWormProtocol.c -I$(MyLibs) $(openCVincludes) $(TailOpts)
 
 # if talk to stage causes trouble try compiling without -mwindows flag.
-Talk2STage.o: $(MyLibs)/Talk2Stage.c $(MyLibs)/Talk2Stage.h
+Talk2Stage.o: $(MyLibs)/Talk2Stage.c $(MyLibs)/Talk2Stage.h
 	$(CXX) $(CXXFLAGS) $(MyLibs)/Talk2Stage.c -I$(MyLibs)
 
 
@@ -213,7 +213,7 @@ FGMindControl.o : main.cpp $(myOpenCVlibraries) $(WormSpecificLibs)
 # This is the software suite that does not depend on any hardware. It is hardware independent.
 #Write a DontTalk2FrameGrabber.h
 $(targetDir)/VirtualMC.exe : VirtualMC.o $(virtual_hardware) $(hw_ind) 
-	$(CXX) -o $(targetDir)/VirtualMC.exe VirtualMC.o $(virtual_hardware) $(hw_ind)  $(TailOpts) 
+	$(CXX) -o $(targetDir)/VirtualMC.exe VirtualMC.o $(virtual_hardware) $(hw_ind)   $(LinkerWinAPILibObj) $(TailOpts) 
 
 VirtualMC.o : main.cpp $(myOpenCVlibraries) $(WormSpecificLibs) 
 	$(CXX) $(CXXFLAGS) main.cpp -oVirtualMC.o -I$(MyLibs) -I$(bfIncDir) $(openCVincludes) $(TailOpts)

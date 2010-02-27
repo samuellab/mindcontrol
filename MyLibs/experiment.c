@@ -146,6 +146,7 @@ Experiment* CreateExperimentStruct() {
 	exp->stage=NULL;
 	exp->stageVel=cvPoint(0,0);
 	exp->stageCenter=cvPoint(0,0);
+	exp->stageIsTurningOff=0;
 
 	/** Macros **/
 	exp->RECORDVID = 0;
@@ -1130,6 +1131,15 @@ int HandleKeyStroke(int c, Experiment* exp) {
 		Toggle(&(exp->Params->IllumInvert));
 		break;
 
+	/** Tracker **/
+	case '\t':
+		Toggle(&(exp->Params->stageTrackingOn));
+		if (exp->Params->stageTrackingOn==0) {
+			/** If we are turning the stage off, let the rest of the code know **/
+			exp->stageIsTurningOff=1;
+		}
+		break;
+
 	default:
 		return 0;
 		break;
@@ -1283,18 +1293,6 @@ int WriteRecentFrameNumberToFile(Experiment* exp){
  */
 
 
-/*
- * Scan for the USB device.
- */
-int InvokeStage(Experiment* exp){
-	exp->stageCenter=cvPoint(NSIZEX/2, NSIZEY/2);
-	exp->stage=InitializeUsbStage();
-	if (exp->stage==NULL){
-		printf("ERROR! Invoking the stage failed.\nTurning tracking off.\n");
-		exp->Params->stageTrackingOn=0;
-		return 0;
-	}
-}
 
 CvPoint AdjustStageToKeepObjectAtTarget(HANDLE stage, CvPoint* obj,CvPoint* target, int speed){
 	if (obj==NULL){
@@ -1320,4 +1318,49 @@ CvPoint AdjustStageToKeepObjectAtTarget(HANDLE stage, CvPoint* obj,CvPoint* targ
 	return vel;
 
 }
+
+
+/*
+ * Scan for the USB device.
+ */
+int InvokeStage(Experiment* exp){
+	exp->stageCenter=cvPoint(NSIZEX/2, NSIZEY/2);
+	exp->stage=InitializeUsbStage();
+	if (exp->stage==NULL){
+		printf("ERROR! Invoking the stage failed.\nTurning tracking off.\n");
+		exp->Params->stageTrackingOn=0;
+		return 0;
+	}
+}
+
+
+/*
+ * Update the Stage Tracker.
+ * If the Stage tracker is not initialized, don't do anything.
+ * If the stage tracker is initialized then either do the tracking,
+ * or if we are in the process of turning off tracking off, then tell
+ * the stage to halt and update flags.
+ */
+int HandleStageTracker(Experiment* exp){
+	if (exp->stageIsPresent==1){ /** If the Stage is Present **/
+		if (exp->stage==NULL) return 0;
+
+		if (exp->Params->stageTrackingOn==1){
+			/** Move the stage to keep the worm centered in the field of view **/
+			AdjustStageToKeepObjectAtTarget(exp->stage,exp->Worm->Segmented->centerOfWorm,&(exp->stageCenter),exp->Params->stageSpeedFactor);
+		} else {/** Tracking Sshould be off **/
+			/** If we are in the process of turning tacking off **/
+			if (exp->stageIsTurningOff==1){
+				/** Tell the stage to Halt **/
+				haltStage(exp->stage);
+				exp->stageIsTurningOff=0;
+			}
+			/** The stage is already halted, so there is nothing to do. **/
+		}
+	}
+
+	return 0;
+}
+
+
 

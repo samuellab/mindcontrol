@@ -33,6 +33,7 @@ shortcutkeys.txt
 - <: decrement duration of pulsed illumination
 - >: increment duration of pulsed illumination
 
+- <tab>: Turn stage tracker on/off
 
 - G: inceremnt Gaussian Radius size
 - g: decrement Gaussian Radius size

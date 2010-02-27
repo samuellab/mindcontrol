@@ -329,7 +329,10 @@ UINT Thread(LPVOID lpdwParam) {
 		cvShowImage("ProtoIllum",rectWorm);
 	}
 
-	printf("Starting DispThread loop\n");
+	printf("DispThread: invoking stage...\n ");
+	InvokeStage(exp);
+
+	printf("DispThread: Starting loop\n");
 
 	int key;
 	int k=0;
@@ -376,9 +379,11 @@ UINT Thread(LPVOID lpdwParam) {
 			}
 			UpdateGUI(exp);
 			if(EverySoOften(k,4)){
-				/** Move the stage to keep the worm centered in the field of view **/
 
-				AdjustStageToKeepObjectAtTarget(exp->stage,exp->Worm->Segmented->centerOfWorm,)
+				/** Do the Stage Tracking **/
+				TICTOC::timer().tic("HandleStageTracker()");
+				HandleStageTracker(exp);
+				TICTOC::timer().toc("HandleStageTracker()");
 
 				/** Write the Recent Frame Number to File to be accessed by the Annotation System **/
 				TICTOC::timer().tic("WriteRecentFrameNumberToFile()");
