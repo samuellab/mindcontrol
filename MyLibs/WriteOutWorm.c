@@ -229,7 +229,12 @@ int AppendWormFrameToDisk(WormAnalysisData* Worm, WormAnalysisParam* Params, Wri
 			cvWriteInt(fs,"y",Params->IllumSquareRad.height);
 		cvEndWriteStruct(fs);
 
-
+		if (Params->stageTrackingOn){
+			cvStartWriteStruct(fs,"StageVelocity",CV_NODE_MAP,NULL);
+				cvWriteInt(fs,"i",Worm->stageVelocity.x);
+				cvWriteInt(fs,"j",Worm->stageVelocity.y);
+			cvEndWriteStruct(fs);
+		}
 
 		/** Protocol Information **/
 

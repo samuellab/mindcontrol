@@ -123,6 +123,9 @@ typedef struct WormImageAnalysisStruct{
 	/** Segmented Worm **/
 	SegmentedWorm* Segmented;
 
+	/** Information about location on plate **/
+	CvPoint stageVelocity; //compensating velocity of stage.
+
 
 	//WormIlluminationData* Illum;
 }WormAnalysisData;

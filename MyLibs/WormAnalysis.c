@@ -83,6 +83,8 @@ WormAnalysisData* CreateWormAnalysisDataStruct(){
 	/*** Create Segmented Worm Object ***/
 	WormPtr->Segmented= CreateSegmentedWormStruct();
 
+	/** Position on plate information **/
+	WormPtr->stageVelocity=cvPoint(0,0);
 
 	return WormPtr;
 }

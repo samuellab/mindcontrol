@@ -1340,6 +1340,7 @@ int InvokeStage(Experiment* exp){
 		exp->Params->stageTrackingOn=0;
 		return 0;
 	} else {
+		printf("Telling stage to HALT.\n");
 		haltStage(exp->stage);
 	}
 
@@ -1369,7 +1370,7 @@ int HandleStageTracker(Experiment* exp){
 			} else {
 			/** Move the stage to keep the worm centered in the field of view **/
 			printf(".");
-			AdjustStageToKeepObjectAtTarget(exp->stage,exp->Worm->Segmented->centerOfWorm,&(exp->stageCenter),exp->Params->stageSpeedFactor);
+			exp->Worm->stageVelocity=AdjustStageToKeepObjectAtTarget(exp->stage,exp->Worm->Segmented->centerOfWorm,&(exp->stageCenter),exp->Params->stageSpeedFactor);
 			}
 		}
 		if (exp->Params->stageTrackingOn==0){/** Tracking Should be off **/
@@ -1377,6 +1378,7 @@ int HandleStageTracker(Experiment* exp){
 			if (exp->stageIsTurningOff==1){
 				/** Tell the stage to Halt **/
 				printf("Tracking Stopped!");
+				printf("Telling stage to HALT.\n");
 				haltStage(exp->stage);
 				exp->stageIsTurningOff=0;
 			}
