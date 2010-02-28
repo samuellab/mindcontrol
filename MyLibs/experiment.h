@@ -413,6 +413,7 @@ int InvokeStage(Experiment* exp);
  */
 int HandleStageTracker(Experiment* exp);
 
+int ShutOffStage(Experiment* exp);
 
 
 #endif /* EXPERIMENT_H_ */

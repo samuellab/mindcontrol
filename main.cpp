@@ -132,10 +132,11 @@ int main (int argc, char** argv){
 	TICTOC::timer().tic("WholeLoop");
 	int VideoRanOut=0;
 	UserWantsToStop=0;
-	while (1) {
+	while (UserWantsToStop!=1) {
 		_TICTOC_TIC_FUNC
 		TICTOC::timer().tic("OneLoop");
 		if (isFrameReady(exp)) {
+
 
 			/** Set error to zero **/
 			exp->e=0;
@@ -291,6 +292,7 @@ int main (int argc, char** argv){
 		CloseFrameGrabber(exp->fg);
 	}
 
+	if (exp->stageIsPresent) ShutOffStage(exp);
 
 	ReleaseExperiment(exp);
 	DestroyExperiment(&exp);
@@ -393,6 +395,7 @@ UINT Thread(LPVOID lpdwParam) {
 			k++;
 
 	}
+	if (exp->stageIsPresent) ShutOffStage(exp);
 
 	//if (exp->pflag) cvReleaseImage(&rectWorm);
 

@@ -1136,7 +1136,10 @@ int HandleKeyStroke(int c, Experiment* exp) {
 		Toggle(&(exp->Params->stageTrackingOn));
 		if (exp->Params->stageTrackingOn==0) {
 			/** If we are turning the stage off, let the rest of the code know **/
+			printf("Turning tracking off!\n");
 			exp->stageIsTurningOff=1;
+		} else {
+			printf("Turning trackign on!\n");
 		}
 		break;
 
@@ -1304,15 +1307,21 @@ CvPoint AdjustStageToKeepObjectAtTarget(HANDLE stage, CvPoint* obj,CvPoint* targ
 		printf("Error! target is NULL in AdjustStageToKeepObjectAtTarget()\n");
 		return cvPoint(0,0);
 	}
-
+//	printf("About to adjust stage.\n");
 
 	CvPoint diff;
 	CvPoint vel;
 	/** (sage-obj)*speed **/
-	cvSub(obj,target,&diff,NULL);
+//	printf("obj= (%d, %d), target =(%d, %d)\n",obj->x, obj->y, target->x, target->y);
 
-	CvPoint scaleVec=cvPoint(speed,speed);
-	cvMul(&diff,&scaleVec,&vel,1);
+	diff.x=target->x-obj->x;
+	diff.y=target->y-obj->y;
+
+	//printf("About to Multiply!\n");
+	vel.x=diff.x*speed;
+	vel.y=diff.y*speed;
+
+	//printf("SpinStage: vel.x=%d, vel.y=%d\n",vel.x,vel.y);
 	spinStage(stage,vel.x,vel.y);
 
 	return vel;
@@ -1330,9 +1339,16 @@ int InvokeStage(Experiment* exp){
 		printf("ERROR! Invoking the stage failed.\nTurning tracking off.\n");
 		exp->Params->stageTrackingOn=0;
 		return 0;
+	} else {
+		haltStage(exp->stage);
 	}
+
 }
 
+
+int ShutOffStage(Experiment* exp){
+	haltStage(exp->stage);
+}
 
 /*
  * Update the Stage Tracker.
@@ -1346,19 +1362,28 @@ int HandleStageTracker(Experiment* exp){
 		if (exp->stage==NULL) return 0;
 
 		if (exp->Params->stageTrackingOn==1){
+			if (exp->Params->OnOff==0){ /** if the analysis system is off **/
+				/** Turn the stage off **/
+				exp->stageIsTurningOff=1;
+				exp->Params->stageTrackingOn=0;
+			} else {
 			/** Move the stage to keep the worm centered in the field of view **/
+			printf(".");
 			AdjustStageToKeepObjectAtTarget(exp->stage,exp->Worm->Segmented->centerOfWorm,&(exp->stageCenter),exp->Params->stageSpeedFactor);
-		} else {/** Tracking Sshould be off **/
+			}
+		}
+		if (exp->Params->stageTrackingOn==0){/** Tracking Should be off **/
 			/** If we are in the process of turning tacking off **/
 			if (exp->stageIsTurningOff==1){
 				/** Tell the stage to Halt **/
+				printf("Tracking Stopped!");
 				haltStage(exp->stage);
 				exp->stageIsTurningOff=0;
 			}
 			/** The stage is already halted, so there is nothing to do. **/
 		}
-	}
 
+	}
 	return 0;
 }
 
