@@ -100,7 +100,7 @@ indentYAML(fid,indent);
 fprintf(fid,'%s: ', name);
 fprintf(fid,'[ ');
     for i=1:(length(data)-1)
-        fprintf(fid,'%d, ',data(i));
+        fprintf(fid,'%g,     ',data(i));
     end
 fprintf(fid,'%d ]\n',data(end));
 indentOut=indent;

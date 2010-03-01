@@ -14,6 +14,6 @@ fill(worm(2:2:end),worm(1:2:end),wormcolor);
 fill(currentStep(2:2:end),currentStep(1:2:end),illumColor)
 text(0,0, 'Head')
 text(height, 0, 'Tail')
-title('Worm Illumination Pattern')
+
 end
 
