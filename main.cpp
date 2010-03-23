@@ -137,7 +137,6 @@ int main (int argc, char** argv){
 		TICTOC::timer().tic("OneLoop");
 		if (isFrameReady(exp)) {
 
-
 			/** Set error to zero **/
 			exp->e=0;
 			TICTOC::timer().tic("GrabFrame()");
@@ -340,6 +339,8 @@ UINT Thread(LPVOID lpdwParam) {
 	int k=0;
 	while (!MainThreadHasStopped) {
 
+
+
 		//needed for display window
 			if (PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE))
 				DispatchMessage(&Msg);
@@ -357,6 +358,7 @@ UINT Thread(LPVOID lpdwParam) {
 			if (MainThreadHasStopped==1) continue;
 
 
+
 			/** If we are using protocols and we havec chosen a new protocol step **/
 			if (exp->Params->ProtocolUse && (prevProtocolStep!= exp->Params->ProtocolStep))  {
 				cvZero(rectWorm);
@@ -369,6 +371,7 @@ UINT Thread(LPVOID lpdwParam) {
 
 			TICTOC::timer().toc("DisplayThreadGuts");
 			UpdateGUI(exp);
+
 			key=cvWaitKey(100);
 
 
@@ -379,7 +382,9 @@ UINT Thread(LPVOID lpdwParam) {
 				UserWantsToStop=1;
 
 			}
+
 			UpdateGUI(exp);
+
 			if(EverySoOften(k,4)){
 
 				/** Do the Stage Tracking **/
@@ -387,14 +392,19 @@ UINT Thread(LPVOID lpdwParam) {
 				HandleStageTracker(exp);
 				TICTOC::timer().toc("HandleStageTracker()");
 
+
 				/** Write the Recent Frame Number to File to be accessed by the Annotation System **/
 				TICTOC::timer().tic("WriteRecentFrameNumberToFile()");
 				WriteRecentFrameNumberToFile(exp);
+
 				TICTOC::timer().toc("WriteRecentFrameNumberToFile()");
 			}
+
 			k++;
 
+
 	}
+
 	if (exp->stageIsPresent) ShutOffStage(exp);
 
 	//if (exp->pflag) cvReleaseImage(&rectWorm);

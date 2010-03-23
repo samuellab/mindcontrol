@@ -1269,6 +1269,7 @@ void ReleaseProtocolFromExperiment(Experiment* exp) {
  * Writes a recent frame number to file
  */
 int WriteRecentFrameNumberToFile(Experiment* exp){
+	if (exp->RECORDDATA == 0) return 0;
 	if (exp->Worm->frameNum < 0 || exp->DataWriter->filename == NULL  || build_git_sha == NULL) return -1;
 	FILE* pFile;
 	pFile = fopen("recentFrameNum.txt","w");
@@ -1277,6 +1278,7 @@ int WriteRecentFrameNumberToFile(Experiment* exp){
 	return 0;
 }
 
+/** This is acomment **/
 
 
 
