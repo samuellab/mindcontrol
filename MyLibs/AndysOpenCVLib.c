@@ -662,6 +662,8 @@ float dist(CvPoint a, CvPoint b){
 }
 
 /*
+ * WHOA!! THIS FUNCTION IS ALL SCREWED UP AND CAUSING PROBLEMS!!
+ *
  * Given two points a and b , and a sequence of CvPoints
  * this function will find the points that walk the line
  * between a and b and append those
@@ -686,6 +688,9 @@ int GetLineFromEndPts(CvPoint a, CvPoint b, CvSeq* contour){
 	CvSeqWriter writer;
 	cvStartAppendToSeq( contour, &writer );
 
+	printf("GetLineFromEndPts()\n");
+	printf("a=( %d , %d), b=( %d, %d), dist= %f\n",a.x,a.y,b.x,b.y, d);
+
 	int t;
 	for (t = 0; t <  (int) (d+0.5) ; ++t) {
 		currPt=cvPoint((int) ( (float) t * ihat + 0.5 + (float) a.x) ,
@@ -695,9 +700,9 @@ int GetLineFromEndPts(CvPoint a, CvPoint b, CvSeq* contour){
 		/** If first point, OR the current approx point is not the same as prev **/
 		if ( t==0 ||  !( currPt.x == prevPt.x && currPt.y == prevPt.y   )   ){
 			CV_WRITE_SEQ_ELEM( currPt, writer );
-//		printf(" t=%d\n",t);
-//		printf(" currPt.x=%d\n",currPt.x);
-//		printf(" currPt.y=%d\n",currPt.y);
+		printf(" t=%d\n",t);
+		printf(" currPt.x=%d\n",currPt.x);
+		printf(" currPt.y=%d\n",currPt.y);
 		}
 		prevPt=currPt;
 	}
