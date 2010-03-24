@@ -662,6 +662,8 @@ float dist(CvPoint a, CvPoint b){
 }
 
 /*
+ * WHOA!! THIS FUNCTION IS ALL SCREWED UP AND CAUSING PROBLEMS!!
+ *
  * Given two points a and b , and a sequence of CvPoints
  * this function will find the points that walk the line
  * between a and b and append those
@@ -681,23 +683,61 @@ int GetLineFromEndPts(CvPoint a, CvPoint b, CvSeq* contour){
 
 	CvPoint currPt; /* Current Point On integer grid*/
 	CvPoint prevPt=a; /* Prev Point on integer grid */
+	currPt=a;
 
 	/** Prepare Writer for Appending Points to Seq **/
 	CvSeqWriter writer;
 	cvStartAppendToSeq( contour, &writer );
 
+
+//	printf("GetLineFromEndPts()\n");
+//	printf("a=( %d , %d), b=( %d, %d), dist= %f\n",a.x,a.y,b.x,b.y, d);
+
+
+
+
+
 	int t;
+	float tempPtx;
+	float tempPty;
+	int signx=1;
+	int signy=1;
+
 	for (t = 0; t <  (int) (d+0.5) ; ++t) {
-		currPt=cvPoint((int) ( (float) t * ihat + 0.5 + (float) a.x) ,
-					(int) ( (float) t * jhat + 0.5 + (float) a.y));
+
+		/** Our target point is now defined by a parametric equation **/
+		tempPtx=(float) t * ihat + (float) a.x;
+		tempPty=(float) t * jhat + (float) a.y;
+
+		/** We will want to round and we need to know the number's sign to round correctly **/
+		if (tempPtx<0) {
+			signx=-1;
+		} else {
+			signx=1;
+		}
+		if (tempPty<0) {
+			signy=-1;
+		} else{
+			signy=1;
+		}
+
+
+		/** Round to an integer value. Note that we need the sign before we add/subtract .5 **/
+		currPt=cvPoint((int) ( tempPtx + (float) signx * 0.5 ) ,
+					(int) ( tempPty + (float) signy * 0.5 ));
 
 
 		/** If first point, OR the current approx point is not the same as prev **/
 		if ( t==0 ||  !( currPt.x == prevPt.x && currPt.y == prevPt.y   )   ){
+
+			/** Write out the point **/
 			CV_WRITE_SEQ_ELEM( currPt, writer );
+
 //		printf(" t=%d\n",t);
 //		printf(" currPt.x=%d\n",currPt.x);
 //		printf(" currPt.y=%d\n",currPt.y);
+
+
 		}
 		prevPt=currPt;
 	}

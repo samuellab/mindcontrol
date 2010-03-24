@@ -636,7 +636,7 @@ void IllumRectWorm(IplImage* rectWorm,Protocol* p,int step){
 	for (poly = 0; poly < numOfPolys; ++poly) {
 		//printf("==poly=%d==\n",poly);
 		numPtsInCurrPoly=CreatePointArrFromMontage(&currPolyPts,montage,poly);
-		//DisplayPtArr(currPolyPts,numPtsInCurrPoly);
+		DisplayPtArr(currPolyPts,numPtsInCurrPoly);
 
 		OffsetPtArray(&currPolyPts,numPtsInCurrPoly, (int) (p->GridSize.width / 2) ,0);
 
@@ -669,6 +669,7 @@ CvPoint CvtPtWormSpaceToImageSpace(CvPoint WormPt, SegmentedWorm* worm, CvSize g
 
 	/** Depending on whether our pt is in the right half or the left half... **/
 	if (WormPt.x==0){
+			/** If the point is zero, return a point on the centerline **/
 			return *PtOnCenterline;
 		}
 	CvPoint* PtOnBound;
@@ -686,6 +687,7 @@ CvPoint CvtPtWormSpaceToImageSpace(CvPoint WormPt, SegmentedWorm* worm, CvSize g
 	/**Create a vector from the centerline to the corresponding point on the boundary**/
 	CvPoint vecToBound=cvPoint(PtOnBound->x - PtOnCenterline->x,PtOnBound->y - PtOnCenterline->y);
 
+		/** (evidently important stuff happens here) **/
 	float ScaleRadius = (float) (gridSize.width-1)/2;
 	/** Find fractional value of x in worm space relative to the x grid dimension... **/
 	float fracx=  sign * (float) WormPt.x / ScaleRadius;
