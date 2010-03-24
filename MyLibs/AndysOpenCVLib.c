@@ -738,6 +738,7 @@ int CvtPolySeq2ContourSeq(CvSeq* polygon, CvSeq* contour ){
 		/**Find all the points in between & append them to the contour **/
 		GetLineFromEndPts(*currVertex,*nextVertex,contour);
 
+
 		/** Increment **/
 		/** CV_NEXT_SEQ_ELEM will loop around when it runs off the seq **/
 		CV_NEXT_SEQ_ELEM(polygon->elem_size,VertexReader);

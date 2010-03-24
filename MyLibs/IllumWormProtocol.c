@@ -668,7 +668,6 @@ CvPoint CvtPtWormSpaceToImageSpace(CvPoint WormPt, SegmentedWorm* worm, CvSize g
 	/** Find the Corresponding y-value point on the boundary **/
 
 	/** Depending on whether our pt is in the right half or the left half... **/
-
 	if (WormPt.x==0){
 			return *PtOnCenterline;
 		}
@@ -694,6 +693,7 @@ CvPoint CvtPtWormSpaceToImageSpace(CvPoint WormPt, SegmentedWorm* worm, CvSize g
 	/** Pt out = pt on the centerline + scaled vector towards point on the boundary **/
 	float outX= (float) (PtOnCenterline->x) + (fracx * (float) vecToBound.x);
 	float outY= (float) (PtOnCenterline->y) + (fracx * (float) vecToBound.y);
+
 	return cvPoint( (int)  (outX+.5*sign), (int) (outY+.5*sign));
 
 
@@ -715,6 +715,7 @@ void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img,CvSize
 	for (k = 0; k < IllumMontage->total; ++k) {
 
 		numpts=CreatePointArrFromMontage(&polyArr,IllumMontage,k);
+		//ReturnHere
 		int j;
 		//DisplayPtArr(polyArr,numpts);
 		CvPoint* ptPtr=polyArr;

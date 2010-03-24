@@ -85,6 +85,8 @@ int main (int argc, char** argv){
 	/** Load protocol YAML file **/
 	if (exp->pflag) LoadProtocol(exp);
 
+	VerifyProtocol(exp->p);
+
 	/** Start Camera or Vid Input **/
 	RollVideoInput(exp);
 
@@ -293,10 +295,9 @@ int main (int argc, char** argv){
 	}
 
 	if (exp->stageIsPresent) ShutOffStage(exp);
-
+	VerifyProtocol(exp->p);
 	ReleaseExperiment(exp);
 	DestroyExperiment(&exp);
-
 
 
 	printf("\nMain Thread: Good bye.\n");
