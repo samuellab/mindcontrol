@@ -689,8 +689,10 @@ int GetLineFromEndPts(CvPoint a, CvPoint b, CvSeq* contour){
 	CvSeqWriter writer;
 	cvStartAppendToSeq( contour, &writer );
 
-	printf("GetLineFromEndPts()\n");
-	printf("a=( %d , %d), b=( %d, %d), dist= %f\n",a.x,a.y,b.x,b.y, d);
+
+//	printf("GetLineFromEndPts()\n");
+//	printf("a=( %d , %d), b=( %d, %d), dist= %f\n",a.x,a.y,b.x,b.y, d);
+
 
 
 
@@ -730,11 +732,12 @@ int GetLineFromEndPts(CvPoint a, CvPoint b, CvSeq* contour){
 
 			/** Write out the point **/
 			CV_WRITE_SEQ_ELEM( currPt, writer );
-		printf(" t=%d\n",t);
-		printf(" currPt.x=%d\n",currPt.x);
-		printf(" currPt.y=%d\n",currPt.y);
-		} else {
-			printf("tossing out point!\n");
+
+//		printf(" t=%d\n",t);
+//		printf(" currPt.x=%d\n",currPt.x);
+//		printf(" currPt.y=%d\n",currPt.y);
+
+
 		}
 		prevPt=currPt;
 	}
