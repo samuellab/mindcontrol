@@ -464,6 +464,11 @@ void SetupGUI(Experiment* exp) {
 				&(exp->Params->ProtocolStep), exp->p->Steps->total - 1,
 				(int) NULL);
 	}
+
+	if (exp->stageIsPresent){
+		cvCreateTrackbar("StageSpeed",exp->WinCon1,&(exp->Params->stageSpeedFactor),50, (int) NULL);
+	}
+
 	printf("Created trackbars and windows\n");
 	return;
 
@@ -514,8 +519,7 @@ void UpdateGUI(Experiment* exp) {
 
 		/** Record **/
 		cvSetTrackbarPos("On", exp->WinCon1, (exp->Params->OnOff));
-
-
+		cvSetTrackbarPos("StageSpeed",exp->WinCon1,&(exp->Params->stageSpeedFactor);
 
 	return;
 
@@ -1089,7 +1093,7 @@ int HandleKeyStroke(int c, Experiment* exp) {
 
 	/** Threshold **/
 	case ']':
-		Increment(&(exp->Params->BinThresh),100);
+		Increment(&(exp->Params->BinThresh),200);
 		break;
 	case '[':
 		Decrement(&(exp->Params->BinThresh),0);
@@ -1142,6 +1146,10 @@ int HandleKeyStroke(int c, Experiment* exp) {
 			printf("Turning trackign on!\n");
 		}
 		break;
+	case 'X':
+		Increment(&(exp->Params->stageSpeedFactor),50);
+	case 'Z':
+		Decrement(&(exp->Params->stageSpeedFactor),0);
 
 	default:
 		return 0;
@@ -1313,7 +1321,7 @@ CvPoint AdjustStageToKeepObjectAtTarget(HANDLE stage, CvPoint* obj,CvPoint* targ
 
 	CvPoint diff;
 	CvPoint vel;
-	/** (sage-obj)*speed **/
+	/** (stage-obj)*speed **/
 //	printf("obj= (%d, %d), target =(%d, %d)\n",obj->x, obj->y, target->x, target->y);
 
 	diff.x=target->x-obj->x;
