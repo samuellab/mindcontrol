@@ -1337,7 +1337,7 @@ CvPoint AdjustStageToKeepObjectAtTarget(HANDLE stage, CvPoint* obj,CvPoint* targ
 
 	//printf("About to Multiply!\n");
 	vel.x=diff.x*speed;
-	vel.y=diff.y*speed;
+	vel.y=diff.y*(speed+ speed/2);
 
 	//printf("SpinStage: vel.x=%d, vel.y=%d\n",vel.x,vel.y);
 	spinStage(stage,vel.x,vel.y);
