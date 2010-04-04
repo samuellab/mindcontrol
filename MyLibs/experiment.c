@@ -1155,7 +1155,7 @@ int HandleKeyStroke(int c, Experiment* exp) {
 
 	case 127: /** Delete key **/
 	case 8: /** Backspace key **/
-		exp->Params->stageTracking=0;
+		exp->Params->stageTrackingOn=0;
 		printf("Emergency stage shutdown!!\n ======\nSTAGE IS OFF.\n======\n");
 		break;
 
