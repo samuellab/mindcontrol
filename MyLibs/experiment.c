@@ -519,7 +519,10 @@ void UpdateGUI(Experiment* exp) {
 
 		/** Record **/
 		cvSetTrackbarPos("On", exp->WinCon1, (exp->Params->OnOff));
+
+		/**Stage Speed **/
 		cvSetTrackbarPos("StageSpeed",exp->WinCon1,(exp->Params->stageSpeedFactor));
+
 
 	return;
 
@@ -1148,14 +1151,17 @@ int HandleKeyStroke(int c, Experiment* exp) {
 		break;
 	case 'X':
 		Increment(&(exp->Params->stageSpeedFactor),50);
+		printf("stageSpeedFactor=%d\n",exp->Params->stageSpeedFactor);
 		break;
 	case 'Z':
 		Decrement(&(exp->Params->stageSpeedFactor),0);
+		printf("stageSpeedFactor=%d\n",exp->Params->stageSpeedFactor);
 		break;
 
 	case 127: /** Delete key **/
 	case 8: /** Backspace key **/
 		exp->Params->stageTrackingOn=0;
+		exp->stageIsTurningOff=1;
 		printf("Emergency stage shutdown!!\n ======\nSTAGE IS OFF.\n======\n");
 		break;
 
