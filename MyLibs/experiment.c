@@ -519,7 +519,7 @@ void UpdateGUI(Experiment* exp) {
 
 		/** Record **/
 		cvSetTrackbarPos("On", exp->WinCon1, (exp->Params->OnOff));
-		cvSetTrackbarPos("StageSpeed",exp->WinCon1,&(exp->Params->stageSpeedFactor));
+		cvSetTrackbarPos("StageSpeed",exp->WinCon1,(exp->Params->stageSpeedFactor));
 
 	return;
 
