@@ -253,7 +253,14 @@ int main (int argc, char** argv){
 			}
 
 
-			if (exp->e != 0) printf("\nError in main loop. :(\n");
+			if (exp->e != 0) {
+				printf("\nError in main loop. :(\n");
+				if (exp->stageIsPresent) {
+					printf("\tAuto-safety STAGE SHUTOFF!\n");
+					ShutOffStage(exp);
+				}
+
+			}
 
 		}
 		if (UserWantsToStop) break;
