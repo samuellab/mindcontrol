@@ -466,7 +466,7 @@ void SetupGUI(Experiment* exp) {
 	}
 
 	if (exp->stageIsPresent){
-		cvCreateTrackbar("StageSpeed",exp->WinCon1,&(exp->Params->stageSpeedFactor),50, (int) NULL);
+		cvCreateTrackbar("StageSpeed",exp->WinCon1,&(exp->Params->stageSpeedFactor),100, (int) NULL);
 	}
 
 	printf("Created trackbars and windows\n");

@@ -393,7 +393,7 @@ UINT Thread(LPVOID lpdwParam) {
 
 			UpdateGUI(exp);
 
-			if(EverySoOften(k,2)){ //This determines how often the stage is updated
+			if(EverySoOften(k,1)){ //This determines how often the stage is updated
 
 				/** Do the Stage Tracking **/
 				TICTOC::timer().tic("HandleStageTracker()");
