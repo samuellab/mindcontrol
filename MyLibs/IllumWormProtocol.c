@@ -367,7 +367,7 @@ int VerifyProtocol(Protocol* p){
 
 
 
-				PrintPointsOfSeq(poly->Points);
+				//PrintPointsOfSeq(poly->Points);
 
 
 
@@ -636,7 +636,7 @@ void IllumRectWorm(IplImage* rectWorm,Protocol* p,int step){
 	for (poly = 0; poly < numOfPolys; ++poly) {
 		//printf("==poly=%d==\n",poly);
 		numPtsInCurrPoly=CreatePointArrFromMontage(&currPolyPts,montage,poly);
-		DisplayPtArr(currPolyPts,numPtsInCurrPoly);
+		//DisplayPtArr(currPolyPts,numPtsInCurrPoly);
 
 		OffsetPtArray(&currPolyPts,numPtsInCurrPoly, (int) (p->GridSize.width / 2) ,0);
 

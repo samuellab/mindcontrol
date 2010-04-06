@@ -146,6 +146,7 @@ Experiment* CreateExperimentStruct() {
 	exp->stage=NULL;
 	exp->stageVel=cvPoint(0,0);
 	exp->stageCenter=cvPoint(0,0);
+	exp->stageFeedbackTargetOffset=cvPoint(0,0);
 	exp->stageIsTurningOff=0;
 
 	/** Macros **/
@@ -200,7 +201,7 @@ int HandleCommandLineArguments(Experiment* exp) {
 	opterr = 0;
 
 	int c;
-	while ((c = getopt(exp->argc, exp->argv, "si:d:o:p:gt?")) != -1) {
+	while ((c = getopt(exp->argc, exp->argv, "si:d:o:p:gtx:y:?")) != -1) {
 		switch (c) {
 		case 'i': /** specify input video file **/
 			exp->VidFromFile = 1;
@@ -259,6 +260,20 @@ int HandleCommandLineArguments(Experiment* exp) {
 		case 't': /** Use the stage tracking software **/
 			exp->stageIsPresent=1;
 			break;
+		case 'x': /** adjust the target for stage feedback loop by these certain number of pixels **/
+				if (optarg != NULL) {
+					exp->stageFeedbackTargetOffset.x = atoi(optarg);
+				}
+				printf("Adjusting target for stage feedback loop by x= %d pixels.\n",exp->stageFeedbackTargetOffset.x );
+		break;
+		case 'y': /** adjust the target for stage feedback loop by these certain number of pixels **/
+				if (optarg != NULL) {
+					exp->stageFeedbackTargetOffset.y = atoi(optarg);
+				}
+				printf("Adjusting target for stage feedback loop by y= %d pixels.\n",exp->stageFeedbackTargetOffset.y );
+		break;
+
+
 		case '?':
 			if (optopt == '?') {
 				displayHelp();
@@ -522,7 +537,6 @@ void UpdateGUI(Experiment* exp) {
 
 		/**Stage Speed **/
 		cvSetTrackbarPos("StageSpeed",exp->WinCon1,(exp->Params->stageSpeedFactor));
-
 
 	return;
 
@@ -1357,7 +1371,7 @@ CvPoint AdjustStageToKeepObjectAtTarget(HANDLE stage, CvPoint* obj,CvPoint* targ
  * Scan for the USB device.
  */
 int InvokeStage(Experiment* exp){
-	exp->stageCenter=cvPoint(NSIZEX/2, NSIZEY/2);
+	exp->stageCenter=cvPoint(NSIZEX/2 + exp->stageFeedbackTargetOffset.x , NSIZEY/2 + exp->stageFeedbackTargetOffset.y);
 	exp->stage=InitializeUsbStage();
 	if (exp->stage==NULL){
 		printf("ERROR! Invoking the stage failed.\nTurning tracking off.\n");
