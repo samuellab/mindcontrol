@@ -185,8 +185,8 @@ void displayHelp() {
 			"\t-s\n\t\tSimulate the existence of DLP. (No physical DLP required.)\n\n");
 	printf("\t-g\n\t\tUse camera attached to FrameGrabber.\n\n");
 	printf("\t-t\n\t\tUse USB stage tracker.\n\n");
-	printf("\t-x\n\x 100\tSpecifies the x offset from center for the worm's location in the stage feedback trap. +x is to the right of screen\n\n");
-	printf("\t-x\n\y -100\tSpecifies the y offset from center for the worm's location in the stage feedback trap. +y is towards bottom of screen\n\n");
+	printf("\t-x\n\tx 100\tSpecifies the x offset from center for the worm's location in the stage feedback trap. +x is to the right of screen.\n\n");
+	printf("\t-x\n\ty -100\tSpecifies the y offset from center for the worm's location in the stage feedback trap. +y is towards bottom of screen.\n\n");
 	printf(
 			"\t-p  protocol.yml\n\t\tIlluminate according to a YAML protocol file.\n\n");
 	printf("\t-?\n\t\tDisplay this help.\n\n");
