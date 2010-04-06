@@ -1335,7 +1335,7 @@ int WriteRecentFrameNumberToFile(Experiment* exp){
 
 
 
-CvPoint AdjustStageToKeepObjectAtTarget(HANDLE stage, CvPoint* obj,CvPoint* target, int speed){
+CvPoint AdjustStageToKeepObjectAtTarget(HANDLE stage, CvPoint* obj,CvPoint target, int speed){
 	if (obj==NULL){
 		printf("Error! obj is NULL in AdjustStageToKeepObjectAtTarget()\n");
 		return cvPoint(0,0);
@@ -1352,8 +1352,8 @@ CvPoint AdjustStageToKeepObjectAtTarget(HANDLE stage, CvPoint* obj,CvPoint* targ
 	/** (stage-obj)*speed **/
 //	printf("obj= (%d, %d), target =(%d, %d)\n",obj->x, obj->y, target->x, target->y);
 
-	diff.x=target->x-obj->x;
-	diff.y=target->y-obj->y;
+	diff.x=target.x-obj->x;
+	diff.y=target.y-obj->y;
 
 	//printf("About to Multiply!\n");
 	vel.x=diff.x*speed;
@@ -1371,7 +1371,8 @@ CvPoint AdjustStageToKeepObjectAtTarget(HANDLE stage, CvPoint* obj,CvPoint* targ
  * Scan for the USB device.
  */
 int InvokeStage(Experiment* exp){
-	exp->stageCenter=cvPoint(NSIZEX/2 + exp->stageFeedbackTargetOffset.x , NSIZEY/2 + exp->stageFeedbackTargetOffset.y);
+	exp->stageCenter=cvPoint(NSIZEX/2 , NSIZEY/2 );
+
 	exp->stage=InitializeUsbStage();
 	if (exp->stage==NULL){
 		printf("ERROR! Invoking the stage failed.\nTurning tracking off.\n");
@@ -1408,7 +1409,10 @@ int HandleStageTracker(Experiment* exp){
 			} else {
 			/** Move the stage to keep the worm centered in the field of view **/
 			printf(".");
-			exp->Worm->stageVelocity=AdjustStageToKeepObjectAtTarget(exp->stage,exp->Worm->Segmented->centerOfWorm,&(exp->stageCenter),exp->Params->stageSpeedFactor);
+			//printf("stageFeedbackTargetoffset=(%d, %d)\n",exp->stageFeedbackTargetOffset.x,exp->stageFeedbackTargetOffset.y);
+			CvPoint target=cvPoint(exp->stageCenter.x + exp->stageFeedbackTargetOffset.x,exp->stageCenter.y+exp->stageFeedbackTargetOffset.y);
+			//printf("target=(%d, %d)\n",target.x,target.y);
+			exp->Worm->stageVelocity=AdjustStageToKeepObjectAtTarget(exp->stage,exp->Worm->Segmented->centerOfWorm,target,exp->Params->stageSpeedFactor);
 			}
 		}
 		if (exp->Params->stageTrackingOn==0){/** Tracking Should be off **/

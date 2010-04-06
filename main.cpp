@@ -130,6 +130,7 @@ int main (int argc, char** argv){
 	/** Quit now if we have some errors **/
 	if(exp->e != 0) return -1;
 
+
 	/** Giant While Loop Where Everything Happens **/
 	TICTOC::timer().tic("WholeLoop");
 	int VideoRanOut=0;
