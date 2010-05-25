@@ -45,7 +45,7 @@ filename='mec4_beta.yml';
 gridHeight=100;
 gridWidth=21; %must be odd
 %Note: No carriage return at the end of the description
-description= sprintf('Illuminate ALM, AVM, PLM, PVM, first attempt.');
+description= sprintf('Illuminate ALM, AVM, PLM, PVM, first attempt. This is based off fluorescent imaging data taken in D:\WormIllum\100521\Analysis\worm11');
 
 
 
@@ -66,7 +66,7 @@ AVM(X)=13+annoyingXOffset;
 AVM(Y)=34;
 
 ALM(X)=annoyingXOffset+7;
-ALM(Y)=40
+ALM(Y)=41
 
 PVM(X)=annoyingXOffset+11;
 PVM(Y)=66;
