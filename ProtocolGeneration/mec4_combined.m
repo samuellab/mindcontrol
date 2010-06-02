@@ -58,6 +58,10 @@ X=1; Y=2;
 dRad(X)=6;
 dRad(Y)=4;
 
+r=12;  %radius to a little bit outside of the worm
+HEAD=0;
+TAIL=99;
+
 %We have to convert from the slider bar manual illumination coordinate convention
 %To the protocol illumiantion convention.
 annoyingXOffset=-10;
@@ -93,19 +97,22 @@ protocol{end+1}=rect(PVM(X)-dRad(X), PVM(Y)-dRad(Y), PVM(X)+dRad(X), PVM(Y)+dRad
 %PLM
 protocol{end+1}=rect(PLM(X)-dRad(X), PLM(Y)-dRad(Y), PLM(X)+dRad(X), PLM(Y)+dRad(Y) );
 
+%anterior processes
+protocol{end+1}=rect(-r, AVM(Y)-dRad(Y), r, HEAD);
 
-
+%posterior processes
+protocol{end+1}=rect(-r, PLM(Y)-dRad(Y),r,PVM(Y)+dRad(Y));
 
 
 
 %% Include more broad illumination from protocol mec4_alpha.m
-r=12; %radius to a little bit outside of the worm
-HEAD=0;
-TAIL=99;
+r; %radius to a little bit outside of the worm
+HEAD;
+TAIL;
 CENTERLINE=0;
 
-neckregion=45;
-midbottom=75;
+neckregion=ALM(Y)+dRad(Y);
+midbottom=PVM(Y)-dRad(Y);
 
 %whole worm
 protocol{end+1}=rect(-r, HEAD, r, TAIL);
