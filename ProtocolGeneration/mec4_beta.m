@@ -56,7 +56,7 @@ X=1; Y=2;
 
 %Defualt Radii
 dRad(X)=6;
-dRad(Y)=3;
+dRad(Y)=4;
 
 %We have to convert from the slider bar manual illumination coordinate convention
 %To the protocol illumiantion convention.
@@ -66,13 +66,13 @@ AVM(X)=13+annoyingXOffset;
 AVM(Y)=34;
 
 ALM(X)=annoyingXOffset+7;
-ALM(Y)=41
+ALM(Y)=42
 
 PVM(X)=annoyingXOffset+11;
 PVM(Y)=66;
 
 PLM(X)=annoyingXOffset+12;
-PLM(Y)=88;
+PLM(Y)=90;
 
 
 
