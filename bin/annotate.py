@@ -1,3 +1,6 @@
+#Optical Mind Control Annotation system
+#Andrew Leifer
+#leifer@fas.harvard.edu
 import string, sys
 
 print 'Welcome to the Optical Mind Control annotation system.'
@@ -5,6 +8,7 @@ print 'Welcome to the Optical Mind Control annotation system.'
 # Handle Command Line Arguments
 if len(sys.argv)!=3:
 	print 'Optical Mind Control annotation engine.\n'
+	print 'by Andrew Leifer, leifer@fas.harvard.edu\n\n'
 	print 'This script must be run with two command-line arguments.'
 	print 'The first specifices the location of the recent frame information, which is outputted by the mindcontrol software. The second argument is a text file to write out the annotations. Example:'
 	print '\n\tannotate.py D:/Path/To/recentframe.txt C:/Path/To/annotations.txt'	
@@ -38,11 +42,12 @@ while (s!='q'): #While the user doesn't quit
 	frameInfo=r.readlines()
 	r.close()
 	
-	# We expect there to be exactly three lines.
+	# We expect there to be exactly four lines.
 	# The first line is the frame number
 	# The second line is the filename
 	# And the third line is the GIT SHA1 version hash
-	if len(frameInfo) != 3: 
+	# And the fourth is an integer value 0 or 1 specifiying whether the DLP is on or not
+	if len(frameInfo) != 4: 
 		print '\tError! ' +recentframefile + ' does not have expected format!\n'
 		continue
 
