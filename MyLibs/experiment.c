@@ -1311,11 +1311,10 @@ int WriteRecentFrameNumberToFile(Experiment* exp){
 	if (exp->Worm->frameNum < 0 || exp->DataWriter->filename == NULL  || build_git_sha == NULL) return -1;
 	FILE* pFile;
 	pFile = fopen("recentFrameNum.txt","w");
-	fprintf(pFile,"%d\n%s\n%s",exp->Worm->frameNum,exp->DataWriter->filename,build_git_sha);
+	fprintf(pFile,"%d\n%s\n%s\n%u",exp->Worm->frameNum,exp->DataWriter->filename,build_git_sha,exp->Params->DLPOn);
 	fclose(pFile);
 	return 0;
 }
-
 
 
 
