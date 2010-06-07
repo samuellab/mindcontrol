@@ -45,7 +45,7 @@ filename='mec4_combined.yml';
 gridHeight=100;
 gridWidth=21; %must be odd
 %Note: No carriage return at the end of the description
-description= sprintf('Illuminate ALM, AVM, PLM, PVM, whole worm, anterior, posterior.');
+description= sprintf('Illuminate ALM, AVM, PLM, PVM, anterior processes, posterior processes, whole worm, anterior, posterior.');
 
 
 
