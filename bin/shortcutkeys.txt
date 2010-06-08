@@ -27,7 +27,8 @@ shortcutkeys.txt
 - [: decrement threshold
 - ]: increment threshold
 
-- v: invert selection
+- v: invert selection 
+- V: reflect illumination pattern over centerline (flip dorsal ventral)
 
 - /: timed pulse illumination
 - <: decrement duration of pulsed illumination

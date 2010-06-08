@@ -663,7 +663,7 @@ void IllumRectWorm(IplImage* rectWorm,Protocol* p,int step){
  * Also takes an int FlipLR. When FlipLR is 1, the left/right coordinates are flipped.
  * This is useful for inverting an image in teh dorsal-ventral plane.
  */
-CvPoint CvtPtWormSpaceToImageSpace(CvPoint WormPt, SegmentedWorm* worm, CvSize gridSize, int FlipLR){
+CvPoint CvtPtWormSpaceToImageSpace(CvPoint WormPt, SegmentedWorm* worm, CvSize gridSize, bool FlipLR){
 
 	/** Find the coordinate in imspace of the pt on centerline corresponding to this y value **/
 	CvPoint* PtOnCenterline=(CvPoint*) cvGetSeqElem(worm->Centerline,WormPt.y);
@@ -675,9 +675,15 @@ CvPoint CvtPtWormSpaceToImageSpace(CvPoint WormPt, SegmentedWorm* worm, CvSize g
 			/** If the point is zero, return a point on the centerline **/
 			return *PtOnCenterline;
 		}
+
+	/** If FlipLR is flagged, then flip the x-values **/
+	if (FlipLR==1){
+		WormPt.x=WormPt.x * -1;
+	}
+
 	CvPoint* PtOnBound;
 	float sign = 1.0;
-	if (WormPt.x>0) {
+	if ( WormPt.x>0 ){
 		/** We'll use the right boundary **/
 		PtOnBound=(CvPoint*) cvGetSeqElem(worm->RightBound,WormPt.y);
 		//sign=1;

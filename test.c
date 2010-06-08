@@ -130,6 +130,12 @@ int main(){
 
 	printf(copyString("Hello you World\n"));
 
+	printf("Points between line test\n");
+	CvMemStorage* mem= cvCreateMemStorage();
+	CvSeq* test=cvCreateSeq(CV_SEQ_ELTYPE_POINT, sizeof(CvSeq), sizeof(CvPoint),mem);
+	GetLineFromEndPts(cvPoint(0,0),cvPoint(10,15),test);
+	return 0;
+
 	CvMemStorage* MyMem= cvCreateMemStorage();
 	CvFileStorage* fs=cvOpenFileStorage("appendTest.yaml",MyMem,CV_STORAGE_APPEND);
 	cvStartWriteStruct(fs,"Experiment",CV_NODE_MAP,NULL);
@@ -156,13 +162,9 @@ int main(){
 	WriteProtocolToYAML(protocol2);
 
 
-	printf("Points between line test\n");
 
-	CvMemStorage* mem= cvCreateMemStorage();
-	CvSeq* test=cvCreateSeq(CV_SEQ_ELTYPE_POINT, sizeof(CvSeq), sizeof(CvPoint),mem);
-	TICTOC::timer().tic("GetLineFromEndPts()");
-	GetLineFromEndPts(cvPoint(0,0),cvPoint(100,15),test);
-	TICTOC::timer().toc("GetLineFromEndPts()");
+
+
 
 
 

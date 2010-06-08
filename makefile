@@ -157,7 +157,8 @@ FORCE:
 
 ###### Test.exe
 $(targetDir)/Test.exe : test.o $(CVlibs) IllumWormProtocol.o AndysOpenCvLib.o version.o $(TimerLibrary)
-	$(CXX) -o $(targetDir)/Test.exe Test.o IllumWormProtocol.o AndysOpenCvLib.o version.o $(TimerLibrary) $(CVlibs) $(TailOpts)
+	echo "attempting to make executable."
+	$(CXX) -o $(targetDir)/Test.exe test.o IllumWormProtocol.o AndysOpenCvLib.o version.o $(TimerLibrary) $(CVlibs) $(TailOpts)
 
 test.o : test.c
 	$(CXX) $(CXXFLAGS) test.c -I$(MyLibs) $(openCVincludes) $(TailOpts) 

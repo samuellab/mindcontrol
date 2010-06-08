@@ -171,6 +171,7 @@ void LoadCommandLineArguments(Experiment* exp, int argc, char** argv) {
 void displayHelp() {
 	printf(
 			"\n\nGiven a video stream, this software analyzes each frame, finds a worm and generates an illumination pattern.\n");
+	printf("by Andrew Leifer, leifer@fas.harvard.edu");
 	printf("\nUsage:\n\n");
 	printf(
 			"If run with no arguments,  uses video from ImagingSource USB camera, illuminates a worm with DLP and records no data.\n\n");
@@ -186,10 +187,11 @@ void displayHelp() {
 	printf("\t-g\n\t\tUse camera attached to FrameGrabber.\n\n");
 	printf("\t-t\n\t\tUse USB stage tracker.\n\n");
 	printf("\t-x\n\tx 100\tSpecifies the x offset from center for the worm's location in the stage feedback trap. +x is to the right of screen.\n\n");
-	printf("\t-x\n\ty -100\tSpecifies the y offset from center for the worm's location in the stage feedback trap. +y is towards bottom of screen.\n\n");
+	printf("\t-y\n\ty -100\tSpecifies the y offset from center for the worm's location in the stage feedback trap. +y is towards bottom of screen.\n\n");
 	printf(
 			"\t-p  protocol.yml\n\t\tIlluminate according to a YAML protocol file.\n\n");
 	printf("\t-?\n\t\tDisplay this help.\n\n");
+	printf("\nSee shortcutkeys.txt for a list of keyboard shortcuts.\n");
 }
 
 /*
