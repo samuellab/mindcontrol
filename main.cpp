@@ -222,7 +222,7 @@ int main (int argc, char** argv){
 					}
 
 				}
-				/** If InvertIllumination is turned on, then do that now **/
+				/** If InvertIllumination is on, then do that now in both cam space and DLP space**/
 				if (exp->Params->IllumInvert) InvertIllumination(exp);
 			}
 

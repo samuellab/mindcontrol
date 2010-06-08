@@ -56,6 +56,7 @@ typedef struct WormAnalysisParamStruct{
 
 
 	int IllumInvert;
+	int IllumFlipLR;
 	CvPoint IllumSquareOrig;
 	CvSize IllumSquareRad;
 	int IllumFloodEverything;

@@ -1156,6 +1156,13 @@ int HandleKeyStroke(int c, Experiment* exp) {
 		Toggle(&(exp->Params->IllumInvert));
 		break;
 
+	/** Reflect Illumination over centerline **/
+	/** (flip dorsal-ventral) **/
+	case 'V':
+		Toggle(&(exp->Params->IllumFlipLR));
+		printf("Toggle FlipLR!");
+		break;
+
 	/** Tracker **/
 	case '\t':
 		Toggle(&(exp->Params->stageTrackingOn));
@@ -1242,11 +1249,11 @@ int DoOnTheFlyIllumination(Experiment* exp) {
 	/** Illuminate the worm **/
 	/** ...in camera space **/
 	IllumWorm(exp->Worm->Segmented, montage, exp->IlluminationFrame->iplimg,
-			exp->Params->DefaultGridSize);
+			exp->Params->DefaultGridSize,exp->Params->IllumFlipLR);
 	LoadFrameWithImage(exp->IlluminationFrame->iplimg, exp->IlluminationFrame);
 	/** ... in DLP space **/
 	IllumWorm(exp->segWormDLP, montage, exp->forDLP->iplimg,
-			exp->Params->DefaultGridSize);
+			exp->Params->DefaultGridSize,exp->Params->IllumFlipLR);
 	LoadFrameWithImage(exp->forDLP->iplimg, exp->forDLP);
 
 	cvClearSeq(montage);

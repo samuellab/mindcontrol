@@ -663,7 +663,7 @@ void IllumRectWorm(IplImage* rectWorm,Protocol* p,int step){
  * Also takes an int FlipLR. When FlipLR is 1, the left/right coordinates are flipped.
  * This is useful for inverting an image in teh dorsal-ventral plane.
  */
-CvPoint CvtPtWormSpaceToImageSpace(CvPoint WormPt, SegmentedWorm* worm, CvSize gridSize, bool FlipLR){
+CvPoint CvtPtWormSpaceToImageSpace(CvPoint WormPt, SegmentedWorm* worm, CvSize gridSize, int FlipLR){
 
 	/** Find the coordinate in imspace of the pt on centerline corresponding to this y value **/
 	CvPoint* PtOnCenterline=(CvPoint*) cvGetSeqElem(worm->Centerline,WormPt.y);
@@ -679,6 +679,7 @@ CvPoint CvtPtWormSpaceToImageSpace(CvPoint WormPt, SegmentedWorm* worm, CvSize g
 	/** If FlipLR is flagged, then flip the x-values **/
 	if (FlipLR==1){
 		WormPt.x=WormPt.x * -1;
+		printf("flippity..");
 	}
 
 	CvPoint* PtOnBound;
@@ -713,11 +714,13 @@ CvPoint CvtPtWormSpaceToImageSpace(CvPoint WormPt, SegmentedWorm* worm, CvSize g
 
 /*
  * Creates an illumination
- * according to an illumination montage and the location of a segmented owrm.
+ * according to an illumination montage and the location of a segmented worm.
  *
  * To use with protocol, use GetMontageFromProtocolInterp() first
+ *
+ * FlipLR is a bool. When set to 1, the illumination pattern is reflected across the worm's centerline.
  */
-void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img,CvSize gridSize){
+void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img,CvSize gridSize, int FlipLR){
 	int DEBUG=0;
 	if (DEBUG) printf("In IllumWorm()\n");
 	CvPoint* polyArr=NULL;
@@ -734,7 +737,7 @@ void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img,CvSize
 			/** make a local copy of the current pt in worm space **/
 			CvPoint wormPt=*(ptPtr);
 			/** replace that point with the new pt in image space **/
-			*(ptPtr)=CvtPtWormSpaceToImageSpace(wormPt,segworm, gridSize,0);
+			*(ptPtr)=CvtPtWormSpaceToImageSpace(wormPt,segworm, gridSize,FlipLR);
 			/** move to the next pointer **/
 			ptPtr++;
 		}
@@ -790,6 +793,7 @@ void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img,CvSize
  * and writing to dest
  */
 int IlluminateFromProtocol(SegmentedWorm* SegWorm,Frame* dest, Protocol* p,WormAnalysisParam* Params){
+
 	/** Check to See if the Worm->Segmented has any NULL values**/
 	if (SegWorm->Centerline==NULL || SegWorm->LeftBound==NULL || SegWorm->RightBound ==NULL ){
 		printf("Error! The Worm->Segmented had NULL children. in SimpleIlluminateWorm()\n");
@@ -809,7 +813,7 @@ int IlluminateFromProtocol(SegmentedWorm* SegWorm,Frame* dest, Protocol* p,WormA
 
 	/** Grab a montage for the selected step **/
 	CvSeq* montage=GetMontageFromProtocolInterp(p,Params->ProtocolStep);
-	IllumWorm(SegWorm,montage,TempImage,p->GridSize);
+	IllumWorm(SegWorm,montage,TempImage,p->GridSize,Params->IllumFlipLR);
 	LoadFrameWithImage(TempImage,dest);
 
 //	cvClearSeq(montage);

@@ -200,8 +200,10 @@ void IllumRectWorm(IplImage* rectWorm,Protocol* p,int step);
  * according to an illumination montage.
  *
  * To use with protocol, use GetMontageFromProtocolInterp() first
+ *
+ * When FlipLR is set to 1, the illumination pattern is reflected across the worm's centerline.
  */
-void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img,CvSize gridSize);
+void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img,CvSize gridSize, int FlipLR);
 
 
 /************************************************
