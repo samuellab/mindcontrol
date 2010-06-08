@@ -659,8 +659,11 @@ void IllumRectWorm(IplImage* rectWorm,Protocol* p,int step){
  * of a worm in an image.
  *
  * This function is used by IlilumWorm to illuminate a worm.
+ *
+ * Also takes an int FlipLR. When FlipLR is 1, the left/right coordinates are flipped.
+ * This is useful for inverting an image in teh dorsal-ventral plane.
  */
-CvPoint CvtPtWormSpaceToImageSpace(CvPoint WormPt, SegmentedWorm* worm, CvSize gridSize){
+CvPoint CvtPtWormSpaceToImageSpace(CvPoint WormPt, SegmentedWorm* worm, CvSize gridSize, int FlipLR){
 
 	/** Find the coordinate in imspace of the pt on centerline corresponding to this y value **/
 	CvPoint* PtOnCenterline=(CvPoint*) cvGetSeqElem(worm->Centerline,WormPt.y);
@@ -725,7 +728,7 @@ void IllumWorm(SegmentedWorm* segworm, CvSeq* IllumMontage, IplImage* img,CvSize
 			/** make a local copy of the current pt in worm space **/
 			CvPoint wormPt=*(ptPtr);
 			/** replace that point with the new pt in image space **/
-			*(ptPtr)=CvtPtWormSpaceToImageSpace(wormPt,segworm, gridSize);
+			*(ptPtr)=CvtPtWormSpaceToImageSpace(wormPt,segworm, gridSize,0);
 			/** move to the next pointer **/
 			ptPtr++;
 		}
