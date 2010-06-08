@@ -43,7 +43,7 @@ while not msvcrt.kbhit(): #While the user doesn't hit any key
 	# And the third line is the GIT SHA1 version hash
 	# And the fourth is an integer value 0 or 1 specifiying whether the DLP is on or not
 	if len(frameInfo) != 4: 
-		sys.stdout.write('\rError! ' +recentframefile + ' does not have expected format! Any key to quit.')
+		sys.stdout.write('\r' +recentframefile + ' does not have expected format!')
 		continue
 	
 	illumStatus=int(frameInfo[3])
@@ -53,6 +53,7 @@ while not msvcrt.kbhit(): #While the user doesn't hit any key
 
 	sys.stdout.write('\r\t')
 	sys.stdout.write( str( round((time.time()-start),1))  )
+	sys.stdout.write('\t\t')
 
 
 print "\rGood bye!"
