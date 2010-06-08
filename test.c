@@ -181,7 +181,7 @@ int main(){
 		printf("====Step Number %d====\n",k);
 		cvZero(rectWorm);
 		TICTOC::timer().tic("IllumRectWorm()");
-		IllumRectWorm(rectWorm,protocol2,k);
+		IllumRectWorm(rectWorm,protocol2,k,0);
 		TICTOC::timer().toc("IllumRectWorm()");
 		cvShowImage("RectWorm",rectWorm);
 		cvWaitKey(0);

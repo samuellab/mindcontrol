@@ -193,7 +193,7 @@ int GenerateSimpleIllumMontage(CvSeq* montage, CvPoint origin, CvSize radius, Cv
 /*
  * Illuminate a rectangle worm
  */
-void IllumRectWorm(IplImage* rectWorm,Protocol* p,int step);
+void IllumRectWorm(IplImage* rectWorm,Protocol* p,int step,int FlipLR);
 
 /*
  * Creates an illumination image in image space

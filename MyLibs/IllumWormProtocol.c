@@ -624,7 +624,7 @@ void OffsetPtArray(CvPoint** Pts,int numPts,int offset,int XorY){
 /*
  * Illuminate a rectangle worm (worm space)
  */
-void IllumRectWorm(IplImage* rectWorm,Protocol* p,int step){
+void IllumRectWorm(IplImage* rectWorm,Protocol* p,int step,int FlipLR){
 	CvSeq* polyMontage= GetMontageFromProtocol(p,step);
 	CvSeq* montage=CreateIlluminationMontage(p->memory);
 	CvtPolyMontage2ContourMontage(polyMontage,montage);
@@ -637,6 +637,15 @@ void IllumRectWorm(IplImage* rectWorm,Protocol* p,int step){
 		//printf("==poly=%d==\n",poly);
 		numPtsInCurrPoly=CreatePointArrFromMontage(&currPolyPts,montage,poly);
 		//DisplayPtArr(currPolyPts,numPtsInCurrPoly);
+
+		if (FlipLR==1) {
+				int k=0;
+				for (k = 0; k < numPtsInCurrPoly; ++k) {
+						currPolyPts[k].x=currPolyPts[k].x *-1;
+				}
+			}
+
+
 
 		OffsetPtArray(&currPolyPts,numPtsInCurrPoly, (int) (p->GridSize.width / 2) ,0);
 

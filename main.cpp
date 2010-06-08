@@ -330,11 +330,12 @@ UINT Thread(LPVOID lpdwParam) {
 
 	/** Protocol WormSpace Display **/
 	int prevProtocolStep;
+	int prevIllumFlipLR=exp->Params->IllumFlipLR;
 	IplImage* rectWorm;
 	if (exp->pflag){ /** If a protocol was loaded **/
 		rectWorm= GenerateRectangleWorm(exp->p->GridSize);
 		cvZero(rectWorm);
-		IllumRectWorm(rectWorm,exp->p,exp->Params->ProtocolStep);
+		IllumRectWorm(rectWorm,exp->p,exp->Params->ProtocolStep,exp->Params->IllumFlipLR);
 		prevProtocolStep=exp->Params->ProtocolStep;
 		cvShowImage("ProtoIllum",rectWorm);
 	}
@@ -369,10 +370,11 @@ UINT Thread(LPVOID lpdwParam) {
 
 
 			/** If we are using protocols and we havec chosen a new protocol step **/
-			if (exp->Params->ProtocolUse && (prevProtocolStep!= exp->Params->ProtocolStep))  {
+			if (exp->Params->ProtocolUse &&  ( (prevProtocolStep!= exp->Params->ProtocolStep) || prevIllumFlipLR != exp->Params->IllumFlipLR  ) )  {
 				cvZero(rectWorm);
-				IllumRectWorm(rectWorm,exp->p,exp->Params->ProtocolStep);
+				IllumRectWorm(rectWorm,exp->p,exp->Params->ProtocolStep,exp->Params->IllumFlipLR);
 				prevProtocolStep=exp->Params->ProtocolStep;
+				prevIllumFlipLR=exp->Params->IllumFlipLR;
 				/** Update the Protocol **/
 				cvShowImage("ProtoIllum",rectWorm);
 
