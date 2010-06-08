@@ -679,7 +679,6 @@ CvPoint CvtPtWormSpaceToImageSpace(CvPoint WormPt, SegmentedWorm* worm, CvSize g
 	/** If FlipLR is flagged, then flip the x-values **/
 	if (FlipLR==1){
 		WormPt.x=WormPt.x * -1;
-		printf("flippity..");
 	}
 
 	CvPoint* PtOnBound;

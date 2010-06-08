@@ -1160,7 +1160,6 @@ int HandleKeyStroke(int c, Experiment* exp) {
 	/** (flip dorsal-ventral) **/
 	case 'V':
 		Toggle(&(exp->Params->IllumFlipLR));
-		printf("Toggle FlipLR!");
 		break;
 
 	/** Tracker **/
