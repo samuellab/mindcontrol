@@ -222,8 +222,8 @@ int AcquireFrame(FrameGrabber* fg){
 						fg->overflowcount++;
 					}
 				} else {
-					printf("Showing the error in AcquireFrame()\n");
-					BFErrorShow(fg->hBoard);
+					printf("Error in AcquireFrame()\n");
+					//BFErrorShow(fg->hBoard);
 					fg->keeplooping++;
 
 				}
