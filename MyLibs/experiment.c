@@ -1202,6 +1202,12 @@ int HandleKeyStroke(int c, Experiment* exp) {
  */
 void DoWriteToDisk(Experiment* exp) {
 
+	/** Throw error if the user has asked to record, but the system is not in record mode **/
+	if (exp->Params->Record && (exp->RECORDVID!=1)  ){
+		printf("ERROR!! THE SYSTEM IS NOT IN RECORD MODE!\n");
+		printf("restart the system to record.\n");
+	}
+
 	/** Record VideoFrame to Disk**/
 	if (exp->RECORDVID && exp->Params->Record) {
 		TICTOC::timer().tic("cvResize");
