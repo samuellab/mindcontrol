@@ -1099,6 +1099,7 @@ int HandleKeyStroke(int c, Experiment* exp) {
 		break;
 	case 'w':
 		Increment(&(exp->Params->IllumSquareRad.height),exp->Params->DefaultGridSize.height-1);
+		printf("Radius Height: %d",exp->Params->IllumSquareRad.height);
 		break;
 
 	/** Protocol **/
