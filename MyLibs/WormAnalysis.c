@@ -259,6 +259,10 @@ WormAnalysisParam* CreateWormAnalysisParam(){
 	ParamPtr->IllumSegCenter=25;
 	ParamPtr->IllumFloodEverything=0;
 
+	/** Illum Head-Tail Sweep **/
+	ParamPtr->IllumSweepHT = 1;
+	ParamPtr->IllumSweepOn=0;
+
 	ParamPtr->ProtocolUse=0;
 	ParamPtr->ProtocolStep=0;
 	ParamPtr->ProtocolTotalSteps=0;

@@ -55,12 +55,18 @@ typedef struct WormAnalysisParamStruct{
 	int SegStop; // Deprecated
 
 
+
+
 	int IllumInvert;
 	int IllumFlipLR;
-	CvPoint IllumSquareOrig;
-	CvSize IllumSquareRad;
+	CvPoint IllumSquareOrig; // rectangular cursor location
+	CvSize IllumSquareRad; //  rectangular cursor size
 	int IllumFloodEverything;
 	int DLPOn;
+
+	/** Illumination Head to Tail Sweep **/
+	int IllumSweepHT; // head or tail direction
+	int IllumSweepOn;
 
 	/** Timed DLP On **/
 	int IllumDuration; // in tenthsOfSeconds

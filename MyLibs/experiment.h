@@ -118,6 +118,8 @@ typedef struct ExperimentStruct{
 	/** Illumination Timer **/
 	double illumStart;
 
+	/** Illum Head-To-Tail Sweep Internal Variables **/
+	double illumSweepHTtimer;
 
 
 	/** Frame Rate Information **/

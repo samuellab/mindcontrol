@@ -136,6 +136,9 @@ Experiment* CreateExperimentStruct() {
 	/** Illumination Timing Info **/
 	exp->illumStart = 0;
 
+	/** Illumination Head Tail Timing Info **/
+	exp->illumSweepHTtimer=0;
+
 	/** Frame Rate Information **/
 	exp->nframes = 0;
 	exp->prevFrames = 0;
@@ -305,6 +308,106 @@ int HandleCommandLineArguments(Experiment* exp) {
 
 	} // end of while loop
 	return 1;
+}
+
+
+/** Handle Illumination Sweep from head to tail **/
+int HandleIlluminationSweep(Experiment* exp){
+	/** The illumination sweep is a feature that lets the user automatically
+	 * increment an on-the-fly illumination step by step across the worm
+	 */
+
+	// Case 1: We are not doing a head-tail sweep
+	if ((exp->Params->IllumSweepOn == 0) && (exp->illumSweepHTtimer ==0 ) ){
+		return 0;
+	}
+
+	struct timeval curr_tv;
+
+
+	// Case 2:We are initiating a head-tail sweep
+	if ((exp->Params->IllumSweepOn == 1) && (exp->illumSweepHTtimer == (double) 0 ) ){
+
+		/** Set the cursor to the head (tail) **/
+		if (exp->Params->IllumSweepHT==1){
+			exp->Params->IllumSquareOrig->x=0;
+		}else{
+			exp->Params->IllumSquareOrig->x=exp->Params->NumSegments-1;
+		}
+		/**Set the start time to now. **/
+		gettimeofday(&curr_tv, NULL);
+		exp->illumSweepHTtimer = curr_tv.tv_sec + (curr_tv.tv_usec / 1000000.0);
+
+		/** Turn the DLP On **/
+		exp->Params->DLPOn = 1;
+
+		printf("Initiating head to tail illumination sweep\n",exp->Params->IllumDuration);
+		return 1;
+	}
+
+	double diff;
+	int tenthsOfSecondsElapsed;
+	/** Case 3: We are in the midst of a head-to-tail illumination sweep **/
+	if ((exp->Params->IllumSweepOn == 1) && (exp->illumSweepHTtimer > (double) 0 ) ) {
+
+		/** Is it time to increment? **/
+		gettimeofday(&curr_tv, NULL);
+		diff = curr_tv.tv_sec + (curr_tv.tv_usec / 1000000.0) - exp->illumSweepHTtimer;
+		tenthsOfSecondsElapsed = (int) (diff * 10.0);
+		/** Time to increment to the next segment ? **/
+		if (tenthsOfSecondsElapsed > exp->Params->IllumDuration) {
+			/** Yes.. it's time to increment to the next segment **/
+
+			/** Would the next segment push us off of the worm? **/
+			if (exp->Params->IllumSweepHT==1){
+				if (exp->Params->IllumSquareOrig->x <  exp->Params->NumSegments-exp->Params->IllumSquareRad->height){
+					/** Nope we are safe within the worm: INCREMENT **/
+					exp->Params->IllumSquareOrig->x=exp->Params->IllumSquareOrig->x + 2*(exp->Params->IllumSquareRad->height);
+				} else {
+					/** We are about to walk off. We are finished **/
+					exp->Params->DLPOn=0;/** Turn off DLP **/
+					exp->illumSweepHTtimer = (double) 0;
+					exp->Params->IllumSweepOn=0;
+					return 0;
+				}
+
+			} else {
+				/** We are going in the Opposite direction **/
+				if (exp->Params->IllumSquareOrig->x >= exp->Params->IllumSquareRad->height ) {
+					/** Nope we are safe within the worm: DECREMENT **/
+					exp->Params->IllumSquareOrig->x=exp->Params->IllumSquareOrig->x - 2* (exp->Params->IllumSquareRad->height);
+				} else {
+					/** We are about to walk off. We are finished **/
+					exp->Params->DLPOn=0;/** Turn off DLP **/
+					exp->illumSweepHTtimer = (double) 0;
+					exp->Params->IllumSweepOn=0;
+					return 0;
+				}
+			}
+
+			/** Ok.. we already incremented/decremented **/
+			return 1;
+
+		} else {
+			/** No need to move segments... just keep on illuminating **/
+			return 1;
+		}
+	}
+
+	/** Case 4: user prematurely aborts head to tail illumination sweep **/
+	if ((exp->Params->IllumSweepOn == 0) && (exp->illumSweepHTtimer > (double) 0 ) ) {
+
+		/** Turn off DLP **/
+		exp->Params->DLPOn=0;
+		exp->illumSweepHTtimer = (double) 0;
+		return 0;
+	}
+
+
+	printf("Error. In HandleIlluminationSweep() in experiment.c. This should never occur. :(\n");
+	return -1;
+
+
 }
 
 /** Handle Transient Illumination Timing **/
@@ -1090,17 +1193,27 @@ int HandleKeyStroke(int c, Experiment* exp) {
 	/** On-The Fly Illumination Radius **/
 	case 'a':
 		Decrement(&(exp->Params->IllumSquareRad.width),0);
+		printf("Illumination Square Width Radius: %d",exp->Params->IllumSquareRad.height);
 		break;
 	case 'd':
 		Increment(&(exp->Params->IllumSquareRad.width),exp->Params->DefaultGridSize.width-1);
+		printf("Illumination Square Width Radius: %d",exp->Params->IllumSquareRad.height);
 		break;
 	case 's':
 		Decrement(&(exp->Params->IllumSquareRad.height),0);
+		printf("Illumination Square Height Radius: %d",exp->Params->IllumSquareRad.height);
 		break;
 	case 'w':
 		Increment(&(exp->Params->IllumSquareRad.height),exp->Params->DefaultGridSize.height-1);
-		printf("Radius Height: %d",exp->Params->IllumSquareRad.height);
+		printf("Illumination Square Height Radius: %d",exp->Params->IllumSquareRad.height);
 		break;
+
+	/** Head-Tail Illumination Sweep **/
+	case 'u': //initiate head-to-tail illumination sweep
+		Toggle(&(exp->Params->IllumSweepOn));
+		break;
+
+	case 'U'://switch direction of head sweep
 
 	/** Protocol **/
 	case 'p':
