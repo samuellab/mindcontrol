@@ -165,6 +165,10 @@ int main (int argc, char** argv){
 			/** Handle Transient Illumination Timing **/
 			HandleIlluminationTiming(exp);
 
+			/** Handle head-tail illumination sweep **/
+			HandleIlluminationSweep(exp);
+
+
 			/** If the DLP is not displaying right now, than turn off the mirrors */
 			ClearDLPifNotDisplayingNow(exp);
 

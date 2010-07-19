@@ -311,11 +311,12 @@ int HandleCommandLineArguments(Experiment* exp) {
 }
 
 
-/** Handle Illumination Sweep from head to tail **/
+/**
+ * The illumination sweep is a feature that lets the user automatically
+ * increment an on-the-fly illumination step by step across the worm
+ */
 int HandleIlluminationSweep(Experiment* exp){
-	/** The illumination sweep is a feature that lets the user automatically
-	 * increment an on-the-fly illumination step by step across the worm
-	 */
+	int debug=1;
 
 	// Case 1: We are not doing a head-tail sweep
 	if ((exp->Params->IllumSweepOn == 0) && (exp->illumSweepHTtimer ==0 ) ){
@@ -327,12 +328,12 @@ int HandleIlluminationSweep(Experiment* exp){
 
 	// Case 2:We are initiating a head-tail sweep
 	if ((exp->Params->IllumSweepOn == 1) && (exp->illumSweepHTtimer == (double) 0 ) ){
-
+		printf("Initiating a head-to-tail illumination sweep.\n");
 		/** Set the cursor to the head (tail) **/
 		if (exp->Params->IllumSweepHT==1){
-			exp->Params->IllumSquareOrig.x=0;
+			exp->Params->IllumSquareOrig.y=0;
 		}else{
-			exp->Params->IllumSquareOrig.x=exp->Params->NumSegments-1;
+			exp->Params->IllumSquareOrig.y=exp->Params->NumSegments-1;
 		}
 		/**Set the start time to now. **/
 		gettimeofday(&curr_tv, NULL);
@@ -360,9 +361,9 @@ int HandleIlluminationSweep(Experiment* exp){
 
 			/** Would the next segment push us off of the worm? **/
 			if (exp->Params->IllumSweepHT==1){
-				if (exp->Params->IllumSquareOrig.x <  exp->Params->NumSegments - exp->Params->IllumSquareRad.height){
+				if (exp->Params->IllumSquareOrig.y <  exp->Params->NumSegments - exp->Params->IllumSquareRad.height){
 					/** Nope we are safe within the worm: INCREMENT **/
-					exp->Params->IllumSquareOrig.x=exp->Params->IllumSquareOrig.x + 2*(exp->Params->IllumSquareRad.height);
+					exp->Params->IllumSquareOrig.y=exp->Params->IllumSquareOrig.y + 2*(exp->Params->IllumSquareRad.height);
 				} else {
 					/** We are about to walk off. We are finished **/
 					exp->Params->DLPOn=0;/** Turn off DLP **/
@@ -373,9 +374,9 @@ int HandleIlluminationSweep(Experiment* exp){
 
 			} else {
 				/** We are going in the Opposite direction **/
-				if (exp->Params->IllumSquareOrig.x >= exp->Params->IllumSquareRad.height ) {
+				if (exp->Params->IllumSquareOrig.y >= exp->Params->IllumSquareRad.height ) {
 					/** Nope we are safe within the worm: DECREMENT **/
-					exp->Params->IllumSquareOrig.x=exp->Params->IllumSquareOrig.x - 2* (exp->Params->IllumSquareRad.height);
+					exp->Params->IllumSquareOrig.y=exp->Params->IllumSquareOrig.y - 2* (exp->Params->IllumSquareRad.height);
 				} else {
 					/** We are about to walk off. We are finished **/
 					exp->Params->DLPOn=0;/** Turn off DLP **/
@@ -386,6 +387,10 @@ int HandleIlluminationSweep(Experiment* exp){
 			}
 
 			/** Ok.. we already incremented/decremented **/
+			/**Set the start time to now. **/
+			gettimeofday(&curr_tv, NULL);
+			exp->illumSweepHTtimer = curr_tv.tv_sec + (curr_tv.tv_usec / 1000000.0);
+
 			return 1;
 
 		} else {
@@ -1211,10 +1216,12 @@ int HandleKeyStroke(int c, Experiment* exp) {
 	/** Head-Tail Illumination Sweep **/
 	case 'u': //initiate head-to-tail illumination sweep
 		Toggle(&(exp->Params->IllumSweepOn));
+		printf("u key pressed!\n");
 		break;
 
 	case 'U'://switch direction of head sweep
-
+		Toggle(&(exp->Params->IllumSweepHT));
+		break;
 	/** Protocol **/
 	case 'p':
 		if (exp->pflag) Toggle(&(exp->Params->ProtocolUse));

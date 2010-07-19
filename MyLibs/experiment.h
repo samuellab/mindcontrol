@@ -165,6 +165,13 @@ void LoadCommandLineArguments(Experiment* exp, int argc, char** argv);
 int HandleCommandLineArguments(Experiment* exp);
 
 
+
+/**
+ * The illumination sweep is a feature that lets the user automatically
+ * increment an on-the-fly illumination step by step across the worm
+ */
+int HandleIlluminationSweep(Experiment* exp);
+
 /** Handle Transient Illumination Timing **/
 int HandleIlluminationTiming(Experiment* exp);
 
