@@ -330,9 +330,9 @@ int HandleIlluminationSweep(Experiment* exp){
 
 		/** Set the cursor to the head (tail) **/
 		if (exp->Params->IllumSweepHT==1){
-			exp->Params->IllumSquareOrig->x=0;
+			exp->Params->IllumSquareOrig.x=0;
 		}else{
-			exp->Params->IllumSquareOrig->x=exp->Params->NumSegments-1;
+			exp->Params->IllumSquareOrig.x=exp->Params->NumSegments-1;
 		}
 		/**Set the start time to now. **/
 		gettimeofday(&curr_tv, NULL);
@@ -341,7 +341,7 @@ int HandleIlluminationSweep(Experiment* exp){
 		/** Turn the DLP On **/
 		exp->Params->DLPOn = 1;
 
-		printf("Initiating head to tail illumination sweep\n",exp->Params->IllumDuration);
+		printf("Initiating head to tail illumination sweep\n");
 		return 1;
 	}
 
@@ -360,9 +360,9 @@ int HandleIlluminationSweep(Experiment* exp){
 
 			/** Would the next segment push us off of the worm? **/
 			if (exp->Params->IllumSweepHT==1){
-				if (exp->Params->IllumSquareOrig->x <  exp->Params->NumSegments-exp->Params->IllumSquareRad->height){
+				if (exp->Params->IllumSquareOrig.x <  exp->Params->NumSegments - exp->Params->IllumSquareRad.height){
 					/** Nope we are safe within the worm: INCREMENT **/
-					exp->Params->IllumSquareOrig->x=exp->Params->IllumSquareOrig->x + 2*(exp->Params->IllumSquareRad->height);
+					exp->Params->IllumSquareOrig.x=exp->Params->IllumSquareOrig.x + 2*(exp->Params->IllumSquareRad.height);
 				} else {
 					/** We are about to walk off. We are finished **/
 					exp->Params->DLPOn=0;/** Turn off DLP **/
@@ -373,9 +373,9 @@ int HandleIlluminationSweep(Experiment* exp){
 
 			} else {
 				/** We are going in the Opposite direction **/
-				if (exp->Params->IllumSquareOrig->x >= exp->Params->IllumSquareRad->height ) {
+				if (exp->Params->IllumSquareOrig.x >= exp->Params->IllumSquareRad.height ) {
 					/** Nope we are safe within the worm: DECREMENT **/
-					exp->Params->IllumSquareOrig->x=exp->Params->IllumSquareOrig->x - 2* (exp->Params->IllumSquareRad->height);
+					exp->Params->IllumSquareOrig.x=exp->Params->IllumSquareOrig.x - 2* (exp->Params->IllumSquareRad.height);
 				} else {
 					/** We are about to walk off. We are finished **/
 					exp->Params->DLPOn=0;/** Turn off DLP **/
