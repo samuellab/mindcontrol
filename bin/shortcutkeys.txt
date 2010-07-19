@@ -39,6 +39,8 @@ shortcutkeys.txt
 - Z: decrement stage velocity 
 - <del>: emergency stage shutoff
 
-- G: inceremnt Gaussian Radius size
+- G: increment Gaussian Radius size
 - g: decrement Gaussian Radius size
 
+- u: start/stop a head-to-tail illumination sweep
+- U: toggle direction of head-to-tail illumination sweep
