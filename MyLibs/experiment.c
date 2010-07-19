@@ -567,6 +567,12 @@ void SetupGUI(Experiment* exp) {
 	cvCreateTrackbar("DLPFlashOn", exp->WinCon1,
 			&(exp->Params->DLPOnFlash), 1, (int) NULL);
 
+	cvCreateTrackbar("IllumSweepHT", exp->WinCon1,
+				&(exp->Params->IllumSweepHT), 1, (int) NULL);
+
+	cvCreateTrackbar("IllumSweepOn", exp->WinCon1,
+				&(exp->Params->IllumSweepOn), 1, (int) NULL);
+
 
 	cvCreateTrackbar("DLPOn", exp->WinCon1, &(exp->Params->DLPOn), 1,
 			(int) NULL);
@@ -615,6 +621,10 @@ void UpdateGUI(Experiment* exp) {
 		cvSetTrackbarPos("y", exp->WinCon1, (exp->Params->IllumSquareOrig.y));
 		cvSetTrackbarPos("xRad", exp->WinCon1, (exp->Params->IllumSquareRad.width));
 		cvSetTrackbarPos("yRad", exp->WinCon1, (exp->Params->IllumSquareRad.height));
+
+		cvSetTrackbarPos("IllumSweepHT", exp->WinCon1, (exp->Params->IllumSweepHT));
+		cvSetTrackbarPos("IllumSweepOn", exp->WinCon1, (exp->Params->IllumSweepOn));
+
 
 		/** Threshold **/
 		cvSetTrackbarPos("Threshold", exp->WinCon1, (exp->Params->BinThresh));
