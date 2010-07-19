@@ -3,19 +3,27 @@
 #leifer@fas.harvard.edu
 import string, sys
 
+from optparse import OptionParser
+usage = "usage: %prog [options] recentFrameInfo.txt output.yml\n\nOptical Mind Control annotation engine\nby Andrew Leifer, leifer@fas.harvard.edu"
+parser = OptionParser(usage)
+parser.add_option("-u", "--user", action="store", type="string", dest="user", default="default", help="specify a username")
+(options, args)=parser.parse_args()
+
+
+if len(args) !=2:
+	print 'Error: incorrect number of arguments'	
+	parser.print_help()
+	sys.exit(2)
+
+
+#Main 
 print 'Welcome to the Optical Mind Control annotation system.'
 
-# Handle Command Line Arguments
-if len(sys.argv)!=3:
-	print 'Optical Mind Control annotation engine.\n'
-	print 'by Andrew Leifer, leifer@fas.harvard.edu\n\n'
-	print 'This script must be run with two command-line arguments.'
-	print 'The first specifices the location of the recent frame information, which is outputted by the mindcontrol software. The second argument is a text file to write out the annotations. Example:'
-	print '\n\tannotate.py D:/Path/To/recentframe.txt C:/Path/To/annotations.txt'	
-	sys.exit(0)
 
-recentframefile=sys.argv[1]
-outfile=sys.argv[2]
+
+
+recentframefile=args[0]
+outfile=args[1]
 
 
 s =''
@@ -65,6 +73,7 @@ while (s!='q'): #While the user doesn't quit
 	#If this is a new experiment, set up the new experiment
 	if prevExperiment!=frameInfo[1].strip():
 		out.write('---\nExperiment:\n\tFile: "'+frameInfo[1].strip()+'"\n\tVersion: "'+frameInfo[2].strip()+'"\n')
+		out.write('\tAuthor: "' + options.user +'"\n')
 		out.write('\tAnnotations:\n')
 		prevExperiment=frameInfo[1].strip()
 		newExperiment=True
