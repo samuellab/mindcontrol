@@ -526,7 +526,7 @@ void SetupGUI(Experiment* exp) {
 	cvNamedWindow("Display");
 	cvNamedWindow(exp->WinCon1);
 	cvNamedWindow("ProtoIllum");
-	cvResizeWindow(exp->WinCon1, 450, 700);
+	cvResizeWindow(exp->WinCon1, 450, 900);
 
 	/** SelectDisplay **/
 	cvCreateTrackbar("SelDisplay", "Controls", &(exp->Params->Display), 7,
