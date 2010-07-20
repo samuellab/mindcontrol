@@ -403,6 +403,14 @@ void ClearSegmentedInfo(SegmentedWorm* SegWorm){
  *
  */
 void FindWormBoundary(WormAnalysisData* Worm, WormAnalysisParam* Params){
+	/** This function currently takes around 5-7 ms **/
+	/**
+	 * Before I forget.. plan to make this faster by:
+	 *  a) using region of interest
+	 *  b) decimating to make it smaller (maybe?)
+	 *  c) resize
+	 *  d) not using CV_GAUSSIAN for smoothing
+	 */
 	TICTOC::timer().tic("cvSmooth");
 	cvSmooth(Worm->ImgOrig,Worm->ImgSmooth,CV_GAUSSIAN,Params->GaussSize*2+1);
 	//cvSmooth(Worm->ImgOrig,Worm->ImgSmooth,CV_MEDIAN,Params->GaussSize*2+1);
