@@ -526,7 +526,7 @@ void SetupGUI(Experiment* exp) {
 	cvNamedWindow("Display");
 	cvNamedWindow(exp->WinCon1);
 	cvNamedWindow("ProtoIllum");
-	cvResizeWindow(exp->WinCon1, 450, 900);
+	cvResizeWindow(exp->WinCon1, 500, 900);
 
 	/** SelectDisplay **/
 	cvCreateTrackbar("SelDisplay", "Controls", &(exp->Params->Display), 7,
@@ -563,7 +563,7 @@ void SetupGUI(Experiment* exp) {
 			(int) NULL);
 
 	cvCreateTrackbar("IllumDuration", exp->WinCon1,
-			&(exp->Params->IllumDuration), 50, (int) NULL);
+			&(exp->Params->IllumDuration), 70, (int) NULL);
 	cvCreateTrackbar("DLPFlashOn", exp->WinCon1,
 			&(exp->Params->DLPOnFlash), 1, (int) NULL);
 
