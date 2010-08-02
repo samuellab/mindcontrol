@@ -272,22 +272,16 @@ int main (int argc, char** argv){
 			TICTOC::timer().toc("OneLoop");
 
 	}
+	/** Shut down the main thread **/
+
+
 	TICTOC::timer().toc("WholeLoop");
-	/** Flag to tell thread to stop  **/
+	/** Tell the display thread that the main thread is shutting down**/
 	MainThreadHasStopped=TRUE;
 
 	TICTOC::timer().tic("FinishRecording()");
 	FinishRecording(exp);
 	TICTOC::timer().toc("FinishRecording()");
-
-	printf("%s",TICTOC::timer().generateReportCstr());
-
-	printf("Waiting for DisplayThread to Stop...");
-	while (!DispThreadHasStopped){
-		printf(".");
-		Sleep(500);
-		cvWaitKey(10);
-	}
 
 
 	if (!(exp->SimDLP)) 	{
@@ -305,10 +299,27 @@ int main (int argc, char** argv){
 		CloseFrameGrabber(exp->fg);
 	}
 
+
+
+	printf("%s",TICTOC::timer().generateReportCstr());
+    if (!DispThreadHasStopped){
+	   printf("Waiting for DisplayThread to Stop...");
+
+    }
+	while (!DispThreadHasStopped){
+		printf(".");
+		Sleep(500);
+		cvWaitKey(10);
+	}
+
+
+
 	if (exp->stageIsPresent) ShutOffStage(exp);
 	VerifyProtocol(exp->p);
 	ReleaseExperiment(exp);
 	DestroyExperiment(&exp);
+
+
 
 
 	printf("\nMain Thread: Good bye.\n");
@@ -394,7 +405,19 @@ UINT Thread(LPVOID lpdwParam) {
 
 			if (HandleKeyStroke(key,exp)) {
 				printf("\n\nEscape key pressed!\n\n");
+
+				/** Let the Other thread know that the user wants to stop **/
 				UserWantsToStop=1;
+
+				/** Emergency Shut off the Stage **/
+				printf("Emergency stage shut off.");
+				if (exp->stageIsPresent) ShutOffStage(exp);
+
+				/** Exit the display thread immediately **/
+				DispThreadHasStopped=TRUE;
+				printf("\nDisplayThread: Goodbye!\n");
+				return 0;
+
 
 			}
 

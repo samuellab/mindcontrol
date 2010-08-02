@@ -1175,6 +1175,9 @@ int HandleKeyStroke(int c, Experiment* exp) {
 	switch (c) {
 	case 27:
 		printf("User has pressed escape!\n");
+		printf("Setting Stagge Tracking Variables to off");
+		exp->Params->stageTrackingOn=0;
+		exp->stageIsTurningOff=1;
 		return 1;
 		break;
 	case ' ': /** Turn on off dlp **/
@@ -1317,7 +1320,7 @@ int HandleKeyStroke(int c, Experiment* exp) {
 	case 8: /** Backspace key **/
 		exp->Params->stageTrackingOn=0;
 		exp->stageIsTurningOff=1;
-		printf("Emergency stage shutdown!!\n ======\nSTAGE IS OFF.\n======\n");
+		printf("Instructing stage to turn off..");
 		break;
 
 	default:
