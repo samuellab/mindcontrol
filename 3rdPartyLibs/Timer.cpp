@@ -12,6 +12,35 @@
 // Copyright (c) 2003 Song Ho Ahn
 //////////////////////////////////////////////////////////////////////////////
 
+
+// Note: Song Ho Ahn, grants permission to release this under the GPL. 
+// In email to Andrew Leifer dated: 4 August 2010:
+// Hi Andrew,
+// Thanks for visiting my web site and asking a permission to use my code.
+// 
+// All contents including source codes from my web pages are *license-free*. I
+// think it is legally okay to distribute it under GPL or any other license
+// term *if* you include the original creditor.
+// 
+// Regards.
+// ==song==
+
+
+All contents including source codes from my web pages are *license-free*. I
+think it is legally okay to distribute it under GPL or any other license
+term *if* you include the original creditor.
+
+Regards.
+==song==
+
+
+/*
+/*
+/*
+
+
+
+
 #include "Timer.h"
 #include <stdlib.h>
 
