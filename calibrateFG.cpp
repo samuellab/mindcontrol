@@ -285,7 +285,7 @@ void TakeBakgroundImage(CalibrationSession* c){
 	printf("Taking a background image. ");
 	T2DLP_clear(c->myDLP);
 	cvWaitKey(10);
-	AcquireFrame(C->fg);
+	AcquireFrame(c->fg);
 
 	/** Check that our image is properly sized **/
 	CheckFGSizeMatch(c->background->iplimg,c->fg);
