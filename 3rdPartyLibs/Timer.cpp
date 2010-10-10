@@ -26,19 +26,6 @@
 // ==song==
 
 
-All contents including source codes from my web pages are *license-free*. I
-think it is legally okay to distribute it under GPL or any other license
-term *if* you include the original creditor.
-
-Regards.
-==song==
-
-
-/*
-/*
-/*
-
-
 
 
 #include "Timer.h"
