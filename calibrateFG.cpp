@@ -51,6 +51,8 @@ typedef struct CalibrationSessionStruct {
 	Frame* fromCCD;
 	Frame* toDLP;
 	Frame* temp;
+	Frame* temp2;
+	Frame* background;
 
 	/** Internal Variables **/
 	CvPoint MinPoint;
@@ -100,6 +102,9 @@ CalibrationSession* CreateCalibrationSession(){
 	/*** Frames **/
 	c->fromCCD=NULL;
 	c->toDLP=NULL;
+	c->temp=NULL;
+	c->temp2=NULL;
+	c->background=NULL;
 
 	/** Internal Variables **/
 	c->MinPoint=cvPoint(0,0);
@@ -153,6 +158,8 @@ void InitializeCalibrationSession(CalibrationSession* c){
 	c->fromCCD=CreateFrame(c->Camsize);
 	c->toDLP=CreateFrame(c->DLPsize);
 	c->temp=CreateFrame(c->Camsize);
+	c->temp2=CreateFrame(c->Camsize);
+	c->background=CreateFrame(c->Camsize);
 
 	/** Calibration Data Sequences **/
 
@@ -209,9 +216,17 @@ void DrawCircleOnDLP(CvPoint center, CalibrationSession* c){
 }
 
 void AnalyzePointInFrame(CalibrationSession* c){
-	if (c->fromCCD==NULL || c->temp == NULL) printf("ERROR! c->fromCCD or c->temp are NULL!\n");
-	cvSmooth(c->fromCCD->iplimg, c->temp->iplimg, CV_GAUSSIAN, (c->gauss_radius) * 2
+	if (c->fromCCD==NULL || c->temp == NULL || c->temp2==NULL ) printf("ERROR! c->fromCCD, c->temp, or c->temp2 are NULL!\n");
+
+
+	/** Subtract background **/
+	cvSub(c->fromCCD->iplimg, c->background->iplimg,c->temp2->iplimg);
+
+	/** Apply Gaussian Smooth **/
+	cvSmooth(c->temp2->iplimg, c->temp->iplimg, CV_GAUSSIAN, (c->gauss_radius) * 2
 			+ 1, (c->gauss_radius) * 2 + 1);
+
+
 
 	//Find the pixel with the maximal intensity
 	cvMinMaxLoc(c->temp->iplimg, &(c->minvalue), &(c->maxvalue), &(c->MinPoint), &(c->MaxPoint),
@@ -261,6 +276,28 @@ void SendPt2DLPAndObserve(CvPoint pt, CalibrationSession* c ){
 
 }
 
+
+/*
+ * Takes the background image
+ */
+void TakeBakgroundImage(CalibrationSession* c){
+	/** Let's take a background image so that we can subtract it off **/
+	printf("Taking a background image. ");
+	T2DLP_clear(c->myDLP);
+	cvWaitKey(10);
+	AcquireFrame(C->fg);
+
+	/** Check that our image is properly sized **/
+	CheckFGSizeMatch(c->background->iplimg,c->fg);
+
+	/** Load the binary image data from the frame grabber into our background variable **/
+	LoadFrameWithBin(c->fg->HostBuf,c->background);
+	return;
+
+}
+
+
+
 void CalibrateAPoint(CvPoint pt, CalibrationSession* c){
 	int k;
 
@@ -282,6 +319,9 @@ void CalibrateAPoint(CvPoint pt, CalibrationSession* c){
 		cvShowImage("ToDLP",c->toDLP->iplimg);
 		cvShowImage("FromCamera",c->fromCCD->iplimg);
 		cvWaitKey(3);
+
+		/** Subtract Off the Background Image **
+
 
 		/** Is the Point Valid? **/
 		if ((c->maxvalue > ((c->rel_intensity_thresh) * c->stdev.val[0])
@@ -381,6 +421,8 @@ int main (int argc, char** argv){
 	}
 	T2DLP_clear(c->myDLP);
 
+	/** Let's take a background image so that we can subtract it off **/
+	TakeBakgroundImage(c);
 
 
 
