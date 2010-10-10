@@ -236,7 +236,7 @@ void AnalyzePointInFrame(CalibrationSession* c){
 	printf("x: %d, y: %d,\t value: %d \t mean: %f, stdev: %f\n",
 			c->MaxPoint.x, c->MaxPoint.y, (int) c->maxvalue, c->mean.val[0],
 					c->stdev.val[0]);
-	//Display the image
+
 
 }
 
@@ -320,7 +320,6 @@ void CalibrateAPoint(CvPoint pt, CalibrationSession* c){
 		cvShowImage("FromCamera",c->fromCCD->iplimg);
 		cvWaitKey(3);
 
-		/** Subtract Off the Background Image **
 
 
 		/** Is the Point Valid? **/
