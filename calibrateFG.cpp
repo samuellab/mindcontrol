@@ -298,8 +298,8 @@ void CalibrateAPoint(CvPoint pt, CalibrationSession* c){
 	pair.alpha=pt;
 	pair.beta= GetMedianOfPoints(Pts);
 
-	//If the median is not -1, -1, AND if the number of valid points is greater than half of the expected number of points
-	if ((pair.beta.x != -1 && pair.beta.y != -1) && Pts->total > c->LoopsPerPt / 2) {
+	//If both points in the are greater than zero AND if the number of valid points is greater than half of the expected number of points
+	if ((pair.beta.x >0 && pair.beta.y > 0) && Pts->total > c->LoopsPerPt / 2) {
 		cvSeqPush(c->CalibSeq, &pair);
 		printf("Median Found ( %d, %d )\n", pair.beta.x, pair.beta.y);
 	} else {
