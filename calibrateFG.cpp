@@ -114,9 +114,9 @@ CalibrationSession* CreateCalibrationSession(){
 
 	/** Circle properties **/
 	c->CircRadius=4;
-	c->gauss_radius=10;
-	c->rel_intensity_thresh=4;
-	c->minIntensityAboveMean=2;
+	c->gauss_radius=6;
+	c->rel_intensity_thresh=0;
+	c->minIntensityAboveMean=1;
 
 	/** Sizing Info **/
 	c->DLPsize=cvSize(0,0);
@@ -282,7 +282,7 @@ void SendPt2DLPAndObserve(CvPoint pt, CalibrationSession* c ){
  */
 void TakeBakgroundImage(CalibrationSession* c){
 	/** Let's take a background image so that we can subtract it off **/
-	printf("Taking a background image. ");
+	printf("\nTaking a background image. \n");
 	T2DLP_clear(c->myDLP);
 	cvWaitKey(10);
 	AcquireFrame(c->fg);
@@ -292,6 +292,7 @@ void TakeBakgroundImage(CalibrationSession* c){
 
 	/** Load the binary image data from the frame grabber into our background variable **/
 	LoadFrameWithBin(c->fg->HostBuf,c->background);
+	printf("\nBackground image acquried.\n");
 	return;
 
 }
@@ -403,6 +404,10 @@ int main (int argc, char** argv){
 
 
 
+	/** Let's take a background image so that we can subtract it off **/
+	TakeBakgroundImage(c);
+
+
 	/** Draw A circle on the DLP so we can focus on the camera **/
 	printf("Showing camera.\n Press any key to continue!\n");
 	while (!kbhit()){
@@ -419,9 +424,6 @@ int main (int argc, char** argv){
 
 	}
 	T2DLP_clear(c->myDLP);
-
-	/** Let's take a background image so that we can subtract it off **/
-	TakeBakgroundImage(c);
 
 
 
