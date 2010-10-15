@@ -1,3 +1,36 @@
+/*
+ * Copyright 2010 Andrew Leifer et al <leifer@fas.harvard.edu>
+ * This file is part of MindControl.
+ *
+ * MindControl is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU  General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MindControl s distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MindControl. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * For the most up to date version of this software, see:
+ * https://github.com/samuellab/mindcontrol
+ *
+ *
+ *
+ * NOTE: If you use any portion of this code in your research, kindly cite:
+ * Leifer, A.M., Fang-Yen, C., Gershow, M., Alkema, M., and Samuel A. D.T.,
+ * 	"Optogenetic manipulation of neural activity with high spatial resolution in
+ *	freely moving Caenorhabditis elegans," Nature Methods, Submitted (2010).
+ */
+
+/*
+ * This is a test program that performs some basic tests of the mindcontrol software.
+ * It is mostly useful for debugging.
+ */
+
 //Standard C headers
 #include <stdio.h>
 #include <ctime>
