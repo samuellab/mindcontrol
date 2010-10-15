@@ -178,46 +178,6 @@ void steerStageFromNumberPad(HANDLE s, int speed, int input){
 
 
 
-/*
-// ------------------------------------------------------------------------ //
-// GetRxLen() - If the parameter passed is zero this function simply returns
-// the available data in the USB IN buffer. Else this function waits for the
-// charactor given. This work's well for high level commands where a colon(:)
-// or linefeed (0x0A) is expected at the end of a incomming transmission.
-// For low level mode you should just poll for the length of data that your
-// command requires, because in low level command answers are fixed in length.
-DWORD GetRxLen(char c) {
-	struct _ReadLenStruct {
-		union {
-			ULONG DataLength;
-			char UserChar[sizeof(ULONG)];
-		};
-		ULONG FreeLength;
-		ULONG LFLength;
-		ULONG UserLength;
-	} ReadLen;
-	ULONG nBytes;
-	BOOLEAN Success;
-	while (1) {
-		ReadLen.UserChar[0] = c;
-		Success = DeviceIoControl(hUsb, IOCTL_LEPUSB_GET_READ_LENGTH, &ReadLen,
-				1, &ReadLen, sizeof(ReadLen), &nBytes, NULL);
-		if (!Success || (nBytes != sizeof(ReadLen))) {
-			printf("ERROR: Returned from DeviceIoControl.\n");
-			CloseHandle(hUsb);
-			exit(0);
-		}
-		if (ReadLen.UserLength || kbhit())
-			break;
-		if (!c)
-			break;
-	}
-	if (c)
-		return (ReadLen.UserLength);
-	else
-		return (ReadLen.DataLength);
-}
-*/
 
 
 // ------------------------------------------------------------------------ //

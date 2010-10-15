@@ -1,19 +1,44 @@
 /*
+ * Copyright 2010 Andrew Leifer et al <leifer@fas.harvard.edu>
+ * This file is part of MindControl.
+ *
+ * MindControl is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU  General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MindControl is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MindControl. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * For the most up to date version of this software, see:
+ * http://github.com/samuellab/mindcontrol
+ *
+ *
+ *
+ * NOTE: If you use any portion of this code in your research, kindly cite:
+ * Leifer, A.M., Fang-Yen, C., Gershow, M., Alkema, M., and Samuel A. D.T.,
+ * 	"Optogenetic manipulation of neural activity with high spatial resolution in
+ *	freely moving Caenorhabditis elegans," Nature Methods, Submitted (2010).
+ */
+
+/*
 Talk2DLP.cpp
 This is the first iteration of my interface to talk to the DLP.
 It utilizes the ALPbasic dll from vialux.
-It is roughly follows the sampel code in Console ALP-4.cpp
+It is roughly follows the sample code in Console ALP-4.cpp included with the
+ALPBasic software
 
 3 July 2009
 Andrew Leifer
 leifer@fas.harvard.edu
 */
 
-/*
- * When Compiling give the Linker this:
- *  ${COMMAND} ${FLAGS} ${OUTPUT_FLAG}${OUTPUT_PREFIX}${OUTPUT} ${INPUTS} "C:\Documents and Settings\Andy\workspace\Talk2DLP\lib\alp4basic.lib"
- *
- */
+
 
 #include <windows.h>
 #include <stdio.h>
