@@ -5,6 +5,11 @@
  *      Author: Andy
  */
 
+/*
+ * Note this is only valid for ImagingSource cameras. This has now been superseded
+ * by the file calibrateFG.cpp
+ *
+ */
 
 /*
  * This function is the part of the program that initializes the camera
