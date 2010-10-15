@@ -1,11 +1,92 @@
-#This is the makefile for the entire OpticalMindControl Project.
-#There are a number of executibles here. See the line marked Executables for a list of them all.
-# At the moment this includes: 
-#   CalibrateApparatus.exe -> Calibrates the position of the camera relative to the DLP. 
-#   ClosedLoop.exe   ->   Run's the Apparatus in a closed loop, imaging while projecting (formerly RunApparatus)
-#	VirtualMC.exe -> 	Same as ClosedLoop.exe except compiled without camera or DLP dependent libraries. 
-#						Thus it must be run in simulation mode.
+#
+# Copyright 2010 Andrew Leifer et al <leifer@fas.harvard.edu>
+# This file is part of MindControl.
+#
+# MindControl is free software: you can redistribute it and/or modify
+# it under the terms of the GNU  General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# MindControl is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with MindControl. If not, see <http://www.gnu.org/licenses/>.
+#
+# For the most up to date version of this software, see:
+# http://github.com/samuellab/mindcontrol
+# 
+#
+# 
+# NOTE: If you use any portion of this code in your research, kindly cite:
+#  Leifer, A.M., Fang-Yen, C., Gershow, M., Alkema, M., and Samuel A. D.T. 
+#	 "Optogenetic manipulation of neural activity with high spatial resolution in 
+#	 freely moving Caenorhabditis elegans," Nature Methods, Submitted (2010). 
+#
 
+#
+# This is the makefile for the entire OpticalMindControl Project.
+#
+# The makefile is a computer program in its own right. 
+# It's job is to compile the source code for different components of the 
+# MindControl  software suite for different hardware and computer environments.
+# 
+# The MindControl software consists mostly of two components: the Calibration Routines
+# and the main closed-loop component.
+#
+# The MindControl software is designed to work with a variety of different hardware and 
+# software components. These include two different camera systems, (the BitFlow frame grabber
+# system and the deprecated ImagingSource camera system), the OpenCV computer vision library
+# the numerical software package MATLAB, the ALP Basic VIALUX USB interface to the 
+# TexasInstruments DLP Digital Micromirror Device and other ancillary components such as 
+# the version control system `git` and the programming language `awk`.
+# For the MindControl software to  interface with any of these third party systems, 
+# it must acess third party static and dynamic libraries or executables both at compile 
+# time and often at runtime.  This makefile generates a variety of executables that 
+# use different subsets of these third party libraries components.
+# 
+#
+# This makefile creates a number of different executables:
+#
+# Deprecated:
+#  ClosedLoop.exe  		  -	Older version of the MindControl software designed to work 
+#							with the ImagingSource USB camera.
+#  CalibrateApparatus.exe - Older version of the calibration routine. Calibrates 
+#							the DLP and Camera for an ImagingSource camera.
+#
+# Current
+#  VirtualMC.exe 		  -	"Virtual MindControl" This is a stand-alone piece of software that simulates 
+#							the functionality of the MindControl suite for setups that have no camera or
+#							DLP hardware present. It requires having only the OpenCV libraries, 
+#							git, and awk. It can simulate a closed loop system by analyzing video of a 
+#							swimming worm from a file. 
+#
+#
+#  FG_DLP.exe			  - Run the closed-loop MindControl system using the BitFlow FrameGrabber and the DLP. 
+#
+#  calibrateFG_DLP.exe	  -	Calibrate the MindControl system using the BitFlow FrameGrabber and the DLP.
+#
+#
+#
+# There are four make targets in this makefile:
+# 	make all			  -	This assumes the presence of all libraries that the system has every worked with: 
+#							including OpenCV, git, awk, ImagingSource Libraries, MATLAB, BitFlow
+#							FrameGrabber libraries, and the DLP libraries
+#
+# 	make FGandDLP		  - This is the make target to use if you have the DLP and FrameGrabber installed. 
+#							it also requires OpenCV, git, awk and MATLAB. 
+#
+#	make farmegrabberonly - This is the make target to use if you have the BitFlow Framegrabber installed
+#							as well as OpenCV, git and awk, but not MATLAB, the DLP libraries or the 
+#							imagingsource librares.
+#	
+#	make virtual		  - This is the make target to use if you have no special hardware. It requires only 
+#							openCV, git and awk. 
+#
+#
+#
 #
 
 
@@ -23,7 +104,7 @@ MyLibs=MyLibs
 bfIncDir=$(3rdPartyLibs)/BitFlowSDK
 targetDir=bin
 CVdir=C:/Progra~1/OpenCV
-GIT=C:/Program\ Files/Git/bin/git
+GIT=C:/Program\ Files/Git/bin/git #version control system
 
 #Matlab Include directory for header files
 MatlabIncDir= C:/Progra~1/MATLAB/R2009a/extern/include
@@ -193,15 +274,7 @@ $(targetDir)/calibrateFG_DLP.exe : calibrateFG_DLP.o Talk2FrameGrabber.o $(BFObj
 calibrateFG_DLP.o : calibrateFG.cpp 
 	$(CXX) $(CXXFLAGS) calibrateFG.cpp -ocalibrateFG_DLP.o -I$(MyLibs) -I$(bfIncDir) -I$(MatlabIncDir) $(openCVincludes) $(TailOpts)
 
-#
-##Calibrate FG and Stage
-#calibrateStageObjs= calibratestage.o Talk2Stage.o Talk2FrameGrabber.o $(BFObj) AndysOpenCVLib.o AndysComputations.o $(LinkerWinAPILibObj)
-#
-#$(targetDir)/calibrateStage.exe : $(calibrateStageObjs)
-#	$(CXX) -o $(targetDir)/calibrateStage.exe $(calibrateStageObjs)
-#	
-#calibrateStage.o : calibrateStage.c 
-#	$(CXX) $(CXXFLAGS) calibrateStage.c -ocalibrateFG_DLP.o -I$(MyLibs) -I$(bfIncDir)  $(openCVincludes) $(TailOpts)
+.c -ocalibrateFG_DLP.o -I$(MyLibs) -I$(bfIncDir)  $(openCVincludes) $(TailOpts)
 
 ## framegrabberonly FGMindControl.exe
 $(targetDir)/FGMindControl.exe : FGMindControl.o DontTalk2DLP.o DontTalk2Camera.o Talk2FrameGrabber.o Talk2Stage.o  $(hw_ind) 
@@ -241,7 +314,7 @@ clean:
 	rm -rf *.o 
 	
 	
-#File List
+#Partial File List
 #### DLP
 
 #OpenCV Libraries have to be available on the environment path.
