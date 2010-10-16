@@ -36,7 +36,7 @@ With the exception of certain libraries in the `3rdPartyLibs/` folder, all of Mi
 How to Cite
 -----------
 
-If you use any portion of this code or software in your research, please site:
+If you use any portion of this code or software in your research, please cite:
 
 > Leifer, A.M., Fang-Yen, C., Gershow, M., Alkema, M., Samuel, A.D.T., "Optogenetic manipulation of neural activity with high spatial resolution in freely moving Caenorhabditis elegans," Nature Methods, Submitted (2010).
 
