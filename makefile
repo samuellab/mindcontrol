@@ -274,7 +274,6 @@ $(targetDir)/calibrateFG_DLP.exe : calibrateFG_DLP.o Talk2FrameGrabber.o $(BFObj
 calibrateFG_DLP.o : calibrateFG.cpp 
 	$(CXX) $(CXXFLAGS) calibrateFG.cpp -ocalibrateFG_DLP.o -I$(MyLibs) -I$(bfIncDir) -I$(MatlabIncDir) $(openCVincludes) $(TailOpts)
 
-.c -ocalibrateFG_DLP.o -I$(MyLibs) -I$(bfIncDir)  $(openCVincludes) $(TailOpts)
 
 ## framegrabberonly FGMindControl.exe
 $(targetDir)/FGMindControl.exe : FGMindControl.o DontTalk2DLP.o DontTalk2Camera.o Talk2FrameGrabber.o Talk2Stage.o  $(hw_ind) 
