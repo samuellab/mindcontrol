@@ -46,7 +46,9 @@ The software has different requirements depending on whether you plan to compile
 
 Quick Start
 ------------------
-The quickest way to get a feel for the software is to run the VritualMC.exe pre-built executable which is packaged in a zip file and availabe for download at https://github.com/downloads/samuellab/mindcontrol/MindControlDEMO.zip/qr_code VirtualMC.exe will run on any Windows XP system and requires only the OpenCV 1.1 run-time libraries  which are bundled in the zip file. Follow the README included in the zip.
+The quickest way to get a feel for the software is to run the VritualMC.exe pre-built executable which is packaged in a zip file and availabe for download at [http://github.com/downloads/samuellab/mindcontrol/MindControlDEMO.zip/qr_code][mc] VirtualMC.exe will run on any Windows XP system and requires only the OpenCV 1.1 run-time libraries  which are bundled in the zip file. Follow the README included in the zip.
+
+[mc]: http://github.com/downloads/samuellab/mindcontrol/MindControlDEMO.zip/qr_code
 
 Compiling Your Own Binaries
 ---------------------------
