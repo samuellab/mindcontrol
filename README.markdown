@@ -44,9 +44,9 @@ Requirements
 ============
 The software has different requirements depending on whether you plan to compile the code, or run an existing pre-compiled binary. Moreover, there are different compile targets and executables for different hardware environments. 
 
-Pre-Built Binaries	
+Quick Start
 ------------------
-The quickest way to get a feel for the software is to run the VritualMC.exe pre-built executable which is packaged in an installer in the the download sections at http://github.com/samuellab/MindControl The VirtualMC.exe executable simulates camera input and micromirror output. VirtualMC.exe will run on any Windows XP system and requires only the OpenCV 1.1 run-time libraries  which are included with the provided installer. 
+The quickest way to get a feel for the software is to run the VritualMC.exe pre-built executable which is packaged in a zip file and availabe for download at https://github.com/downloads/samuellab/mindcontrol/MindControlDEMO.zip/qr_code VirtualMC.exe will run on any Windows XP system and requires only the OpenCV 1.1 run-time libraries  which are bundled in the zip file. Follow the README included in the zip.
 
 Compiling Your Own Binaries
 ---------------------------
