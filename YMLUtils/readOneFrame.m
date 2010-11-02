@@ -44,7 +44,16 @@ while ~isEndOfFrame(tline)
                 [mcdf.IllumInvert tline]=getVal(fid,tline);
             case 'IllumFlipLR'
                 [mcdf.IllumFlipLR tline]=getVal(fid,tline);
-                
+            case 'IllumRectOrigin'
+                [mcdf.IllumRectOrigin tline]=getxy(fid,tline);
+            case 'IllumRectRadius'
+                [mcdf.IllumRectRadius tline]=getxy(fid,tline);
+            case 'StageVelocity'
+                [mcdf.StageVelocity tline]=getij(fid,tline);     
+            case 'ProtocolIsOn'
+                [mcdf.ProtocolIsOn tline]=getVal(fid,tline)
+            case 'ProtocolStep'
+                [mcdf.ProtocolStep tline]=getVal(fid,tline)
             otherwise
                 disp(['fname matched nothing: ',fname])
                 tline=fgets(fid);
@@ -155,9 +164,33 @@ else
 end
 end
 
-function ij = getij(fid,tline)
-end
+function [ij tline] = getij(fid,tline)
+% Get the ij values from a field that has two subfields, x & y
 
+%The current line should be a field with no values, only children
+if ~isFieldWithValue(tline)
+    %Advance to the next line
+    tline=fgets(fid);
+    fname= getField(tline);
+    while strcmp(fname,'i') || strcmp(fname,'j')
+        switch fname
+            case 'i'
+                [ij(1) tline]=getVal(fid,tline);
+                fname= getField(tline);
+            case 'j'
+                [ij(2) tline]=getVal(fid, tline);
+                fname= getField(tline);
+                
+        end
+    end
+    
+    
+    
+else
+    %Something was wrong
+    xy=NaN;
+end
+end
 
 function [data tline]=getCVseq(fid,tline)
 %Parce the CV Sequence and advanced the line feed
