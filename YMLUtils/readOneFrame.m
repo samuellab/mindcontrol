@@ -10,7 +10,7 @@ function mcdf=readOneFrame(fid)
 % 2 November 2010
 
 % Read the line after the dash.. this should be a field
-tline = fgets(fid); 
+tline = fgets(fid);
 mcdf=MCD_FRAME;
 
 sElapsed=[];
@@ -30,6 +30,21 @@ while ~isEndOfFrame(tline)
                 [mcdf.Head tline]=getxy(fid,tline);
             case 'Tail'
                 [mcdf.Tail tline]=getxy(fid,tline);
+            case 'BoundaryA'
+                [mcdf.BoundaryA tline]=getCVseq(fid,tline); 
+            case 'BoundaryB'
+                [mcdf.BoundaryB tline]=getCVseq(fid,tline);
+            case 'SegmentedCenterline'
+                [mcdf.SegmentedCenterline tline]=getCVseq(fid,tline); 
+            case 'DLPIsOn'
+                [mcdf.DLPisOn tline]=getVal(fid,tline);
+            case 'FloodLightIsOn'
+                [mcdf.FloodLightIsOn tline]=getVal(fid,tline);
+            case 'IllumInvert'
+                [mcdf.IllumInvert tline]=getVal(fid,tline);
+            case 'IllumFlipLR'
+                [mcdf.IllumFlipLR tline]=getVal(fid,tline);
+                
             otherwise
                 disp(['fname matched nothing: ',fname])
                 tline=fgets(fid);
@@ -72,11 +87,11 @@ function ret=isField(str)
 %
 % If no field is present it returns 0
 % If a field is present it returns 1
- if regexp(str,'^[ \t\r\n\v\f]*[a-z,A-Z]*:[ \t\r\n\v\f]')
-     ret=1;
- else
-     ret=0;
- end
+if regexp(str,'^[ \t\r\n\v\f]*[a-z,A-Z]*:[ \t\r\n\v\f]')
+    ret=1;
+else
+    ret=0;
+end
 
 end
 
@@ -110,7 +125,7 @@ else
     val=NaN;
 end
 tline=fgets(fid);
-end    
+end
 
 function [xy tline] = getxy(fid,tline)
 % Get the xy values from a field that has two subfields, x & y
@@ -122,27 +137,84 @@ if ~isFieldWithValue(tline)
     fname= getField(tline);
     while strcmp(fname,'x') || strcmp(fname,'y')
         switch fname
-          case 'x'
-            [xy(1) tline]=getVal(fid,tline);
-            fname= getField(tline);
-          case 'y'
-            [xy(2) tline]=getVal(fid, tline);
-            fname= getField(tline);
-
+            case 'x'
+                [xy(1) tline]=getVal(fid,tline);
+                fname= getField(tline);
+            case 'y'
+                [xy(2) tline]=getVal(fid, tline);
+                fname= getField(tline);
+                
         end
     end
-            
-      
+    
+    
     
 else
-	%Something was wrong
+    %Something was wrong
     xy=NaN;
-    end
+end
 end
 
 function ij = getij(fid,tline)
 end
 
 
-function data=parseCVseq(fid)
+function [data tline]=getCVseq(fid,tline)
+%Parce the CV Sequence and advanced the line feed
+data=NaN;
+stillInStruct=1;
+
+%Advance to the next line
+tline=fgets(fid);
+
+
+if isField(tline)
+    %parse fieldname
+    fname=getField(tline);
+    
+    %While we are reading fields within the struct.. keep going
+    while strcmp(fname,'data')||strcmp(fname,'dt')||strcmp(fname,'count')||strcmp(fname,'flags')
+        %If we hit the data part
+        if strcmp(fname,'data')
+            %Read in the first line of the data
+            data=  parseIntDataStr(tline);
+            %And advance a line
+            tline=fgets(fid);
+            
+            %while we haven't bumped into another field
+            while ~isField(tline)
+                %read in the additional lines of data
+                data= [data parseIntDataStr(tline)];
+                tline=fgets(fid);
+            end
+            %Now that we've bumped into the next field, lets see what field
+            %it is
+            fname=getField(tline);
+            %and continue looping
+            
+        else
+            %Advance to the next line
+            tline=fgets(fid);
+            if isField(tline)
+                %parse fieldname
+                fname=getField(tline);
+            end
+            
+            
+        end
+        
+    end
+    
+end
+
+
+end
+
+function vec=parseIntDataStr(str)
+%Parses a string containing a bunch of integers delimited in some way
+ind=regexp(str,'[0-9]*');
+for n=1:length(ind)
+    vec(n)=sscanf(str(ind(n):end),'%d');
+end
+
 end
