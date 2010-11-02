@@ -51,9 +51,9 @@ while ~isEndOfFrame(tline)
             case 'StageVelocity'
                 [mcdf.StageVelocity tline]=getij(fid,tline);     
             case 'ProtocolIsOn'
-                [mcdf.ProtocolIsOn tline]=getVal(fid,tline)
+                [mcdf.ProtocolIsOn tline]=getVal(fid,tline);
             case 'ProtocolStep'
-                [mcdf.ProtocolStep tline]=getVal(fid,tline)
+                [mcdf.ProtocolStep tline]=getVal(fid,tline);
             otherwise
                 disp(['fname matched nothing: ',fname])
                 tline=fgets(fid);
@@ -72,7 +72,6 @@ while ~isEndOfFrame(tline)
 end
 
 mcdf.TimeElapsed=sElapsed+.001*msRemElapsed;
-disp('Done')
 end
 
 function ret=isEndOfFrame(tline)
@@ -82,12 +81,12 @@ function ret=isEndOfFrame(tline)
 ret=0;
 if ~ischar(tline)
     ret=1;
-end
+else 
 
-if regexp(tline,'^[ \t\r\n\v\f]*-[ \t\r\n\v\f]*$')
-    ret=1;
+    if regexp(tline,'^[ \t\r\n\v\f]*-[ \t\r\n\v\f]*$')
+        ret=1;
+    end
 end
-
 end
 
 function ret=isField(str)
