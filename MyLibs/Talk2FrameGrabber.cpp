@@ -223,6 +223,8 @@ int PrepareFrameGrabberForAcquire(FrameGrabber* fg){
 		// enable fifo interrupts
 		CiConInt(fg->hBoard, CiIntTypeFIFO, CiConEnable);
 
+		printf("Prepare frame grabber for acquire completed.");
+
 		return 1;
 
 }
