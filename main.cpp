@@ -186,12 +186,21 @@ int main (int argc, char** argv){
 			exp->e=0;
 			TICTOC::timer().tic("GrabFrame()");
 			/** Grab a frame **/
-			if (GrabFrame(exp)<0){
+			int ret=0;
+			ret=GrabFrame(exp);
+			TICTOC::timer().toc("GrabFrame()");
+
+			if (ret==EXP_VIDEO_RAN_OUT){
 				VideoRanOut=1;
 				printf("Video ran out!\n");
 				break;
 			}
-			TICTOC::timer().toc("GrabFrame()");
+
+			if (ret==EXP_ERROR){
+				/** Loop again to try to get another frame **/
+				if (UserWantsToStop) break;
+				continue;
+			}
 
 
 			/** Calculate the frame rate and every second print the result **/

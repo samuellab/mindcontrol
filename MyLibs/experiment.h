@@ -67,6 +67,9 @@
 #endif
 
 
+#define EXP_ERROR -1
+#define EXP_SUCCESS 0
+#define EXP_VIDEO_RAN_OUT 1
 
 typedef struct ExperimentStruct{
 	/** Simulation? True/false **/

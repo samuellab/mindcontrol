@@ -42,6 +42,8 @@
 #include	"BFErApi.h"
 #include	"DSApi.h"
 
+#define T2FG_ERROR -1
+#define T2FG_SUCCESS 0
 
 /*
  * Thread to update the video display

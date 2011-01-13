@@ -255,10 +255,11 @@ int AcquireFrame(FrameGrabber* fg){
 					printf("Error in AcquireFrame()\n");
 					//BFErrorShow(fg->hBoard);
 					fg->keeplooping++;
+					return T2FG_ERROR;
 
 				}
 			}
-	return 1;
+	return T2FG_SUCCESS;
 }
 
 
