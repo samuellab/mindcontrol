@@ -236,25 +236,9 @@ int PrepareFrameGrabberForAcquire(FrameGrabber* fg){
  */
 int AcquireFrame(FrameGrabber* fg){
 	if (CiAqCommand(fg->hBoard, CiConSnap, CiConWait, CiQTabBank0, AqEngJ)) {
-				// check for overflow
 
-				BFU32 Overflow;
-				CiAqOverflowCheck(fg->hBoard, (int *) &Overflow);
+					printf("Error in AcquireFrame().\n");
 
-
-				if (Overflow) {
-						printf("Framgrabber overflow occurred.\n");
-					if (CiAqCommand(fg->hBoard, CiConReset, CiConWait, CiQTabBank0,
-							AqEngJ)) {
-							printf("Board reset failed.\n");
-						fg->keeplooping++;
-					} else {
-						fg->overflowcount++;
-					}
-				} else {
-					printf("Error in AcquireFrame()\n");
-					//BFErrorShow(fg->hBoard);
-					fg->keeplooping++;
 					return T2FG_ERROR;
 
 				}
