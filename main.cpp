@@ -198,6 +198,7 @@ int main (int argc, char** argv){
 
 			if (ret==EXP_ERROR){
 				/** Loop again to try to get another frame **/
+				printf("Trying again to grab a frame...\n");
 				if (UserWantsToStop) break;
 				continue;
 			}
