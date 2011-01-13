@@ -241,7 +241,7 @@ int AcquireFrame(FrameGrabber* fg){
 
 					return T2FG_ERROR;
 
-				}
+
 			}
 	return T2FG_SUCCESS;
 }
