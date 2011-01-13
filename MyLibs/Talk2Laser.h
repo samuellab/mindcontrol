@@ -58,14 +58,12 @@ int IsLaserSoftwareAvailable()
 
 
 
-
 /*
  *  Find out what the current laser power is for the blue laser.
  *  Note that this is in arbitrary units. A calibration curve is required.
  *
  */
 int GetBlueLaserPower();
-
 
 /*
  *  Find out what the current laser power is for the green laser.

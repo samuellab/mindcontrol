@@ -22,8 +22,8 @@
  *
  * NOTE: If you use any portion of this code in your research, kindly cite:
  * Leifer, A.M., Fang-Yen, C., Gershow, M., Alkema, M., and Samuel A. D.T.,
- * 	"Optogenetic manipulation of neural activity with high spatial resolution in
- *	freely moving Caenorhabditis elegans," Nature Methods, Submitted (2010).
+ * 	"Optogenetic manipulation of neural activity  in
+ *	freely moving Caenorhabditis elegans," Nature Methods, Submitted (2011).
  */
 
 

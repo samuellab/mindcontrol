@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Andrew Leifer et al <leifer@fas.harvard.edu>
+ * Copyright 2010 Andrew Leifer  <leifer@fas.harvard.edu>
  * This file is part of MindControl.
  *
  * MindControl is free software: you can redistribute it and/or modify
@@ -21,9 +21,9 @@
  *
  *
  * NOTE: If you use any portion of this code in your research, kindly cite:
- * Leifer, A.M., Fang-Yen, C., Gershow, M., Alkema, M., and Samuel A. D.T.,
- * 	"Optogenetic manipulation of neural activity with high spatial resolution in
- *	freely moving Caenorhabditis elegans," Nature Methods, Submitted (2010).
+ * Leifer, A.M., Fang-Yen, C., Gershow, M., Alkema, M. J., and Samuel A. D.T.,
+ * 	"Optogenetic manipulation of neural activity  in freely moving
+ *   Caenorhabditis elegans," Nature Methods, in press, (2011).
  */
 
 /*
