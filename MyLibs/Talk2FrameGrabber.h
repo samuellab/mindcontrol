@@ -117,6 +117,16 @@ int PrepareFrameGrabberForAcquire(FrameGrabber* fg);
 
 
 /*
+ * Set the acquisition timeout time, t, in ms.
+ *
+ * This must be greater than the exposure time, or all of your exposures will timeout.
+ * If this number is too high, then when the camera has an error, it will hang your program for a long time.
+ *
+ */
+int setAcquisitionTimeout(FrameGrabber* fg, int t);
+
+
+/*
  * The acquired frame is plopped into fg->Hostbuf
  */
 int AcquireFrame(FrameGrabber* fg);

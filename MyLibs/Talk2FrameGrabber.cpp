@@ -226,9 +226,7 @@ int PrepareFrameGrabberForAcquire(FrameGrabber* fg){
 
 		// Set the timout to be very short
 		printf("Setting acquisition timeout time.\n");
-		PBFCNF* pCam;
-		CiBrdAqTimeoutSet(fg->hBoard,(BFU32) 4);
-
+		setAcquisitionTimeout(fg, 4);
 
 
 		printf("Prepare frame grabber for acquire completed.");
@@ -237,6 +235,25 @@ int PrepareFrameGrabberForAcquire(FrameGrabber* fg){
 
 }
 
+/*
+ * Set the acquisition timeout time, t, in ms.
+ *
+ * This must be greater than the exposure time, or all of your exposures will timeout.
+ * If this number is too high, then when the camera has an error, it will hang your program for a long time.
+ *
+ */
+int setAcquisitionTimeout(FrameGrabber* fg, int t){
+	// Set the timout to be very short
+	printf("Setting acquisition timeout time...");
+	if (CiBrdAqTimeoutSet(fg->hBoard,(BFU32) t)==CI_OK){
+		printf("OK!\n");
+		return T2FG_SUCCESS;
+	} else{
+		printf("ERROR!\n");
+		T2FG_ERROR;
+	}
+
+}
 
 
 /*
