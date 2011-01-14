@@ -890,7 +890,9 @@ int GrabFrame(Experiment* exp) {
 		/** Acquire from Physical Camera **/
 		if (exp->UseFrameGrabber) {
 			/** Use BitFlow SDK to acquire from Frame Grabber **/
-			AcquireFrame(exp->fg);
+			if (AcquireFrame(exp->fg)==T2FG_ERROR){
+				return EXP_ERROR;
+			}
 
 			/** Check to see if file sizes match **/
 
@@ -920,7 +922,7 @@ int GrabFrame(Experiment* exp) {
 
 		if (tempImg == NULL) {
 			printf("There was an error querying the frame from video!\n");
-			return -1;
+			return EXP_VIDEO_RAN_OUT;
 		}
 
 		/** Create a new temp image that is grayscale and of the same size **/
@@ -942,7 +944,7 @@ int GrabFrame(Experiment* exp) {
 	}
 
 	exp->Worm->frameNum++;
-	return 0;
+	return EXP_SUCCESS;
 }
 
 /*

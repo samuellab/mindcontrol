@@ -1,5 +1,3 @@
 *.o 
 *.exe
 version.c
-.cproject
-.project

@@ -431,6 +431,9 @@ int main (int argc, char** argv){
 	/** Start Camera **/
 	c->fg= TurnOnFrameGrabber();
 
+	/** Set the acquisition timeout to be very long to give the camera time to take long exposures, as is typical with calibration **/
+	setAcquisitionTimeout(c->fg,200);
+
 	/** Prepare DLP ***/
 	c->myDLP= T2DLP_on();
 

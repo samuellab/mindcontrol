@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Andrew Leifer et al <leifer@fas.harvard.edu>
+ * Copyright 2010 Andrew Leifer  <leifer@fas.harvard.edu>
  * This file is part of MindControl.
  *
  * MindControl is free software: you can redistribute it and/or modify
@@ -21,9 +21,9 @@
  *
  *
  * NOTE: If you use any portion of this code in your research, kindly cite:
- * Leifer, A.M., Fang-Yen, C., Gershow, M., Alkema, M., and Samuel A. D.T.,
- * 	"Optogenetic manipulation of neural activity with high spatial resolution in
- *	freely moving Caenorhabditis elegans," Nature Methods, Submitted (2010).
+ * Leifer, A.M., Fang-Yen, C., Gershow, M., Alkema, M. J., and Samuel A. D.T.,
+ * 	"Optogenetic manipulation of neural activity  in freely moving
+ *   Caenorhabditis elegans," Nature Methods, in press, (2011).
  */
 
 /*
@@ -42,6 +42,8 @@
 #include	"BFErApi.h"
 #include	"DSApi.h"
 
+#define T2FG_ERROR -1
+#define T2FG_SUCCESS 0
 
 /*
  * Thread to update the video display
@@ -112,6 +114,16 @@ int InitializeFrameGrabber(FrameGrabber* fg);
 int FrameGrabberSetRegionOfInterest(FrameGrabber* fg,int xoff, int yoff,int xsize,int ysize);
 
 int PrepareFrameGrabberForAcquire(FrameGrabber* fg);
+
+
+/*
+ * Set the acquisition timeout time, t, in ms.
+ *
+ * This must be greater than the exposure time, or all of your exposures will timeout.
+ * If this number is too high, then when the camera has an error, it will hang your program for a long time.
+ *
+ */
+int setAcquisitionTimeout(FrameGrabber* fg, int t);
 
 
 /*

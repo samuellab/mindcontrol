@@ -223,40 +223,76 @@ int PrepareFrameGrabberForAcquire(FrameGrabber* fg){
 		// enable fifo interrupts
 		CiConInt(fg->hBoard, CiIntTypeFIFO, CiConEnable);
 
+
+		// Set the timout to be very short
+		printf("Setting acquisition timeout time.\n");
+		setAcquisitionTimeout(fg, 4);
+
+
+		printf("Prepare frame grabber for acquire completed.");
+
 		return 1;
 
 }
 
+/*
+ * Set the acquisition timeout time, t, in ms.
+ *
+ * This must be greater than the exposure time, or all of your exposures will timeout.
+ * If this number is too high, then when the camera has an error, it will hang your program for a long time.
+ *
+ */
+int setAcquisitionTimeout(FrameGrabber* fg, int t){
+	// Set the timout to be very short
+	printf("Setting acquisition timeout time...");
+	if (CiBrdAqTimeoutSet(fg->hBoard,(BFU32) t)==CI_OK){
+		printf("OK!\n");
+		return T2FG_SUCCESS;
+	} else{
+		printf("ERROR!\n");
+		T2FG_ERROR;
+	}
+
+}
 
 
 /*
  * The acquired frame is plopped into fg->Hostbuf
  */
 int AcquireFrame(FrameGrabber* fg){
-	if (CiAqCommand(fg->hBoard, CiConSnap, CiConWait, CiQTabBank0, AqEngJ)) {
+	BFRC ret=CiAqCommand(fg->hBoard, CiConSnap, CiConWait, CiQTabBank0, AqEngJ);
+	if (ret!=CI_OK) {
 				// check for overflow
-
-				BFU32 Overflow;
-				CiAqOverflowCheck(fg->hBoard, (int *) &Overflow);
-
-
-				if (Overflow) {
-						printf("Framgrabber overflow occurred.\n");
-					if (CiAqCommand(fg->hBoard, CiConReset, CiConWait, CiQTabBank0,
-							AqEngJ)) {
+				printf("Acquire command failed.\n");
+				//BiErrorShow(fg->hBoard, ret);
+				if (CiAqCommand(fg->hBoard, CiConReset, CiConWait, CiQTabBank0, AqEngJ)) {
 							printf("Board reset failed.\n");
-						fg->keeplooping++;
-					} else {
-						fg->overflowcount++;
-					}
-				} else {
-					printf("Error in AcquireFrame()\n");
-					//BFErrorShow(fg->hBoard);
-					fg->keeplooping++;
+							} else {
+								printf("Board reset successfully!\n");
+							}
+//
+//				BFU32 Overflow;
+//				CiAqOverflowCheck(fg->hBoard, (int *) &Overflow);
+//
+//
+//				if (Overflow) {
+//						printf("Framgrabber overflow occurred.\n");
+//					if (CiAqCommand(fg->hBoard, CiConReset, CiConWait, CiQTabBank0,
+//							AqEngJ)) {
+//							printf("Board reset failed.\n");
+//						fg->keeplooping++;
+//					} else {
+//						printf("Board reset!\n");
+//						fg->overflowcount++;
+//					}
+//				} else {
+//					printf("Error in AcquireFrame().\n");
 
-				}
+					return T2FG_ERROR;
+
+//				}
 			}
-	return 1;
+	return T2FG_SUCCESS;
 }
 
 

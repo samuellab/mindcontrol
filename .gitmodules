@@ -1,0 +1,3 @@
+[submodule "AccessUtils/MATLAB"]
+	path = AccessUtils/MATLAB
+	url = git@github.com:samuellab/MindControlAccessUtils.git
