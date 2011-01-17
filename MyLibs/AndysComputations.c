@@ -52,9 +52,9 @@
 
 
 /*
- * Calculates the distance between two points on a ciruclar boundar
+ * Calculates the distance between two points on a ciruclar boundary
  * with total points PtsOnBound for two points with zero-indexed indices
- * IndexA and IndexB
+ * IndexA and IndexB.
  *
  */
 int DistBetPtsOnCircBound(int PtsOnBound, int IndexA, int IndexB){
@@ -70,7 +70,7 @@ int DistBetPtsOnCircBound(int PtsOnBound, int IndexA, int IndexB){
 
 /*
  * This is a wrapper for the modulo function.
- * Every time  framenumber is divisible by HowOftne with no remainder
+ * Every time frameNum is divisible by HowOften with no remainder
  * the function returnst true (1).
  * Otherwise it returns false (0).
  *
@@ -101,7 +101,7 @@ unsigned long msElapsed(clock_t start, clock_t end){
 
 
 /*
- * takes a clock_t type and returns an integer with the number of seconds
+ * Takes a clock_t type and returns an integer with the number of seconds
  * For the reamining milliseconds use GetMilliseconds
  *
  */
@@ -111,7 +111,7 @@ int GetSeconds(clock_t time){
 }
 
 /*
- * takes a clock_t type and returns the remaining number of ms
+ * Takes a clock_t type and returns the remaining number of ms
  * since GetSeconds();
  *
  *
@@ -143,7 +143,7 @@ void Toggle(int* x){
 }
 
 /*
- * Safely decrement an integer value, as long as the result will not be less than min
+ * Safely decrement an integer value, as long as the result will not be less than min.
  */
 void Decrement(int* x, int min){
 	if ((*x) >min) (*x)--;
@@ -151,7 +151,7 @@ void Decrement(int* x, int min){
 }
 
 /*
- * Safely increment an integer value as long as the result will not be grater than max
+ * Safely increment an integer value as long as the result will not be grater than max.
  */
 void Increment (int* x, int max){
 	if ((*x) < max) (*x)++;
